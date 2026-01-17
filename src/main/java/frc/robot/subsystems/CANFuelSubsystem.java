@@ -10,6 +10,8 @@ import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import frc.robot.LimelightHelpers;
+import frc.robot.LimelightHelpers.RawFiducial;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 
@@ -31,6 +33,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   private static final String KEY_LAUNCH_FEEDER = "Launching feeder roller value";
   private static final String KEY_LAUNCH_LAUNCHER = "Launching launcher roller value";
   private static final String KEY_SPINUP_FEEDER = "Spin-up feeder roller value";
+  private static final String KEY_AUTO_VELOCITY = "Use Auto Velocity";
 
   private final SparkMax feederRoller;
   private final SparkMax intakeLauncherRoller;
@@ -44,6 +47,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber(KEY_LAUNCH_FEEDER, LAUNCHING_FEEDER_VOLTAGE);
     SmartDashboard.putNumber(KEY_LAUNCH_LAUNCHER, LAUNCHING_LAUNCHER_VOLTAGE);
     SmartDashboard.putNumber(KEY_SPINUP_FEEDER, SPIN_UP_FEEDER_VOLTAGE);
+    SmartDashboard.putBoolean(KEY_AUTO_VELOCITY, true);
   }
 
   private SparkMax createFeederMotor() {
@@ -82,15 +86,44 @@ public class CANFuelSubsystem extends SubsystemBase {
   public void launch() {
     feederRoller.setVoltage(
         SmartDashboard.getNumber(KEY_LAUNCH_FEEDER, LAUNCHING_FEEDER_VOLTAGE));
-    intakeLauncherRoller.setVoltage(SmartDashboard.getNumber(
-        KEY_LAUNCH_LAUNCHER, LAUNCHING_LAUNCHER_VOLTAGE));
+    intakeLauncherRoller.setVoltage(getLauncherVoltage());
   }
 
   public void spinUp() {
     feederRoller.setVoltage(SmartDashboard.getNumber(
         KEY_SPINUP_FEEDER, SPIN_UP_FEEDER_VOLTAGE));
-    intakeLauncherRoller.setVoltage(SmartDashboard.getNumber(
-        KEY_LAUNCH_LAUNCHER, LAUNCHING_LAUNCHER_VOLTAGE));
+    intakeLauncherRoller.setVoltage(getLauncherVoltage());
+  }
+
+  private double getLauncherVoltage() {
+    boolean autoVelocity = SmartDashboard.getBoolean(KEY_AUTO_VELOCITY, true);
+    if (autoVelocity) {
+      double dist = getDistanceToValidTag();
+      if (!Double.isNaN(dist)) {
+        return getLauncherVoltageFromDistance(dist);
+      }
+    }
+    return SmartDashboard.getNumber(KEY_LAUNCH_LAUNCHER, LAUNCHING_LAUNCHER_VOLTAGE);
+  }
+
+  private double getDistanceToValidTag() {
+    RawFiducial[] fiducials = LimelightHelpers.getRawFiducials(Constants.LIMELIGHT_NAME);
+    for (RawFiducial fid : fiducials) {
+      if (Constants.RED_HUB_TAGS.contains(fid.id) || Constants.BLUE_HUB_TAGS.contains(fid.id)) {
+        return fid.distToRobot;
+      }
+    }
+    return Double.NaN;
+  }
+
+  private double getLauncherVoltageFromDistance(double distanceMeters) {
+    if (distanceMeters < 1.0) {
+      return 9.0;
+    }
+    if (distanceMeters > 5.0) {
+      return 12.0;
+    }
+    return 9.0 + (distanceMeters - 1.0) * (3.0 / 4.0);
   }
 
   public void stop() {
