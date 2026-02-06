@@ -104,11 +104,6 @@ public class RobotContainer {
 
         drivetrain.registerTelemetry(logger::telemeterize);
 
-        SmartDashboard.putData("Intake Quasistatic F", intake.sysIdQuasistaticForward());
-        SmartDashboard.putData("Intake Quasistatic R", intake.sysIdQuasistaticReverse());
-        SmartDashboard.putData("Intake Dynamic F", intake.sysIdDynamicForward());
-        SmartDashboard.putData("Intake Dynamic R", intake.sysIdDynamicReverse());
-
         SmartDashboard.putData("Climb Quasistatic F", climb.sysIdQuasistaticForward());
         SmartDashboard.putData("Climb Quasistatic R", climb.sysIdQuasistaticReverse());
         SmartDashboard.putData("Climb Dynamic F", climb.sysIdDynamicForward());

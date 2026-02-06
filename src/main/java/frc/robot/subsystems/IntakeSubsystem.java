@@ -1,25 +1,35 @@
 package frc.robot.subsystems;
 
-import com.ctre.phoenix6.controls.VoltageOut;
-import com.ctre.phoenix6.hardware.TalonFX;
-import com.ctre.phoenix6.signals.NeutralModeValue;
+import static edu.wpi.first.units.Units.*;
+
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine;
+import edu.wpi.first.units.measure.Angle;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
-import edu.wpi.first.units.Units;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.smartdashboard.Mechanism2d;
-import edu.wpi.first.wpilibj.smartdashboard.MechanismLigament2d;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.util.Color8Bit;
 import frc.robot.Constants;
+
+import com.ctre.phoenix6.controls.VoltageOut;
+import com.ctre.phoenix6.hardware.TalonFX;
+import com.ctre.phoenix6.signals.NeutralModeValue;
 
 public class IntakeSubsystem extends SubsystemBase {
   public enum FlipState {
-    In, Out
+    In(Constants.IntakeConstants.flipInPositionDeg),
+    Out(Constants.IntakeConstants.flipOutPositionDeg);
+
+    public final double angleDeg;
+
+    FlipState(double angleDeg) {
+      this.angleDeg = angleDeg;
+    }
+
+    public Angle angle() {
+      return Degrees.of(angleDeg);
+    }
   }
 
   private final TalonFX flipMotor = new TalonFX(Constants.IntakeConstants.intakeFlipMotorId);
@@ -27,47 +37,52 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final VoltageOut rollerCtrl = new VoltageOut(0);
   private final VoltageOut flipVoltageCtrl = new VoltageOut(0);
-  private final ProfiledPIDController flipPid = new ProfiledPIDController(
+
+  private final ProfiledPIDController flipController = new ProfiledPIDController(
       Constants.IntakeConstants.flipkP,
       Constants.IntakeConstants.flipkI,
       Constants.IntakeConstants.flipkD,
       new TrapezoidProfile.Constraints(
-          Constants.IntakeConstants.flipMaxVelocityRotPerS,
-          Constants.IntakeConstants.flipMaxAccelRotPerSSq));
+          Constants.IntakeConstants.flipMaxVelocityDegPerS,
+          Constants.IntakeConstants.flipMaxAccelDegPerSSq));
 
   private FlipState flipState = FlipState.In;
-  private double flipZeroRot = 0.0;
   private boolean interlockEnabled = false;
   private boolean flipManualOverride = false;
-  private final Mechanism2d mech = new Mechanism2d(2.0, 1.0);
-  private final MechanismLigament2d arm = mech.getRoot("Base", 0.5, 0.5)
-      .append(new MechanismLigament2d("Arm", 0.4, 0, 6, new Color8Bit(Color.kYellow)));
 
   public IntakeSubsystem() {
-    var cfg = new com.ctre.phoenix6.configs.TalonFXConfiguration()
-        .withSlot0(new com.ctre.phoenix6.configs.Slot0Configs()
-            .withKP(Constants.IntakeConstants.flipkP)
-            .withKI(Constants.IntakeConstants.flipkI)
-            .withKD(Constants.IntakeConstants.flipkD));
+    var cfg = new TalonFXConfiguration();
+
+    cfg.Feedback.SensorToMechanismRatio = Constants.IntakeConstants.flipGearRatio;
+
+    cfg.CurrentLimits.SupplyCurrentLimit = Constants.IntakeConstants.flipCurrentLimit;
+    cfg.CurrentLimits.SupplyCurrentLimitEnable = true;
+    cfg.CurrentLimits.StatorCurrentLimit = Constants.IntakeConstants.flipCurrentLimit;
+    cfg.CurrentLimits.StatorCurrentLimitEnable = true;
+
     flipMotor.getConfigurator().apply(cfg);
     flipMotor.setNeutralMode(NeutralModeValue.Brake);
-    rollerMotor.setNeutralMode(NeutralModeValue.Brake);
-    flipZeroRot = flipMotor.getPosition().getValueAsDouble();
-    flipPid.reset(0.0);
-    flipPid.setGoal(Constants.IntakeConstants.flipInPositionRot);
-    SmartDashboard.putData("IntakeViz", mech);
+    flipMotor.setPosition(0.0);
+
+    flipController.setTolerance(Constants.IntakeConstants.flipToleranceDeg);
+    flipController.reset(0.0);
+
+    var rollerCfg = new TalonFXConfiguration();
+    rollerCfg.CurrentLimits.SupplyCurrentLimit = 30.0;
+    rollerCfg.CurrentLimits.SupplyCurrentLimitEnable = true;
+    rollerCfg.CurrentLimits.StatorCurrentLimit = 30.0;
+    rollerCfg.CurrentLimits.StatorCurrentLimitEnable = true;
+
+    rollerMotor.getConfigurator().apply(rollerCfg);
+    rollerMotor.setNeutralMode(NeutralModeValue.Coast);
   }
 
   public void setFlip(FlipState s) {
     if (interlockEnabled && s == FlipState.Out) {
       flipState = FlipState.In;
-      flipPid.setGoal(Constants.IntakeConstants.flipInPositionRot);
       return;
     }
     flipState = s;
-    double pos = s == FlipState.In ? Constants.IntakeConstants.flipInPositionRot
-        : Constants.IntakeConstants.flipOutPositionRot;
-    flipPid.setGoal(pos);
   }
 
   public void toggleFlip() {
@@ -86,68 +101,45 @@ public class IntakeSubsystem extends SubsystemBase {
     rollerMotor.setControl(rollerCtrl.withOutput(0));
   }
 
-  private double flipTargetRot() {
-    return flipState == FlipState.In ? Constants.IntakeConstants.flipInPositionRot
-        : Constants.IntakeConstants.flipOutPositionRot;
+  private boolean flipAtTarget() {
+    double currentDeg = getFlipPositionDeg();
+    double targetDeg = flipState.angleDeg;
+    return Math.abs(currentDeg - targetDeg) <= Constants.IntakeConstants.flipToleranceDeg;
   }
 
-  private boolean flipAtTarget() {
-    double pos = flipMotor.getPosition().getValueAsDouble() - flipZeroRot;
-    return Math.abs(pos - flipTargetRot()) <= Constants.IntakeConstants.flipToleranceRot;
+  private double getFlipPositionDeg() {
+    return flipMotor.getPosition().getValue().in(Degrees);
   }
 
   @Override
   public void periodic() {
-    double currentRot = flipMotor.getPosition().getValueAsDouble() - flipZeroRot;
+    double currentDeg = getFlipPositionDeg();
+
+    double pidOutput = flipController.calculate(currentDeg, flipState.angleDeg);
+    TrapezoidProfile.State setpoint = flipController.getSetpoint();
+
+    double feedforward = (Constants.IntakeConstants.flipkV * setpoint.velocity);
+
+    double totalVoltage = pidOutput + feedforward;
+
     if (!flipManualOverride) {
-      double desiredVel = flipPid.getSetpoint().velocity;
-      double volts = flipPid.calculate(currentRot) + Constants.IntakeConstants.flipkV * desiredVel;
-      if (volts > 12.0)
-        volts = 12.0;
-      if (volts < -12.0)
-        volts = -12.0;
-      flipMotor.setControl(flipVoltageCtrl.withOutput(volts));
+      flipMotor.setControl(flipVoltageCtrl.withOutput(totalVoltage));
     }
-    SmartDashboard.putNumber("Intake/FlipRot", currentRot);
-    SmartDashboard.putNumber("Intake/FlipGoalRot", flipTargetRot());
+
+    SmartDashboard.putNumber("Intake/FlipDeg", currentDeg);
+    SmartDashboard.putNumber("Intake/FlipGoalDeg", flipState.angleDeg);
+    SmartDashboard.putNumber("Intake/FlipSetpointVel", setpoint.velocity);
+    SmartDashboard.putNumber("Intake/FlipAppliedVolts", totalVoltage);
     SmartDashboard.putBoolean("Intake/FlipAtTarget", flipAtTarget());
+
     if (flipManualOverride) {
-      SmartDashboard.putNumber("Intake/CapturedFlipOutRot", currentRot);
+      SmartDashboard.putNumber("Intake/CapturedFlipOutDeg", currentDeg);
+      flipController.reset(currentDeg);
     }
-    double angleDeg = Math.toDegrees(currentRot / Constants.IntakeConstants.flipOutPositionRot * Math.PI / 2.0);
-    arm.setAngle(angleDeg);
   }
 
   public void setInterlockEnabled(boolean enabled) {
     this.interlockEnabled = enabled;
-  }
-
-  private final SysIdRoutine sysIdFlip = new SysIdRoutine(
-      new SysIdRoutine.Config(),
-      new SysIdRoutine.Mechanism(
-          (volts) -> flipMotor.setControl(new VoltageOut(volts)),
-          (log) -> {
-            log.motor("intakeFlip")
-                .voltage(Units.Volts.of(flipMotor.getMotorVoltage().getValueAsDouble()))
-                .angularPosition(Units.Rotations.of(flipMotor.getPosition().getValueAsDouble()))
-                .angularVelocity(Units.RotationsPerSecond.of(flipMotor.getVelocity().getValueAsDouble()));
-          },
-          this));
-
-  public edu.wpi.first.wpilibj2.command.Command sysIdQuasistaticForward() {
-    return sysIdFlip.quasistatic(SysIdRoutine.Direction.kForward);
-  }
-
-  public edu.wpi.first.wpilibj2.command.Command sysIdQuasistaticReverse() {
-    return sysIdFlip.quasistatic(SysIdRoutine.Direction.kReverse);
-  }
-
-  public edu.wpi.first.wpilibj2.command.Command sysIdDynamicForward() {
-    return sysIdFlip.dynamic(SysIdRoutine.Direction.kForward);
-  }
-
-  public edu.wpi.first.wpilibj2.command.Command sysIdDynamicReverse() {
-    return sysIdFlip.dynamic(SysIdRoutine.Direction.kReverse);
   }
 
   public Command intakeCollect() {
@@ -175,8 +167,8 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public void stopFlipManual() {
-    flipMotor.setControl(flipVoltageCtrl.withOutput(0));
     flipManualOverride = false;
+    setFlip(flipState);
   }
 
   public Command flipManualForwardCommand(double volts) {
@@ -188,7 +180,6 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   public Command captureFlipOutRotCommand() {
-    return runOnce(() -> SmartDashboard.putNumber("Intake/CapturedFlipOutRot",
-        flipMotor.getPosition().getValueAsDouble() - flipZeroRot));
+    return runOnce(() -> SmartDashboard.putNumber("Intake/CapturedFlipOutDeg", getFlipPositionDeg()));
   }
 }

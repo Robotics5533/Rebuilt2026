@@ -28,7 +28,7 @@ public final class Constants {
         public static final double ALIGN_ROTATION_LIMIT = 4.0;
 
 
-        // PathPlanner PID Constants
+        
         public static final double AUTO_DRIVE_P = 15.0;
         public static final double AUTO_DRIVE_I = 0.0;
         public static final double AUTO_DRIVE_D = 1.1;
@@ -55,6 +55,8 @@ public final class Constants {
         // inches per motor rotation:
         //  - Drum: (PI * drumDiameterInches) / motorToDrumGearRatio
         //  - Leadscrew: (leadPitchInchesPerRev) / motorToScrewGearRatio
+        
+        
         public static final double rotationsToInches = 1.0;
         public static final double inactivePositionInches = 0.0;
         public static final double activePositionInches = 6.5;
@@ -68,15 +70,30 @@ public final class Constants {
     public static final class IntakeConstants {
         public static final int intakeFlipMotorId = 21;
         public static final int intakeRollerMotorId = 22;
-        public static final double flipInPositionRot = 0.0;
-        public static final double flipOutPositionRot = 25.0;
-        public static final double flipToleranceRot = 0.5;
-        public static final double flipMaxVelocityRotPerS = 30.0;
-        public static final double flipMaxAccelRotPerSSq = 60.0;
-        public static final double flipkP = 0.1475;
+        public static final double flipGearRatio = 100.0;
+        public static final double flipInPositionDeg = 0.0;
+        public static final double flipOutPositionDeg = 90.0;
+        public static final double flipToleranceDeg = 2.0;
+        
+        // Converted to Degrees for RIO-side ProfiledPIDController
+        // Original: 0.8 rot/s * 360 = 288 deg/s
+        public static final double flipMaxVelocityDegPerS = 288.0; 
+        // Original: 1.6 rot/s^2 * 360 = 576 deg/s^2
+        public static final double flipMaxAccelDegPerSSq = 576.0;
+
+        // PID Gains (Converted from Volts/Rot to Volts/Deg)
+        // Original kP: 576.18 V/Rot -> ~1.6 V/Deg
+        public static final double flipkP = 1.6;
         public static final double flipkI = 0.0;
-        public static final double flipkD = 0.0;
-        public static final double flipkV = 2.7668;
+        public static final double flipkD = 0.0; // Recalculate if needed
+        
+        // Feedforward (Converted from Volts/(Rot/s) to Volts/(Deg/s))
+        // Original kV: 11.29 V/(Rot/s) -> ~0.031 V/(Deg/s)
+        public static final double flipkV = 0.031;
+        // Original kA: 0.02 V/(Rot/s^2) -> ~0.00005 V/(Deg/s^2)
+        public static final double flipkA = 0.00005;
+
+        public static final double flipCurrentLimit = 40.0;
         public static final double rollerVoltage = 8.0;
     }
 
