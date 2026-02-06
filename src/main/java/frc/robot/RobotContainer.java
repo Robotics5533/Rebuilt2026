@@ -1,125 +1,179 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
-
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
+import com.pathplanner.lib.auto.NamedCommands;
+import com.pathplanner.lib.path.PathConstraints;
+import com.pathplanner.lib.pathfinding.Pathfinding;
+import edu.wpi.first.math.Pair;
+import edu.wpi.first.math.geometry.Translation2d;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
-
+import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.utils.FieldPositions;
+import frc.robot.utils.MathUtil;
+import frc.robot.utils.Controls;
 
 public class RobotContainer {
-    private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
 
-    /* Setting up bindings for necessary control of the swerve drive platform */
+    private final double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
+    private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+
     private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    private final SwerveRequest.FieldCentric forwardStraight = new SwerveRequest.FieldCentric()
+            .withDeadband(MaxSpeed * Constants.DriveConstants.DEADBAND)
+            .withRotationalDeadband(MaxAngularRate * Constants.DriveConstants.DEADBAND)
             .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
     private final Telemetry logger = new Telemetry(MaxSpeed);
-
-    private final CommandXboxController joystick = new CommandXboxController(0);
+    private final Controls controls = new Controls();
+    private final Field2d fieldViz = new Field2d();
 
     public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
+    private final ClimbSubsystem climb = new ClimbSubsystem();
+    private final IntakeSubsystem intake = new IntakeSubsystem();
+    private final ShooterSubsystem shooters = new ShooterSubsystem();
 
-    /* Path follower */
     private final SendableChooser<Command> autoChooser;
 
     public RobotContainer() {
+
+        NamedCommands.registerCommand("shoot_load", new frc.robot.commands.ShootLoad(shooters));
         autoChooser = AutoBuilder.buildAutoChooser("Tests");
         SmartDashboard.putData("Auto Mode", autoChooser);
+        SmartDashboard.putData("Field", fieldViz);
 
         configureBindings();
-
-        // Warmup PathPlanner to avoid Java pauses
-        FollowPathCommand.warmupCommand().schedule();
+        FollowPathCommand.warmupCommand();
     }
 
     private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-       drivetrain.setDefaultCommand(
-        // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(
-            () ->
-                drive
-                    .withVelocityX(
-                        -MathUtil.applyDeadband(joystick.getLeftY(), 0.05)
-                            * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(
-                        -MathUtil.applyDeadband(joystick.getLeftX(), 0.05)
-                            * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(
-                        -MathUtil.applyDeadband(joystick.getRightX(), 0.05)
-                            * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            ));
 
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
+        drivetrain.setDefaultCommand(drivetrain.run(() -> {
+            drivetrain.setControl(
+                    drive.withVelocityX(controls.getDriveX() * MaxSpeed)
+                            .withVelocityY(controls.getDriveY() * MaxSpeed)
+                            .withRotationalRate(controls.getDriveOmega() * MaxAngularRate));
+
+            fieldViz.setRobotPose(drivetrain.getState().Pose);
+
+            fieldViz.getObject("BlueHub").setPose(FieldPositions.getBlueHubPose());
+            fieldViz.getObject("RedHub").setPose(FieldPositions.getRedHubPose());
+
+            fieldViz.getObject("BlueTowerRight")
+                    .setPose(FieldPositions.getBlueTowerRightPose());
+            fieldViz.getObject("RedTowerRight")
+                    .setPose(FieldPositions.getRedTowerRightPose());
+
+            fieldViz.getObject("BlueBumpLeft")
+                    .setPose(FieldPositions.getBlueBumpLeftPose());
+            fieldViz.getObject("BlueBumpRight")
+                    .setPose(FieldPositions.getBlueBumpRightPose());
+            fieldViz.getObject("RedBumpLeft")
+                    .setPose(FieldPositions.getRedBumpLeftPose());
+            fieldViz.getObject("RedBumpRight")
+                    .setPose(FieldPositions.getRedBumpRightPose());
+
+            updateDynamicObstacles();
+        }));
+
+        controls.configureDriver(drivetrain);
+        controls.configureOperator(drivetrain, climb, intake, shooters);
+
+        climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
+
+        controls.getDriver().y().onTrue(pathfindToRightTower());
+
         final var idle = new SwerveRequest.Idle();
         RobotModeTriggers.disabled().whileTrue(
-            drivetrain.applyRequest(() -> idle).ignoringDisable(true)
-        );
-
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
-
-        joystick.povUp().whileTrue(drivetrain.applyRequest(() ->
-            forwardStraight.withVelocityX(0.5).withVelocityY(0))
-        );
-        joystick.povDown().whileTrue(drivetrain.applyRequest(() ->
-            forwardStraight.withVelocityX(-0.5).withVelocityY(0))
-        );
-
-        joystick.povLeft().whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(0.5)));
-        joystick.povRight().whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.5)));
-
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
-
-        // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
-
-        // Fuel subsystem controls
-        joystick.rightTrigger().whileTrue(fuelSubsystem.run(() -> fuelSubsystem.intake()).finallyDo(() -> fuelSubsystem.stop()));
-        joystick.leftTrigger().whileTrue(fuelSubsystem.run(() -> fuelSubsystem.launch()).finallyDo(() -> fuelSubsystem.stop()));
+                drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
         drivetrain.registerTelemetry(logger::telemeterize);
+
+        SmartDashboard.putData("Intake Quasistatic F", intake.sysIdQuasistaticForward());
+        SmartDashboard.putData("Intake Quasistatic R", intake.sysIdQuasistaticReverse());
+        SmartDashboard.putData("Intake Dynamic F", intake.sysIdDynamicForward());
+        SmartDashboard.putData("Intake Dynamic R", intake.sysIdDynamicReverse());
+
+        SmartDashboard.putData("Climb Quasistatic F", climb.sysIdQuasistaticForward());
+        SmartDashboard.putData("Climb Quasistatic R", climb.sysIdQuasistaticReverse());
+        SmartDashboard.putData("Climb Dynamic F", climb.sysIdDynamicForward());
+        SmartDashboard.putData("Climb Dynamic R", climb.sysIdDynamicReverse());
+
+        SmartDashboard.putData("Shooter Left Quasistatic F", shooters.sysIdLeftQuasistaticForward());
+        SmartDashboard.putData("Shooter Left Quasistatic R", shooters.sysIdLeftQuasistaticReverse());
+        SmartDashboard.putData("Shooter Left Dynamic F", shooters.sysIdLeftDynamicForward());
+        SmartDashboard.putData("Shooter Left Dynamic R", shooters.sysIdLeftDynamicReverse());
+
+        SmartDashboard.putData("Shooter Right Quasistatic F", shooters.sysIdRightQuasistaticForward());
+        SmartDashboard.putData("Shooter Right Quasistatic R", shooters.sysIdRightQuasistaticReverse());
+        SmartDashboard.putData("Shooter Right Dynamic F", shooters.sysIdRightDynamicForward());
+        SmartDashboard.putData("Shooter Right Dynamic R", shooters.sysIdRightDynamicReverse());
+
+        var climbEngaged = new Trigger(() -> climb.getState() != frc.robot.subsystems.ClimbSubsystem.State.Inactive);
+        climbEngaged.onTrue(intake.stowIntake());
+        climbEngaged.onTrue(intake.runOnce(() -> intake.setInterlockEnabled(true)));
+        climbEngaged.onFalse(intake.runOnce(() -> intake.setInterlockEnabled(false)));
+
+        SmartDashboard.putData("Flip Manual F 3V", intake.flipManualForwardCommand(3.0));
+        SmartDashboard.putData("Flip Manual R 3V", intake.flipManualReverseCommand(3.0));
+        SmartDashboard.putData("Flip Capture Out", intake.captureFlipOutRotCommand());
     }
 
+    private void updateDynamicObstacles() {
+        List<Pair<Translation2d, Translation2d>> obstacles = new ArrayList<>();
 
-    
+        obstacles.add(MathUtil.createBoundingBox(
+                Constants.FieldConstants.blueBumpLeftPose.getTranslation(),
+                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+
+        obstacles.add(MathUtil.createBoundingBox(
+                Constants.FieldConstants.blueBumpRightPose.getTranslation(),
+                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+
+        obstacles.add(MathUtil.createBoundingBox(
+                Constants.FieldConstants.redBumpLeftPose.getTranslation(),
+                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+
+        obstacles.add(MathUtil.createBoundingBox(
+                Constants.FieldConstants.redBumpRightPose.getTranslation(),
+                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+
+        Pathfinding.setDynamicObstacles(
+                obstacles,
+                drivetrain.getState().Pose.getTranslation());
+    }
+
+    public Command pathfindToRightTower() {
+
+        var target = frc.robot.utils.AllianceUtil.isRedAlliance()
+                ? FieldPositions.getRedTowerRightPose()
+                : FieldPositions.getBlueTowerRightPose();
+
+        PathConstraints constraints = new PathConstraints(
+                MaxSpeed * 0.8,
+                MaxSpeed * 1.2,
+                MaxAngularRate * 0.8,
+                MaxAngularRate * 1.2);
+
+        return AutoBuilder.pathfindToPose(target, constraints, 0.0);
+    }
+
     public Command getAutonomousCommand() {
-        /* Run the path selected from the auto chooser */
         return autoChooser.getSelected();
     }
 }
