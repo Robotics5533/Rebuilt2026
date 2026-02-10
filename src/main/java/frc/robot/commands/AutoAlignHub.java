@@ -7,50 +7,59 @@ import static edu.wpi.first.units.Units.RotationsPerSecond;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.controller.PIDController;
-import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.math.controller.ProfiledPIDController;
+import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
-import edu.wpi.first.wpilibj.GenericHID;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.utils.AllianceUtil;
 
 public class AutoAlignHub extends Command {
   private final CommandSwerveDrivetrain drivetrain;
+  private final LimelightSubsystem limelight;
   private final CommandXboxController controller;
   private final SwerveRequest.FieldCentric driveRequest;
 
-  private final PIDController alignPID = new PIDController(
-      Constants.DriveConstants.ALIGN_PID_P, 
-      Constants.DriveConstants.ALIGN_PID_I, 
-      Constants.DriveConstants.ALIGN_PID_D);
-  private final SlewRateLimiter rotationLimiter = new SlewRateLimiter(Constants.DriveConstants.ALIGN_ROTATION_LIMIT);
-  
+  private final ProfiledPIDController alignPID = new ProfiledPIDController(
+      Constants.DriveConstants.ALIGN_PID_P,
+      Constants.DriveConstants.ALIGN_PID_I,
+      Constants.DriveConstants.ALIGN_PID_D,
+      new TrapezoidProfile.Constraints(
+          Constants.DriveConstants.ALIGN_MAX_VELOCITY_DEG_PER_SEC,
+          Constants.DriveConstants.ALIGN_MAX_ACCEL_DEG_PER_SEC_SQ));
+
   private final double maxSpeed = TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
   private final double maxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
-  
-  private double distanceToTarget = Double.NaN;
-  private String limelightName;
 
+  private double distanceToTarget = Double.NaN;
   private boolean finishAtSetpoint = false;
 
   public AutoAlignHub(
       CommandSwerveDrivetrain drivetrain,
+      LimelightSubsystem limelight,
       CommandXboxController controller) {
     this.drivetrain = drivetrain;
+    this.limelight = limelight;
     this.controller = controller;
-    this.limelightName = Constants.LimelightConstants.LIMELIGHT_NAME;
     this.driveRequest = new SwerveRequest.FieldCentric()
         .withDeadband(maxSpeed * 0.1)
         .withRotationalDeadband(maxAngularRate * 0.1)
         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
-    
+
     addRequirements(drivetrain);
+
+    SmartDashboard.putNumber("AutoAlign/kP", Constants.DriveConstants.ALIGN_PID_P);
+    SmartDashboard.putNumber("AutoAlign/kI", Constants.DriveConstants.ALIGN_PID_I);
+    SmartDashboard.putNumber("AutoAlign/kD", Constants.DriveConstants.ALIGN_PID_D);
+    SmartDashboard.putNumber("AutoAlign/kS", Constants.DriveConstants.ALIGN_KS);
+
+    SmartDashboard.setDefaultBoolean("AutoAlign/TestMode", true);
   }
 
   public AutoAlignHub finishWhenAligned() {
@@ -60,40 +69,83 @@ public class AutoAlignHub extends Command {
 
   @Override
   public void initialize() {
-    alignPID.reset();
+
+    double kP = SmartDashboard.getNumber("AutoAlign/kP", Constants.DriveConstants.ALIGN_PID_P);
+    double kI = SmartDashboard.getNumber("AutoAlign/kI", Constants.DriveConstants.ALIGN_PID_I);
+    double kD = SmartDashboard.getNumber("AutoAlign/kD", Constants.DriveConstants.ALIGN_PID_D);
+
+    alignPID.setPID(kP, kI, kD);
     alignPID.enableContinuousInput(-180, 180);
-    alignPID.setTolerance(Constants.DriveConstants.ALIGN_TOLERANCE_DEG);
-    rotationLimiter.reset(0);
+
+    alignPID.setTolerance(
+        Constants.DriveConstants.ALIGN_TOLERANCE_DEG,
+        Constants.DriveConstants.ALIGN_TOLERANCE_VEL_DEG_PER_SEC);
+    alignPID.reset(drivetrain.getState().Pose.getRotation().getDegrees());
+
     distanceToTarget = Double.NaN;
   }
 
   @Override
   public void execute() {
-    distanceToTarget = AllianceUtil.getDistanceToHub(drivetrain, limelightName);
-    double targetAngle = AllianceUtil.getTargetHeadingToHub(drivetrain, limelightName);
 
-    double currentHeading = drivetrain.getState().Pose.getRotation().getDegrees();
+    Pose2d robotPose = drivetrain.getState().Pose;
+    Pose2d hubPose = AllianceUtil.getHubPose();
+    distanceToTarget = robotPose.getTranslation().getDistance(hubPose.getTranslation());
+
+    double currentHeading = robotPose.getRotation().getDegrees();
+
+    double targetAngle;
+    boolean testMode = SmartDashboard.getBoolean("AutoAlign/TestMode", true);
+
+    if (testMode) {
+      targetAngle = 180.0;
+    } else {
+
+      double dx = hubPose.getX() - robotPose.getX();
+      double dy = hubPose.getY() - robotPose.getY();
+      targetAngle = new Rotation2d(Math.atan2(dy, dx)).getDegrees();
+    }
+
     double pidOutput = alignPID.calculate(currentHeading, targetAngle);
-    
-    double rotationRate = rotationLimiter.calculate(pidOutput * maxAngularRate);
-    rotationRate = MathUtil.clamp(rotationRate, -maxAngularRate, maxAngularRate);
+
+    double setpointVelocity = alignPID.getSetpoint().velocity;
+    double maxVelDeg = Constants.DriveConstants.ALIGN_MAX_VELOCITY_DEG_PER_SEC;
+    double feedforward = setpointVelocity / maxVelDeg;
+
+    double kS = SmartDashboard.getNumber("AutoAlign/kS", Constants.DriveConstants.ALIGN_KS);
+    double totalOutput = pidOutput + feedforward;
+
+    if (Math.abs(totalOutput) > 0.001) {
+      totalOutput += Math.signum(totalOutput) * kS;
+    }
+
+    SmartDashboard.putNumber("AutoAlign/CurrentAngle", currentHeading);
+    SmartDashboard.putNumber("AutoAlign/TargetAngle", targetAngle);
+    SmartDashboard.putNumber("AutoAlign/Error", alignPID.getPositionError());
+    SmartDashboard.putNumber("AutoAlign/Output", totalOutput);
+    SmartDashboard.putBoolean("AutoAlign/AtSetpoint", alignPID.atSetpoint());
+    SmartDashboard.putNumber("AutoAlign/ProfileVelocity", setpointVelocity);
+
+    double vx = 0.0;
+    double vy = 0.0;
+
+    if (controller != null) {
+      vx = -MathUtil.applyDeadband(controller.getLeftY(), Constants.DriveConstants.DEADBAND) * maxSpeed;
+      vy = -MathUtil.applyDeadband(controller.getLeftX(), Constants.DriveConstants.DEADBAND) * maxSpeed;
+    }
+
+    SmartDashboard.putNumber("AutoAlign/VX", vx);
+    SmartDashboard.putNumber("AutoAlign/VY", vy);
 
     drivetrain.setControl(driveRequest
-        .withVelocityX(-controller.getLeftY() * maxSpeed)
-        .withVelocityY(-controller.getLeftX() * maxSpeed)
-        .withRotationalRate(rotationRate));
-
-    SmartDashboard.putNumber("AutoAlign/TargetAngle", targetAngle);
-    SmartDashboard.putNumber("AutoAlign/CurrentAngle", currentHeading);
-    SmartDashboard.putNumber("AutoAlign/Distance", distanceToTarget);
-
-    controller.getHID().setRumble(GenericHID.RumbleType.kBothRumble, alignPID.atSetpoint() ? 0.8 : 0.0);
+        .withVelocityX(vx)
+        .withVelocityY(vy)
+        .withRotationalRate(totalOutput * maxAngularRate));
   }
 
   @Override
   public void end(boolean interrupted) {
     drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
-    controller.getHID().setRumble(GenericHID.RumbleType.kBothRumble, 0.0);
   }
 
   @Override
@@ -102,15 +154,7 @@ public class AutoAlignHub extends Command {
   }
 
   public double getDistanceToTarget() {
-    return AllianceUtil.getDistanceToHub(drivetrain, limelightName);
-  }
-
-  public double getLimelightDistance() {
-    var estimate = frc.robot.utils.LimelightHelpers.getBotPoseEstimate_wpiBlue(limelightName);
-    if (estimate.tagCount > 0) {
-      return estimate.pose.getTranslation().getDistance(AllianceUtil.getHubPose().getTranslation());
-    }
-    return Double.NaN;
+    return distanceToTarget;
   }
 
   public boolean isAligned() {
@@ -119,16 +163,23 @@ public class AutoAlignHub extends Command {
 
   public static boolean isAligned(CommandSwerveDrivetrain drivetrain) {
     Pose2d robotPose = drivetrain.getState().Pose;
-    Pose2d hubPose = AllianceUtil.getHubPose();
-    
-    double dx = hubPose.getX() - robotPose.getX();
-    double dy = hubPose.getY() - robotPose.getY();
-    
-    Rotation2d angleToHub = new Rotation2d(Math.atan2(dy, dx));
-    double targetDegrees = angleToHub.getDegrees();
+
+    boolean testMode = SmartDashboard.getBoolean("AutoAlign/TestMode", true);
+    double targetDegrees;
+
+    if (testMode) {
+      targetDegrees = 180.0;
+    } else {
+      Pose2d hubPose = AllianceUtil.getHubPose();
+      double dx = hubPose.getX() - robotPose.getX();
+      double dy = hubPose.getY() - robotPose.getY();
+      Rotation2d angleToHub = new Rotation2d(Math.atan2(dy, dx));
+      targetDegrees = angleToHub.getDegrees();
+    }
+
     double currentDegrees = drivetrain.getState().Pose.getRotation().getDegrees();
-    
+
     double error = MathUtil.inputModulus(targetDegrees - currentDegrees, -180, 180);
-    return Math.abs(error) < 2.0;
+    return Math.abs(error) < Constants.DriveConstants.ALIGN_TOLERANCE_DEG;
   }
 }

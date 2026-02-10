@@ -21,14 +21,19 @@ public final class Constants {
 
     public static final class DriveConstants {
         public static final double DEADBAND = 0.05;
-        public static final double ALIGN_PID_P = 0.025;
-        public static final double ALIGN_PID_I = 0.0;
-        public static final double ALIGN_PID_D = 0.008;
-        public static final double ALIGN_TOLERANCE_DEG = 2.0;
-        public static final double ALIGN_ROTATION_LIMIT = 4.0;
+        public static final double SPEED_MULTIPLIER = 100.0; 
 
+        public static final double ALIGN_PID_P = 0.045;
+        public static final double ALIGN_PID_I = 0.05;
+        public static final double ALIGN_PID_D = 0.002;
 
-        
+        public static final double ALIGN_KS = 0.04;
+        public static final double ALIGN_TOLERANCE_DEG = 0.5;
+        public static final double ALIGN_TOLERANCE_VEL_DEG_PER_SEC = 10.0;
+
+        public static final double ALIGN_MAX_VELOCITY_DEG_PER_SEC = 250.0;
+        public static final double ALIGN_MAX_ACCEL_DEG_PER_SEC_SQ = 300.0;
+
         public static final double AUTO_DRIVE_P = 15.0;
         public static final double AUTO_DRIVE_I = 0.0;
         public static final double AUTO_DRIVE_D = 1.1;
@@ -45,26 +50,43 @@ public final class Constants {
     }
 
     public static final class LimelightConstants {
-        public static final Set < Integer > RED_HUB_TAGS = Set.of(11, 2, 9, 10, 8, 5);
-        public static final Set < Integer > BLUE_HUB_TAGS = Set.of(18, 27, 26, 25, 21, 24);
+        public static final Set<Integer> RED_HUB_TAGS = Set.of(11, 2, 9, 10, 8, 5);
+        public static final Set<Integer> BLUE_HUB_TAGS = Set.of(18, 27, 26, 25, 21, 24);
         public static final String LIMELIGHT_NAME = "limelight";
+
+        public static final boolean ENABLE_VISION_ODOMETRY = true;
+        public static final double VISION_REJECTION_SPEED_THRESHOLD_MPS = 2.0;
+        public static final double VISION_REJECTION_DISTANCE_THRESHOLD_METERS = 1.0;
     }
 
     public static final class ClimbConstants {
         public static final int climbMotorId = 20;
-        // inches per motor rotation:
-        //  - Drum: (PI * drumDiameterInches) / motorToDrumGearRatio
-        //  - Leadscrew: (leadPitchInchesPerRev) / motorToScrewGearRatio
-        
-        
-        public static final double rotationsToInches = 1.0;
+
+        public static final double climbGearRatio = 125.0;
+        public static final double motorFreeSpeedRPM = 7500.0;
+
+        public static final double sprocketCircumferenceInches = 4.5;
+
+        public static final double motorFreeSpeedRPS = motorFreeSpeedRPM / 60.0;
+        public static final double mechanismMaxRPS = motorFreeSpeedRPS / climbGearRatio;
+        public static final double mechanismMaxLinearVelocity = mechanismMaxRPS * sprocketCircumferenceInches;
+        public static final double rotationsToInches = mechanismMaxLinearVelocity / mechanismMaxRPS;
+
+        public static final double climbCruiseVelocityRPS = 20.0;
+        public static final double rampTimeSeconds = 0.05;
+        public static final double climbAccelerationRPS2 = climbCruiseVelocityRPS / rampTimeSeconds;
+
         public static final double inactivePositionInches = 0.0;
         public static final double activePositionInches = 6.5;
         public static final double hangingPositionInches = 5.25;
-        public static final double kP = 0.3;
-        public static final double kI = 0.0;
-        public static final double kD = 0.0;
-        public static final double maxVoltage = 10.0;
+        public static final double kP = 80.0;
+        public static final double kI = 0.5;
+        public static final double kD = 1.0;
+        public static final double kG = 0.0;
+        public static final double maxVoltage = 12.0;
+        public static final double climbCurrentLimit = 40.0;
+        public static final double softLimitForwardInches = 7.0;
+        public static final double softLimitReverseInches = 0.0;
     }
 
     public static final class IntakeConstants {
@@ -74,27 +96,17 @@ public final class Constants {
         public static final double flipInPositionDeg = 0.0;
         public static final double flipOutPositionDeg = 90.0;
         public static final double flipToleranceDeg = 2.0;
-        
-        // Converted to Degrees for RIO-side ProfiledPIDController
-        // Original: 0.8 rot/s * 360 = 288 deg/s
-        public static final double flipMaxVelocityDegPerS = 288.0; 
-        // Original: 1.6 rot/s^2 * 360 = 576 deg/s^2
-        public static final double flipMaxAccelDegPerSSq = 576.0;
-
-        // PID Gains (Converted from Volts/Rot to Volts/Deg)
-        // Original kP: 576.18 V/Rot -> ~1.6 V/Deg
-        public static final double flipkP = 1.6;
-        public static final double flipkI = 0.0;
-        public static final double flipkD = 0.0; // Recalculate if needed
-        
-        // Feedforward (Converted from Volts/(Rot/s) to Volts/(Deg/s))
-        // Original kV: 11.29 V/(Rot/s) -> ~0.031 V/(Deg/s)
-        public static final double flipkV = 0.031;
-        // Original kA: 0.02 V/(Rot/s^2) -> ~0.00005 V/(Deg/s^2)
-        public static final double flipkA = 0.00005;
-
+        public static final double flipMaxVelocityRotPerS = 3.0;
+        public static final double flipMaxAccelRotPerSSq = 6.0;
+        public static final double flipkP = 40.0;
+        public static final double flipkI = 1.0;
+        public static final double flipkD = 0.0;
+        public static final double flipkV = 0.0;
+        public static final double flipkA = 0.0;
         public static final double flipCurrentLimit = 40.0;
         public static final double rollerVoltage = 8.0;
+        public static final double softLimitForwardDeg = 95.0;
+        public static final double softLimitReverseDeg = -5.0;
     }
 
     public static final class ShooterConstants {
@@ -110,20 +122,32 @@ public final class Constants {
         public static final double kD = 0.0;
         public static final double kV = 0.12;
         public static final double washerVoltage = 6.0;
+        public static final double shooterTargetVoltage = 10.0;
+        public static final double shooterSpeedThresholdRPS = 70.0;
+        public static final double shooterCurrentLimit = 40.0;
+        public static final double fuelApproxVelocityMps = 15.0; 
         public static final InterpolatingDoubleTreeMap distanceToVelocityRPS = new InterpolatingDoubleTreeMap();
+        public static final InterpolatingDoubleTreeMap distanceToVoltage = new InterpolatingDoubleTreeMap();
         static {
-            distanceToVelocityRPS.put(2.5, 70.0);
-            distanceToVelocityRPS.put(3.0, 75.0);
-            distanceToVelocityRPS.put(3.5, 80.0);
-            distanceToVelocityRPS.put(4.0, 85.0);
-            distanceToVelocityRPS.put(4.5, 90.0);
+            double[][] shotData = {
+                { 2.5, 70.0, 8.0 },
+                { 3.0, 75.0, 8.5 },
+                { 3.5, 80.0, 9.0 },
+                { 4.0, 85.0, 9.5 },
+                { 4.5, 90.0, 10.0 }
+            };
+
+            for (double[] data : shotData) {
+                distanceToVelocityRPS.put(data[0], data[1]);
+                distanceToVoltage.put(data[0], data[2]);
+            }
         }
     }
 
     public static final class FieldConstants {
 
         static final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout
-            .loadField(AprilTagFields.k2026RebuiltAndymark);
+                .loadField(AprilTagFields.k2026RebuiltAndymark);
 
         public static final double fieldLength = aprilTagFieldLayout.getFieldLength();
         public static final double fieldWidth = aprilTagFieldLayout.getFieldWidth();
@@ -135,62 +159,63 @@ public final class Constants {
         static final double bumpDepth = Inches.of(44.4).in(Meters);
 
         public static final Pose2d blueOutpostSideTrenchStart = new Pose2d(
-            blueStartingLineX - RobotConstants.robotOverallLength / 2.0,
-            blueOutpostSideTrenchStartY,
-            new Rotation2d());
+                blueStartingLineX - RobotConstants.robotOverallLength / 2.0,
+                blueOutpostSideTrenchStartY,
+                new Rotation2d());
 
         public static final Pose2d blueDepotSideTrenchStart = new Pose2d(
-            blueStartingLineX - RobotConstants.robotOverallLength / 2.0,
-            blueDepotSideTrenchStartY,
-            new Rotation2d());
+                blueStartingLineX - RobotConstants.robotOverallLength / 2.0,
+                blueDepotSideTrenchStartY,
+                new Rotation2d());
 
         public static final Pose2d blueCenterStart = new Pose2d(
-            blueStartingLineX - RobotConstants.robotOverallLength / 2.0,
-            fieldWidth / 2.0,
-            new Rotation2d());
+                blueStartingLineX - RobotConstants.robotOverallLength / 2.0,
+                fieldWidth / 2.0,
+                new Rotation2d());
 
         static final double hubCenterFromAllianceWall = Units.inchesToMeters(158.6);
         static final double bumpCenterFromAllianceWall = Units.inchesToMeters(95.25);
         static final double hubToBumpCenterOffset = Units.inchesToMeters(90.0);
 
         public static Pose2d blueHubPose = new Pose2d(
-            Units.inchesToMeters(181.56), FieldConstants.fieldWidth / 2, new Rotation2d());
+                Units.inchesToMeters(181.56), FieldConstants.fieldWidth / 2, new Rotation2d());
 
         static double redStartingLineX = Units.inchesToMeters(fieldLength - Units.inchesToMeters(143.5));
 
         public static Pose2d redHubPose = new Pose2d(
-            FieldConstants.fieldLength - Units.inchesToMeters(181.56), FieldConstants.fieldWidth / 2,
-            new Rotation2d(Math.PI));
+                FieldConstants.fieldLength - Units.inchesToMeters(181.56),
+                FieldConstants.fieldWidth / 2,
+                new Rotation2d(Math.PI));
 
         public static Pose2d blueTowerRightPose = new Pose2d(
-            blueHubPose.getX() - Units.inchesToMeters(151),
-            blueHubPose.getY() - Units.inchesToMeters(45),
-            new Rotation2d());
+                blueHubPose.getX() - Units.inchesToMeters(151),
+                blueHubPose.getY() - Units.inchesToMeters(45),
+                new Rotation2d());
 
         public static Pose2d redTowerRightPose = new Pose2d(
-            redHubPose.getX() + Units.inchesToMeters(151),
-            redHubPose.getY() + Units.inchesToMeters(45),
-            new Rotation2d(Math.PI));
+                redHubPose.getX() + Units.inchesToMeters(151),
+                redHubPose.getY() + Units.inchesToMeters(45),
+                new Rotation2d(Math.PI));
 
         public static final Pose2d blueBumpLeftPose = new Pose2d(
-            blueHubPose.getX(),
-            blueHubPose.getY() + hubToBumpCenterOffset + Units.inchesToMeters(2.5),
-            new Rotation2d());
+                blueHubPose.getX(),
+                blueHubPose.getY() + hubToBumpCenterOffset + Units.inchesToMeters(2.5),
+                new Rotation2d());
 
         public static final Pose2d blueBumpRightPose = new Pose2d(
-            blueHubPose.getX(),
-            blueHubPose.getY() - hubToBumpCenterOffset,
-            new Rotation2d());
+                blueHubPose.getX(),
+                blueHubPose.getY() - hubToBumpCenterOffset,
+                new Rotation2d());
 
         public static final Pose2d redBumpLeftPose = new Pose2d(
-            redHubPose.getX(),
-            redHubPose.getY() - hubToBumpCenterOffset,
-            new Rotation2d(Math.PI));
+                redHubPose.getX(),
+                redHubPose.getY() - hubToBumpCenterOffset,
+                new Rotation2d(Math.PI));
 
         public static final Pose2d redBumpRightPose = new Pose2d(
-            redHubPose.getX(),
-            redHubPose.getY() + hubToBumpCenterOffset + Units.inchesToMeters(2.5),
-            new Rotation2d(Math.PI));
+                redHubPose.getX(),
+                redHubPose.getY() + hubToBumpCenterOffset + Units.inchesToMeters(2.5),
+                new Rotation2d(Math.PI));
 
     }
 }

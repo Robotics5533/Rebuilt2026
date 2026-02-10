@@ -1,49 +1,39 @@
-# Shooter Align-and-Shoot
+# Shooter Tuning Guide (Manual Method)
 
-## Operator Y Behavior
+## 1. Find Feedforward (kV)
+*This is the most critical step. If kV is wrong, the PID will struggle to compensate.*
 
-- Hold Y: robot auto-aligns to hub.
-- When aligned: shooters spin to velocity based on distance, washers feed.
-- Release Y: shooters and washers stop.
+1.  **Preparation**:
+    *   Set `kP`, `kI`, `kD` to `0` in `Constants.java`.
+    *   Ensure the robot is on a cart or blocks so wheels can spin freely.
+    *   Deploy the code.
+2.  **Test**:
+    *   Command the shooter to run at a constant **Voltage** (e.g., 6 Volts).
+    *   Observe the stable velocity on SmartDashboard (e.g., `Shooter/LeftRPS`).
+3.  **Calculate**:
+    *   Formula: `kV = Volts / RPS`
+    *   *Example*: If 6 Volts results in 50 RPS:
+        *   `6.0 / 50.0 = 0.12`
+    *   Set this `kV` value in `Constants.java`.
 
-## Velocity Control
+## 2. Find Feedforward Static (kS)
+*This overcomes static friction to get the wheel moving.*
 
-- Mode: VelocityVoltage closed-loop per motor in rotations per second.
-- Gains: kP, kI, kD, kV from Constants.ShooterConstants.
+1.  Slowly increase the voltage command from 0.0V.
+2.  Note the voltage where the flywheel *just* begins to spin reliably.
+3.  This is your `kS`. It is typically between **0.1V - 0.5V**.
 
-## SysId Characterization
+## 3. Tune Proportional (kP)
+*This handles disturbance rejection (recovery after a shot).*
 
-- SmartDashboard has buttons for Shooter Left and Shooter Right:
-  - Quasistatic Forward/Reverse, Dynamic Forward/Reverse.
-- Procedure:
-  - Remove game pieces, disable washers.
-  - Run Quasistatic F/R on one side; save data in SysId tool; repeat Dynamic F/R.
-  - Fit kS, kV, kA in the SysId analyzer for each side.
-  - Update Constants.ShooterConstants with the feedforward terms; keep P/D small at first.
-  - Validate by commanding a setpoint and checking RPS vs setpoint on dashboard.
+1.  Set a realistic target velocity (e.g., **80 RPS**).
+2.  With `kV` set, the wheel should spin up close to 80 RPS but may "sag" slightly or drop significantly when a game piece is fired.
+3.  Increase `kP` in small increments (start at `0.05`, then `0.1`, `0.2`, etc.).
+4.  **Goal**: When a ball is fired, the RPM will dip. A properly tuned `kP` forces the motor to apply max voltage immediately to recover back to 80 RPS.
+    *   **Too Low**: Recovery is slow; subsequent shots in a rapid-fire sequence will be weak (undershoot).
+    *   **Too High**: The flywheel oscillates (audible humming/vibration) or overshoots the target.
 
-## Tuning Strategy
-
-- Start with feedforward: set kV to match steady-state velocity with minimal error.
-- Add kS if startup friction causes underspeed at low setpoints.
-- Add P to remove residual steady-state error; increase until response is crisp but not oscillatory.
-- Add D to damp overshoot if transients ring; keep I near zero unless persistent bias remains.
-- Clamp washer voltage to avoid jams; adjust only after shooter velocity holds.
-
-## Verification
-
-- Dashboard shows Shooter/LeftRPS, Shooter/RightRPS, and setpoints.
-- Step test: command a velocity, verify measured RPS reaches and holds setpoint quickly.
-- Distance shots: stand at known distances, hold Y, confirm balls hit target consistently.
- - Use SysId plots to confirm linearity and identify saturation; adjust map points if far-range drops.
-
-## Building the Distance→Velocity Map
-
-- Use known field marks to gather pairs: distance meters → shooter RPS.
-- Populate points around key ranges (close, mid, far). The system interpolates between points.
-- Iterate during practice: refine points where shots miss high/low.
-
-## Notes
-
-- Alignment uses Limelight tags when available; falls back to odometry.
-- Shooter runs only after aligned; keep the robot stationary during fire for consistency.
+## 4. Verification
+1.  Open SmartDashboard/Shuffleboard.
+2.  Graph `Shooter/LeftRPS` vs `Shooter/LeftSetpointRPS`.
+3.  The actual RPS line should track the Setpoint line tightly during spin-up and overlap almost perfectly during steady state.

@@ -1,6 +1,8 @@
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.*;
+import edu.wpi.first.math.util.Units;
+
+import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import edu.wpi.first.math.controller.ProfiledPIDController;
@@ -43,8 +45,8 @@ public class IntakeSubsystem extends SubsystemBase {
       Constants.IntakeConstants.flipkI,
       Constants.IntakeConstants.flipkD,
       new TrapezoidProfile.Constraints(
-          Constants.IntakeConstants.flipMaxVelocityDegPerS,
-          Constants.IntakeConstants.flipMaxAccelDegPerSSq));
+          Constants.IntakeConstants.flipMaxVelocityRotPerS,
+          Constants.IntakeConstants.flipMaxAccelRotPerSSq));
 
   private FlipState flipState = FlipState.In;
   private boolean interlockEnabled = false;
@@ -60,12 +62,20 @@ public class IntakeSubsystem extends SubsystemBase {
     cfg.CurrentLimits.StatorCurrentLimit = Constants.IntakeConstants.flipCurrentLimit;
     cfg.CurrentLimits.StatorCurrentLimitEnable = true;
 
+    cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units
+        .degreesToRotations(Constants.IntakeConstants.softLimitForwardDeg);
+    cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Units
+        .degreesToRotations(Constants.IntakeConstants.softLimitReverseDeg);
+    cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+
     flipMotor.getConfigurator().apply(cfg);
     flipMotor.setNeutralMode(NeutralModeValue.Brake);
-    flipMotor.setPosition(0.0);
+    double inPosRot = Units.degreesToRotations(Constants.IntakeConstants.flipInPositionDeg);
+    flipMotor.setPosition(inPosRot);
+    flipController.reset(inPosRot);
 
-    flipController.setTolerance(Constants.IntakeConstants.flipToleranceDeg);
-    flipController.reset(0.0);
+    flipController.setTolerance(Units.degreesToRotations(Constants.IntakeConstants.flipToleranceDeg));
 
     var rollerCfg = new TalonFXConfiguration();
     rollerCfg.CurrentLimits.SupplyCurrentLimit = 30.0;
@@ -102,39 +112,40 @@ public class IntakeSubsystem extends SubsystemBase {
   }
 
   private boolean flipAtTarget() {
-    double currentDeg = getFlipPositionDeg();
-    double targetDeg = flipState.angleDeg;
-    return Math.abs(currentDeg - targetDeg) <= Constants.IntakeConstants.flipToleranceDeg;
+    double currentRot = getFlipPositionRot();
+    double targetRot = Units.degreesToRotations(flipState.angleDeg);
+    return Math.abs(currentRot - targetRot) <= Units.degreesToRotations(Constants.IntakeConstants.flipToleranceDeg);
   }
 
-  private double getFlipPositionDeg() {
-    return flipMotor.getPosition().getValue().in(Degrees);
+  private double getFlipPositionRot() {
+    return flipMotor.getPosition().getValueAsDouble();
+  }
+
+  public double getFlipPositionDeg() {
+    return Units.rotationsToDegrees(getFlipPositionRot());
   }
 
   @Override
   public void periodic() {
-    double currentDeg = getFlipPositionDeg();
+    double currentRot = getFlipPositionRot();
+    double targetRot = Units.degreesToRotations(flipState.angleDeg);
 
-    double pidOutput = flipController.calculate(currentDeg, flipState.angleDeg);
-    TrapezoidProfile.State setpoint = flipController.getSetpoint();
+    double pidOutput = flipController.calculate(currentRot, targetRot);
 
-    double feedforward = (Constants.IntakeConstants.flipkV * setpoint.velocity);
-
-    double totalVoltage = pidOutput + feedforward;
+    double totalVoltage = pidOutput;
 
     if (!flipManualOverride) {
       flipMotor.setControl(flipVoltageCtrl.withOutput(totalVoltage));
     }
 
-    SmartDashboard.putNumber("Intake/FlipDeg", currentDeg);
+    SmartDashboard.putNumber("Intake/FlipDeg", Units.rotationsToDegrees(currentRot));
     SmartDashboard.putNumber("Intake/FlipGoalDeg", flipState.angleDeg);
-    SmartDashboard.putNumber("Intake/FlipSetpointVel", setpoint.velocity);
     SmartDashboard.putNumber("Intake/FlipAppliedVolts", totalVoltage);
     SmartDashboard.putBoolean("Intake/FlipAtTarget", flipAtTarget());
 
     if (flipManualOverride) {
-      SmartDashboard.putNumber("Intake/CapturedFlipOutDeg", currentDeg);
-      flipController.reset(currentDeg);
+      SmartDashboard.putNumber("Intake/CapturedFlipOutDeg", Units.rotationsToDegrees(currentRot));
+      flipController.reset(currentRot);
     }
   }
 

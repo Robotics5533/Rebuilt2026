@@ -28,6 +28,8 @@ import frc.robot.utils.LimelightHelpers;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 public class CommandSwerveDrivetrain
         extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.004; // 4 ms
@@ -209,6 +211,13 @@ public class CommandSwerveDrivetrain
         return alliance.get() == Alliance.Red
                 ? Constants.LimelightConstants.RED_HUB_TAGS.contains(tagId)
                 : Constants.LimelightConstants.BLUE_HUB_TAGS.contains(tagId);
+    }
+
+    public void setNeutralMode(NeutralModeValue mode) {
+        for (int i = 0; i < 4; ++i) {
+            getModule(i).getDriveMotor().setNeutralMode(mode);
+            getModule(i).getSteerMotor().setNeutralMode(mode);
+        }
     }
 
     private void startSimThread() {

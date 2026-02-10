@@ -1,36 +1,57 @@
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj2.command.Command;
+import frc.robot.Constants;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.WasherSubsystem;
 
 public class ShootLoad extends Command {
   private final ShooterSubsystem shooters;
-  private final double reserveSeconds;
+  private final WasherSubsystem washers;
+  private final double durationSeconds;
+  private final edu.wpi.first.wpilibj.Timer timer = new edu.wpi.first.wpilibj.Timer();
+  private boolean isShooting = false;
 
-  public ShootLoad(ShooterSubsystem shooters) {
-    this(shooters, 5.5);
+  public ShootLoad(ShooterSubsystem shooters, WasherSubsystem washers) {
+    this(shooters, washers, 2.0);
   }
 
-  public ShootLoad(ShooterSubsystem shooters, double reserveSeconds) {
+  public ShootLoad(ShooterSubsystem shooters, WasherSubsystem washers, double durationSeconds) {
     this.shooters = shooters;
-    this.reserveSeconds = reserveSeconds;
-    addRequirements(shooters);
+    this.washers = washers;
+    this.durationSeconds = durationSeconds;
+    addRequirements(shooters, washers);
   }
 
   @Override
   public void initialize() {
-    shooters.startBothShootersWasher();
+    shooters.startBothShooters();
+    timer.reset();
+    timer.stop();
+    isShooting = false;
+  }
+
+  @Override
+  public void execute() {
+    if (shooters.areShootersAtSpeed()) {
+      if (!isShooting) {
+        isShooting = true;
+        timer.restart();
+      }
+      washers.runWasher(Constants.ShooterConstants.washerVoltage);
+    } else {
+      washers.stopWasher();
+    }
   }
 
   @Override
   public boolean isFinished() {
-    double t = DriverStation.getMatchTime();
-    return t >= 0 && t <= reserveSeconds;
+    return isShooting && timer.hasElapsed(durationSeconds);
   }
 
   @Override
   public void end(boolean interrupted) {
-    shooters.stopShootersWasher();
+    shooters.stopShooters();
+    washers.stopWasher();
   }
 }

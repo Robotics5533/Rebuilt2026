@@ -8,7 +8,9 @@ import frc.robot.commands.AutoAlignHub;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.WasherSubsystem;
 
 public class Controls {
     private final CommandXboxController driver;
@@ -31,9 +33,9 @@ public class Controls {
         return -MathUtil.applyDeadband(driver.getRightX(), Constants.DriveConstants.DEADBAND);
     }
 
-    public void configureDriver(CommandSwerveDrivetrain drivetrain) {
+    public void configureDriver(CommandSwerveDrivetrain drivetrain, LimelightSubsystem limelight) {
         driver.rightBumper().whileTrue(
-                new AutoAlignHub(drivetrain, driver));
+                new AutoAlignHub(drivetrain, limelight, driver));
 
         driver.leftBumper().onTrue(
                 drivetrain.runOnce(drivetrain::seedFieldCentric));
@@ -46,22 +48,41 @@ public class Controls {
                         new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
     }
 
-    // Operator Bindings
     public void configureOperator(CommandSwerveDrivetrain drivetrain, ClimbSubsystem climb, IntakeSubsystem intake,
-            ShooterSubsystem shooters) {
-        operator.y().whileTrue(new AutoAlignHub(drivetrain, driver).finishWhenAligned()
-                .andThen(shooters.runInterpolatedShot(() -> frc.robot.utils.AllianceUtil.getDistanceToHub(drivetrain,
-                        Constants.LimelightConstants.LIMELIGHT_NAME))));
+            ShooterSubsystem shooters, WasherSubsystem washers, LimelightSubsystem limelight) {
         operator.b().onTrue(climb.runOnce(climb::cycleState));
         operator.a().onTrue(intake.runOnce(intake::toggleFlip));
         operator.rightBumper().whileTrue(intake.runOnce(intake::runRollerForward))
                 .onFalse(intake.runOnce(intake::stopRoller));
         operator.leftBumper().whileTrue(intake.runOnce(intake::runRollerReverse))
                 .onFalse(intake.runOnce(intake::stopRoller));
-        operator.rightTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD).whileTrue(shooters.runRightShooter());
-        operator.leftTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD).whileTrue(shooters.runLeftShooter());
+
+        operator.rightTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD).whileTrue(
+                shooters.runRightShooter().alongWith(
+                        washers.run(() -> {
+                            if (shooters.isAtSpeed(ShooterSubsystem.ShooterSide.RIGHT)) {
+                                washers.runWasher(Constants.ShooterConstants.washerVoltage);
+                            } else {
+                                washers.stopWasher();
+                            }
+                        }).finallyDo(washers::stopWasher)));
+
+        operator.leftTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD).whileTrue(
+                shooters.runLeftShooter().alongWith(
+                        washers.run(() -> {
+                            if (shooters.isAtSpeed(ShooterSubsystem.ShooterSide.LEFT)) {
+                                washers.runWasher(Constants.ShooterConstants.washerVoltage);
+                            } else {
+                                washers.stopWasher();
+                            }
+                        }).finallyDo(washers::stopWasher)));
+
         operator.x().whileTrue(intake.flipManualForwardCommand(3.0));
         operator.back().whileTrue(intake.flipManualReverseCommand(3.0));
+    }
+
+    public void setOperatorRumble(double intensity) {
+        operator.getHID().setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, intensity);
     }
 
     public CommandXboxController getDriver() {

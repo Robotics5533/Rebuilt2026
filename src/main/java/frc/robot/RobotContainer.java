@@ -2,6 +2,8 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.wpilibj2.command.Commands;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -24,151 +26,150 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.WasherSubsystem;
 import frc.robot.utils.FieldPositions;
 import frc.robot.utils.MathUtil;
 import frc.robot.utils.Controls;
 
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
 public class RobotContainer {
 
-    private final double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond);
-    private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond);
+        private final double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond) * (Constants.DriveConstants.SPEED_MULTIPLIER / 100.0);
+        private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond) * (Constants.DriveConstants.SPEED_MULTIPLIER / 100.0);
 
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * Constants.DriveConstants.DEADBAND)
-            .withRotationalDeadband(MaxAngularRate * Constants.DriveConstants.DEADBAND)
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+        private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+                        .withDeadband(MaxSpeed * Constants.DriveConstants.DEADBAND)
+                        .withRotationalDeadband(MaxAngularRate * Constants.DriveConstants.DEADBAND)
+                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
-    private final Controls controls = new Controls();
-    private final Field2d fieldViz = new Field2d();
+        private final Telemetry logger = new Telemetry(MaxSpeed);
+        private final Controls controls = new Controls();
+        private final Field2d fieldViz = new Field2d();
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    private final ClimbSubsystem climb = new ClimbSubsystem();
-    private final IntakeSubsystem intake = new IntakeSubsystem();
-    private final ShooterSubsystem shooters = new ShooterSubsystem();
+        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        private final LimelightSubsystem limelight = new LimelightSubsystem(Constants.LimelightConstants.LIMELIGHT_NAME,
+                        drivetrain);
+        private final ClimbSubsystem climb = new ClimbSubsystem();
+        private final IntakeSubsystem intake = new IntakeSubsystem();
+        private final ShooterSubsystem shooters = new ShooterSubsystem();
+        private final WasherSubsystem washers = new WasherSubsystem();
 
-    private final SendableChooser<Command> autoChooser;
+        private final SendableChooser<Command> autoChooser;
 
-    public RobotContainer() {
+        public RobotContainer() {
 
-        NamedCommands.registerCommand("shoot_load", new frc.robot.commands.ShootLoad(shooters));
-        autoChooser = AutoBuilder.buildAutoChooser("Tests");
-        SmartDashboard.putData("Auto Mode", autoChooser);
-        SmartDashboard.putData("Field", fieldViz);
+                NamedCommands.registerCommand("shoot_load", new frc.robot.commands.ShootLoad(shooters, washers));
+                NamedCommands.registerCommand("intake",
+                                intake.runOnce(() -> intake.setFlip(IntakeSubsystem.FlipState.Out))
+                                                .andThen(intake.run(intake::runRollerForward)));
+                NamedCommands.registerCommand("stop_intake", intake.runOnce(intake::stopRoller)
+                                .andThen(intake.runOnce(() -> intake.setFlip(IntakeSubsystem.FlipState.In))));
 
-        configureBindings();
-        FollowPathCommand.warmupCommand();
-    }
+                autoChooser = AutoBuilder.buildAutoChooser("Tests");
+                SmartDashboard.putData("Auto Mode", autoChooser);
+                SmartDashboard.putData("Field", fieldViz);
 
-    private void configureBindings() {
+                configureBindings();
+                FollowPathCommand.warmupCommand();
+        }
 
-        drivetrain.setDefaultCommand(drivetrain.run(() -> {
-            drivetrain.setControl(
-                    drive.withVelocityX(controls.getDriveX() * MaxSpeed)
-                            .withVelocityY(controls.getDriveY() * MaxSpeed)
-                            .withRotationalRate(controls.getDriveOmega() * MaxAngularRate));
+        private void configureBindings() {
 
-            fieldViz.setRobotPose(drivetrain.getState().Pose);
+                drivetrain.setDefaultCommand(drivetrain.run(() -> {
+                        drivetrain.setControl(
+                                        drive.withVelocityX(controls.getDriveX() * MaxSpeed)
+                                                        .withVelocityY(controls.getDriveY() * MaxSpeed)
+                                                        .withRotationalRate(controls.getDriveOmega() * MaxAngularRate));
 
-            fieldViz.getObject("BlueHub").setPose(FieldPositions.getBlueHubPose());
-            fieldViz.getObject("RedHub").setPose(FieldPositions.getRedHubPose());
+                        fieldViz.setRobotPose(drivetrain.getState().Pose);
 
-            fieldViz.getObject("BlueTowerRight")
-                    .setPose(FieldPositions.getBlueTowerRightPose());
-            fieldViz.getObject("RedTowerRight")
-                    .setPose(FieldPositions.getRedTowerRightPose());
+                        fieldViz.getObject("BlueHub").setPose(FieldPositions.getBlueHubPose());
+                        fieldViz.getObject("RedHub").setPose(FieldPositions.getRedHubPose());
 
-            fieldViz.getObject("BlueBumpLeft")
-                    .setPose(FieldPositions.getBlueBumpLeftPose());
-            fieldViz.getObject("BlueBumpRight")
-                    .setPose(FieldPositions.getBlueBumpRightPose());
-            fieldViz.getObject("RedBumpLeft")
-                    .setPose(FieldPositions.getRedBumpLeftPose());
-            fieldViz.getObject("RedBumpRight")
-                    .setPose(FieldPositions.getRedBumpRightPose());
+                        fieldViz.getObject("BlueTowerRight")
+                                        .setPose(FieldPositions.getBlueTowerRightPose());
+                        fieldViz.getObject("RedTowerRight")
+                                        .setPose(FieldPositions.getRedTowerRightPose());
 
-            updateDynamicObstacles();
-        }));
+                        fieldViz.getObject("BlueBumpLeft")
+                                        .setPose(FieldPositions.getBlueBumpLeftPose());
+                        fieldViz.getObject("BlueBumpRight")
+                                        .setPose(FieldPositions.getBlueBumpRightPose());
+                        fieldViz.getObject("RedBumpLeft")
+                                        .setPose(FieldPositions.getRedBumpLeftPose());
+                        fieldViz.getObject("RedBumpRight")
+                                        .setPose(FieldPositions.getRedBumpRightPose());
 
-        controls.configureDriver(drivetrain);
-        controls.configureOperator(drivetrain, climb, intake, shooters);
+                        updateDynamicObstacles();
+                }));
 
-        climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
+                controls.configureDriver(drivetrain, limelight);
+                controls.configureOperator(drivetrain, climb, intake, shooters, washers, limelight);
 
-        controls.getDriver().y().onTrue(pathfindToRightTower());
+                climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
 
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-                drivetrain.applyRequest(() -> idle).ignoringDisable(true));
+                controls.getDriver().y().onTrue(pathfindToRightTower());
 
-        drivetrain.registerTelemetry(logger::telemeterize);
+                final var idle = new SwerveRequest.Idle();
+                RobotModeTriggers.disabled().whileTrue(
+                                drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
-        SmartDashboard.putData("Climb Quasistatic F", climb.sysIdQuasistaticForward());
-        SmartDashboard.putData("Climb Quasistatic R", climb.sysIdQuasistaticReverse());
-        SmartDashboard.putData("Climb Dynamic F", climb.sysIdDynamicForward());
-        SmartDashboard.putData("Climb Dynamic R", climb.sysIdDynamicReverse());
+                RobotModeTriggers.disabled()
+                                .onTrue(drivetrain.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Coast)));
+                RobotModeTriggers.disabled().negate()
+                                .onTrue(drivetrain.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Brake)));
 
-        SmartDashboard.putData("Shooter Left Quasistatic F", shooters.sysIdLeftQuasistaticForward());
-        SmartDashboard.putData("Shooter Left Quasistatic R", shooters.sysIdLeftQuasistaticReverse());
-        SmartDashboard.putData("Shooter Left Dynamic F", shooters.sysIdLeftDynamicForward());
-        SmartDashboard.putData("Shooter Left Dynamic R", shooters.sysIdLeftDynamicReverse());
+                new Trigger(shooters::areShootersAtSpeed)
+                                .onTrue(Commands.runOnce(() -> controls.setOperatorRumble(0.5))
+                                                .andThen(Commands.waitSeconds(0.2))
+                                                .andThen(Commands.runOnce(() -> controls.setOperatorRumble(0))));
 
-        SmartDashboard.putData("Shooter Right Quasistatic F", shooters.sysIdRightQuasistaticForward());
-        SmartDashboard.putData("Shooter Right Quasistatic R", shooters.sysIdRightQuasistaticReverse());
-        SmartDashboard.putData("Shooter Right Dynamic F", shooters.sysIdRightDynamicForward());
-        SmartDashboard.putData("Shooter Right Dynamic R", shooters.sysIdRightDynamicReverse());
+                drivetrain.registerTelemetry(logger::telemeterize);
+        }
 
-        var climbEngaged = new Trigger(() -> climb.getState() != frc.robot.subsystems.ClimbSubsystem.State.Inactive);
-        climbEngaged.onTrue(intake.stowIntake());
-        climbEngaged.onTrue(intake.runOnce(() -> intake.setInterlockEnabled(true)));
-        climbEngaged.onFalse(intake.runOnce(() -> intake.setInterlockEnabled(false)));
+        private void updateDynamicObstacles() {
+                List<Pair<Translation2d, Translation2d>> obstacles = new ArrayList<>();
 
-        SmartDashboard.putData("Flip Manual F 3V", intake.flipManualForwardCommand(3.0));
-        SmartDashboard.putData("Flip Manual R 3V", intake.flipManualReverseCommand(3.0));
-        SmartDashboard.putData("Flip Capture Out", intake.captureFlipOutRotCommand());
-    }
+                obstacles.add(MathUtil.createBoundingBox(
+                                Constants.FieldConstants.blueBumpLeftPose.getTranslation(),
+                                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
 
-    private void updateDynamicObstacles() {
-        List<Pair<Translation2d, Translation2d>> obstacles = new ArrayList<>();
+                obstacles.add(MathUtil.createBoundingBox(
+                                Constants.FieldConstants.blueBumpRightPose.getTranslation(),
+                                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
 
-        obstacles.add(MathUtil.createBoundingBox(
-                Constants.FieldConstants.blueBumpLeftPose.getTranslation(),
-                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+                obstacles.add(MathUtil.createBoundingBox(
+                                Constants.FieldConstants.redBumpLeftPose.getTranslation(),
+                                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
 
-        obstacles.add(MathUtil.createBoundingBox(
-                Constants.FieldConstants.blueBumpRightPose.getTranslation(),
-                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+                obstacles.add(MathUtil.createBoundingBox(
+                                Constants.FieldConstants.redBumpRightPose.getTranslation(),
+                                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
 
-        obstacles.add(MathUtil.createBoundingBox(
-                Constants.FieldConstants.redBumpLeftPose.getTranslation(),
-                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+                Pathfinding.setDynamicObstacles(
+                                obstacles,
+                                drivetrain.getState().Pose.getTranslation());
+        }
 
-        obstacles.add(MathUtil.createBoundingBox(
-                Constants.FieldConstants.redBumpRightPose.getTranslation(),
-                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+        public Command pathfindToRightTower() {
 
-        Pathfinding.setDynamicObstacles(
-                obstacles,
-                drivetrain.getState().Pose.getTranslation());
-    }
+                var target = frc.robot.utils.AllianceUtil.isRedAlliance()
+                                ? FieldPositions.getRedTowerRightPose()
+                                : FieldPositions.getBlueTowerRightPose();
 
-    public Command pathfindToRightTower() {
+                PathConstraints constraints = new PathConstraints(
+                                MaxSpeed * 0.8,
+                                MaxSpeed * 1.2,
+                                MaxAngularRate * 0.8,
+                                MaxAngularRate * 1.2);
 
-        var target = frc.robot.utils.AllianceUtil.isRedAlliance()
-                ? FieldPositions.getRedTowerRightPose()
-                : FieldPositions.getBlueTowerRightPose();
+                return AutoBuilder.pathfindToPose(target, constraints, 0.0);
+        }
 
-        PathConstraints constraints = new PathConstraints(
-                MaxSpeed * 0.8,
-                MaxSpeed * 1.2,
-                MaxAngularRate * 0.8,
-                MaxAngularRate * 1.2);
-
-        return AutoBuilder.pathfindToPose(target, constraints, 0.0);
-    }
-
-    public Command getAutonomousCommand() {
-        return autoChooser.getSelected();
-    }
+        public Command getAutonomousCommand() {
+                return autoChooser.getSelected();
+        }
 }
