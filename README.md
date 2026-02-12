@@ -12,14 +12,11 @@
 | Left Bumper (press) | Seed field-centric | Sets operator perspective |
 | A (hold) | Swerve drive brake | Hold position |
 | B (hold) | Point wheels at left-stick direction | Wheel align |
-| Y (press) | Pathfind to alliance right tower | Uses PathPlanner |
 
 ### Operator Controls
 
 | Input | Action | Notes |
 |---|---|---|
-| Y (hold) | AutoAlign to hub, then shoot by distance | Release to stop |
-| B (press) | Climb cycle state | Inactive → Active → Hanging |
 | A (press) | Intake flip toggle | Blocks Out when climb engaged |
 | Right Bumper (hold) | Intake roller forward | Stops on release |
 | Left Bumper (hold) | Intake roller reverse | Stops on release |
@@ -29,7 +26,6 @@
 | Back (hold) | Intake flip manual reverse (3V) | Calibration jog |
 
 Notes:
-- Intake/Climb interlock auto-stows intake and blocks Out while climb is Active/Hanging.
 - Intake flip calibration logs Intake/CapturedFlipOutRot continuously during manual jog.
 - PathPlanner named command "shoot_load" is registered and will shoot until match time ≤ 5.5s.
  - Shooter uses distance→velocity interpolation when firing via Y; see shooter.md.

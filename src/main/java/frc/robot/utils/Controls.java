@@ -50,7 +50,7 @@ public class Controls {
 
     public void configureOperator(CommandSwerveDrivetrain drivetrain, ClimbSubsystem climb, IntakeSubsystem intake,
             ShooterSubsystem shooters, WasherSubsystem washers, LimelightSubsystem limelight) {
-        operator.b().onTrue(climb.runOnce(climb::cycleState));
+        // operator.b().onTrue(climb.runOnce(climb::cycleState));
         operator.a().onTrue(intake.runOnce(intake::toggleFlip));
         operator.rightBumper().whileTrue(intake.runOnce(intake::runRollerForward))
                 .onFalse(intake.runOnce(intake::stopRoller));

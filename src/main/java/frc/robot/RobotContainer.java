@@ -109,9 +109,9 @@ public class RobotContainer {
                 controls.configureDriver(drivetrain, limelight);
                 controls.configureOperator(drivetrain, climb, intake, shooters, washers, limelight);
 
-                climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
+                // climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
 
-                controls.getDriver().y().onTrue(pathfindToRightTower());
+                // controls.getDriver().y().onTrue(pathfindToRightTower());
 
                 final var idle = new SwerveRequest.Idle();
                 RobotModeTriggers.disabled().whileTrue(
