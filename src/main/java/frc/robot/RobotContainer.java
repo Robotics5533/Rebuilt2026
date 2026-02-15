@@ -24,7 +24,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.ClimbSubsystem;
+// import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -52,7 +52,7 @@ public class RobotContainer {
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         private final LimelightSubsystem limelight = new LimelightSubsystem(Constants.LimelightConstants.LIMELIGHT_NAME,
                         drivetrain);
-        private final ClimbSubsystem climb = new ClimbSubsystem();
+        // private final ClimbSubsystem climb = new ClimbSubsystem();
         private final IntakeSubsystem intake = new IntakeSubsystem();
         private final ShooterSubsystem shooters = new ShooterSubsystem();
         private final WasherSubsystem washers = new WasherSubsystem();
@@ -84,30 +84,30 @@ public class RobotContainer {
                                                         .withVelocityY(controls.getDriveY() * MaxSpeed)
                                                         .withRotationalRate(controls.getDriveOmega() * MaxAngularRate));
 
-                        fieldViz.setRobotPose(drivetrain.getState().Pose);
+                        // fieldViz.setRobotPose(drivetrain.getState().Pose);
 
-                        fieldViz.getObject("BlueHub").setPose(FieldPositions.getBlueHubPose());
-                        fieldViz.getObject("RedHub").setPose(FieldPositions.getRedHubPose());
+                        // fieldViz.getObject("BlueHub").setPose(FieldPositions.getBlueHubPose());
+                        // fieldViz.getObject("RedHub").setPose(FieldPositions.getRedHubPose());
 
-                        fieldViz.getObject("BlueTowerRight")
-                                        .setPose(FieldPositions.getBlueTowerRightPose());
-                        fieldViz.getObject("RedTowerRight")
-                                        .setPose(FieldPositions.getRedTowerRightPose());
+                        // fieldViz.getObject("BlueTowerRight")
+                        //                 .setPose(FieldPositions.getBlueTowerRightPose());
+                        // fieldViz.getObject("RedTowerRight")
+                        //                 .setPose(FieldPositions.getRedTowerRightPose());
 
-                        fieldViz.getObject("BlueBumpLeft")
-                                        .setPose(FieldPositions.getBlueBumpLeftPose());
-                        fieldViz.getObject("BlueBumpRight")
-                                        .setPose(FieldPositions.getBlueBumpRightPose());
-                        fieldViz.getObject("RedBumpLeft")
-                                        .setPose(FieldPositions.getRedBumpLeftPose());
-                        fieldViz.getObject("RedBumpRight")
-                                        .setPose(FieldPositions.getRedBumpRightPose());
+                        // fieldViz.getObject("BlueBumpLeft")
+                        //                 .setPose(FieldPositions.getBlueBumpLeftPose());
+                        // fieldViz.getObject("BlueBumpRight")
+                        //                 .setPose(FieldPositions.getBlueBumpRightPose());
+                        // fieldViz.getObject("RedBumpLeft")
+                        //                 .setPose(FieldPositions.getRedBumpLeftPose());
+                        // fieldViz.getObject("RedBumpRight")
+                        //                 .setPose(FieldPositions.getRedBumpRightPose());
 
-                        updateDynamicObstacles();
+                        // updateDynamicObstacles();
                 }));
 
                 controls.configureDriver(drivetrain, limelight);
-                controls.configureOperator(drivetrain, climb, intake, shooters, washers, limelight);
+                controls.configureOperator(drivetrain,  intake, shooters, washers, limelight);
 
                 // climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
 
@@ -130,44 +130,44 @@ public class RobotContainer {
                 drivetrain.registerTelemetry(logger::telemeterize);
         }
 
-        private void updateDynamicObstacles() {
-                List<Pair<Translation2d, Translation2d>> obstacles = new ArrayList<>();
+        // private void updateDynamicObstacles() {
+        //         List<Pair<Translation2d, Translation2d>> obstacles = new ArrayList<>();
 
-                obstacles.add(MathUtil.createBoundingBox(
-                                Constants.FieldConstants.blueBumpLeftPose.getTranslation(),
-                                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+        //         obstacles.add(MathUtil.createBoundingBox(
+        //                         Constants.FieldConstants.blueBumpLeftPose.getTranslation(),
+        //                         Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
 
-                obstacles.add(MathUtil.createBoundingBox(
-                                Constants.FieldConstants.blueBumpRightPose.getTranslation(),
-                                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+        //         obstacles.add(MathUtil.createBoundingBox(
+        //                         Constants.FieldConstants.blueBumpRightPose.getTranslation(),
+        //                         Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
 
-                obstacles.add(MathUtil.createBoundingBox(
-                                Constants.FieldConstants.redBumpLeftPose.getTranslation(),
-                                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+        //         obstacles.add(MathUtil.createBoundingBox(
+        //                         Constants.FieldConstants.redBumpLeftPose.getTranslation(),
+        //                         Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
 
-                obstacles.add(MathUtil.createBoundingBox(
-                                Constants.FieldConstants.redBumpRightPose.getTranslation(),
-                                Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
+        //         obstacles.add(MathUtil.createBoundingBox(
+        //                         Constants.FieldConstants.redBumpRightPose.getTranslation(),
+        //                         Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
 
-                Pathfinding.setDynamicObstacles(
-                                obstacles,
-                                drivetrain.getState().Pose.getTranslation());
-        }
+        //         Pathfinding.setDynamicObstacles(
+        //                         obstacles,
+        //                         drivetrain.getState().Pose.getTranslation());
+        // }
 
-        public Command pathfindToRightTower() {
+        // public Command pathfindToRightTower() {
 
-                var target = frc.robot.utils.AllianceUtil.isRedAlliance()
-                                ? FieldPositions.getRedTowerRightPose()
-                                : FieldPositions.getBlueTowerRightPose();
+        //         var target = frc.robot.utils.AllianceUtil.isRedAlliance()
+        //                         ? FieldPositions.getRedTowerRightPose()
+        //                         : FieldPositions.getBlueTowerRightPose();
 
-                PathConstraints constraints = new PathConstraints(
-                                MaxSpeed * 0.8,
-                                MaxSpeed * 1.2,
-                                MaxAngularRate * 0.8,
-                                MaxAngularRate * 1.2);
+        //         PathConstraints constraints = new PathConstraints(
+        //                         MaxSpeed * 0.8,
+        //                         MaxSpeed * 1.2,
+        //                         MaxAngularRate * 0.8,
+        //                         MaxAngularRate * 1.2);
 
-                return AutoBuilder.pathfindToPose(target, constraints, 0.0);
-        }
+        //         return AutoBuilder.pathfindToPose(target, constraints, 0.0);
+        // }
 
         public Command getAutonomousCommand() {
                 return autoChooser.getSelected();

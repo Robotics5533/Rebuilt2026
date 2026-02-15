@@ -6,7 +6,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.commands.AutoAlignHub;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.ClimbSubsystem;
+// import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -48,7 +48,7 @@ public class Controls {
                         new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
     }
 
-    public void configureOperator(CommandSwerveDrivetrain drivetrain, ClimbSubsystem climb, IntakeSubsystem intake,
+    public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
             ShooterSubsystem shooters, WasherSubsystem washers, LimelightSubsystem limelight) {
         // operator.b().onTrue(climb.runOnce(climb::cycleState));
         operator.a().onTrue(intake.runOnce(intake::toggleFlip));

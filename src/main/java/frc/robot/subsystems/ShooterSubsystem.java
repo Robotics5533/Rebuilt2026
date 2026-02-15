@@ -76,20 +76,20 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   public Command runRightShooter() {
-    return run(() -> setRightVoltage(Constants.ShooterConstants.shooterTargetVoltage))
+    return run(() -> setRightVoltage(-Constants.ShooterConstants.shooterTargetVoltage))
         .finallyDo(this::stopShooters);
   }
 
   public Command runBothShooters() {
     return run(() -> {
       setLeftVoltage(Constants.ShooterConstants.shooterTargetVoltage);
-      setRightVoltage(Constants.ShooterConstants.shooterTargetVoltage);
+      setRightVoltage(-Constants.ShooterConstants.shooterTargetVoltage);
     }).finallyDo(this::stopShooters);
   }
 
   public void startBothShooters() {
     setLeftVoltage(Constants.ShooterConstants.shooterTargetVoltage);
-    setRightVoltage(Constants.ShooterConstants.shooterTargetVoltage);
+    setRightVoltage(-Constants.ShooterConstants.shooterTargetVoltage);
   }
 
   public void stopShooters() {
