@@ -50,46 +50,44 @@ public class Controls {
 
     public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
             ShooterSubsystem shooters, WasherSubsystem washers, LimelightSubsystem limelight) {
-        // operator.b().onTrue(climb.runOnce(climb::cycleState));
+
         operator.a().onTrue(intake.runOnce(intake::toggleFlip));
 
-        //// VVVVVVVVVVVVVVVVVV RIGHT HERE LIBRAL VVVVVVVVVVVVVVVVVVVVVV
-        operator.rightBumper().onTrue(intake.runOnce(intake::runRollerForward));
-        operator.rightBumper().onFalse(intake.runOnce(intake::stopRoller));
-        /// Why is this not equaiviant to the bellwo code?
-        /// the below code, both code branced run something once
-        /// so why not just have both boolean states just run the thing?
-        /// this is non blocking
-        /// the code only sets constant
-        /// and its not blocking
-        /// it is not blocking
-        /// bruh
-
-                // .onFalse(intake.runOnce(intake::stopRoller));
-        operator.leftBumper().whileTrue(intake.runOnce(intake::runRollerReverse))
+        operator.rightBumper()
+                .onTrue(intake.run(intake::runRollerForward))
                 .onFalse(intake.runOnce(intake::stopRoller));
 
-        
+        operator.leftBumper()
+                .onTrue(intake.run(intake::runRollerReverse))
+                .onFalse(intake.runOnce(intake::stopRoller));
 
-        operator.leftTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD).whileTrue(
-                shooters.runLeftShooter().alongWith(
-                        washers.run(() -> {
-                            if (shooters.isAtSpeed(ShooterSubsystem.ShooterSide.LEFT)) {
-                                washers.runWasher(Constants.ShooterConstants.washerVoltage);
-                            } else {
-                                washers.stopWasher();
-                            }
-                        }).finallyDo(washers::stopWasher)));
-        
-        operator.rightTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD).whileTrue(
-                shooters.runRightShooter().alongWith(
-                        washers.run(() -> {
-                            if (shooters.isAtSpeed(ShooterSubsystem.ShooterSide.RIGHT)) {
-                                washers.runWasher(Constants.ShooterConstants.washerVoltage);
-                            } else {
-                                washers.stopWasher();
-                            }
-                        }).finallyDo(washers::stopWasher)));
+        operator.leftTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD)
+                .onTrue(
+                        shooters.runLeftShooter().alongWith(
+                                washers.run(() -> {
+                                    if (shooters.isAtSpeed(ShooterSubsystem.ShooterSide.LEFT)) {
+                                        washers.runWasher(Constants.ShooterConstants.washerVoltage);
+                                    } else {
+                                        washers.stopWasher();
+                                    }
+                                })))
+                .onFalse(
+                        shooters.stopLeftShooterCommand()
+                                .alongWith(washers.runOnce(washers::stopWasher)));
+
+        operator.rightTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD)
+                .onTrue(
+                        shooters.runRightShooter().alongWith(
+                                washers.run(() -> {
+                                    if (shooters.isAtSpeed(ShooterSubsystem.ShooterSide.RIGHT)) {
+                                        washers.runWasher(Constants.ShooterConstants.washerVoltage);
+                                    } else {
+                                        washers.stopWasher();
+                                    }
+                                })))
+                .onFalse(
+                        shooters.stopRightShooterCommand()
+                                .alongWith(washers.runOnce(washers::stopWasher)));
 
         operator.x().whileTrue(intake.flipManualForwardCommand(3.0));
         operator.back().whileTrue(intake.flipManualReverseCommand(3.0));
