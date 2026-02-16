@@ -56,26 +56,27 @@ public class Controls {
                 .onFalse(intake.runOnce(intake::stopRoller));
         operator.leftBumper().whileTrue(intake.runOnce(intake::runRollerReverse))
                 .onFalse(intake.runOnce(intake::stopRoller));
+ operator.rightTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD).whileTrue(
+    shooters.runBothShootersVelocity(
+            Constants.ShooterConstants.shooterVelocityRPS
+        )
+        .alongWith(
+            washers.run(() -> washers.runWasher(Constants.ShooterConstants.washerVoltage))
+        )
+).onFalse(
+    shooters.runOnce(shooters::stopShooters)
+        .alongWith(
+            washers.runOnce(washers::stopWasher)
+        )
+);
 
-        operator.rightTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD).whileTrue(
-                shooters.runRightShooter().alongWith(
-                        washers.run(() -> {
-                            if (shooters.isAtSpeed(ShooterSubsystem.ShooterSide.RIGHT)) {
-                                washers.runWasher(Constants.ShooterConstants.washerVoltage);
-                            } else {
-                                washers.stopWasher();
-                            }
-                        }).finallyDo(washers::stopWasher)));
-
-        operator.leftTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD).whileTrue(
-                shooters.runLeftShooter().alongWith(
-                        washers.run(() -> {
-                            if (shooters.isAtSpeed(ShooterSubsystem.ShooterSide.LEFT)) {
-                                washers.runWasher(Constants.ShooterConstants.washerVoltage);
-                            } else {
-                                washers.stopWasher();
-                            }
-                        }).finallyDo(washers::stopWasher)));
+        operator.leftTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD)
+    .whileTrue(
+        washers.runEnd(
+            () -> washers.runWasher(Constants.ShooterConstants.washerVoltage),
+            washers::stopWasher
+        )
+    );
 
         operator.x().whileTrue(intake.flipManualForwardCommand(3.0));
         operator.back().whileTrue(intake.flipManualReverseCommand(3.0));

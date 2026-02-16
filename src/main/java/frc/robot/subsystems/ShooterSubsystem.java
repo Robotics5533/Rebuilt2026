@@ -28,7 +28,7 @@ public class ShooterSubsystem extends SubsystemBase {
     VOLTAGE, VELOCITY
   }
 
-  private ShooterControlMode controlMode = ShooterControlMode.VOLTAGE;
+  private ShooterControlMode controlMode = ShooterControlMode.VELOCITY;
 
   public ShooterSubsystem() {
     var cfg = new com.ctre.phoenix6.configs.TalonFXConfiguration()
@@ -86,6 +86,17 @@ public class ShooterSubsystem extends SubsystemBase {
       setRightVoltage(-Constants.ShooterConstants.shooterTargetVoltage);
     }).finallyDo(this::stopShooters);
   }
+  public Command runBothShootersVelocity(double rps) {
+  return run(() -> {
+    setLeftVelocity(rps);
+    setRightVelocity(-rps); // keep your inversion
+  }).finallyDo(this::stopShooters);
+}
+
+public Command runLeftShooterVelocity(double rps) {
+  return run(() -> setLeftVelocity(rps))
+      .finallyDo(this::stopShooters);
+}
 
   public void startBothShooters() {
     setLeftVoltage(Constants.ShooterConstants.shooterTargetVoltage);
