@@ -36,7 +36,7 @@ public class ShooterSubsystem extends SubsystemBase {
     VELOCITY
   }
 
-  private ShooterControlMode controlMode = ShooterControlMode.VOLTAGE;
+  private ShooterControlMode controlMode = ShooterControlMode.VELOCITY;
 
   public ShooterSubsystem() {
     TalonFXConfiguration cfg = new TalonFXConfiguration();
@@ -224,6 +224,8 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putString("Shooter/Mode", controlMode.toString());
     SmartDashboard.putNumber("Shooter/LeftRPS", leftMaster.getVelocity().getValueAsDouble());
     SmartDashboard.putNumber("Shooter/RightRPS", rightMaster.getVelocity().getValueAsDouble());
+    SmartDashboard.putBoolean("Shooter/LeftAtSpeed", isAtSpeed(ShooterSide.LEFT));
+    SmartDashboard.putBoolean("Shooter/RightAtSpeed", isAtSpeed(ShooterSide.RIGHT));
     SmartDashboard.putNumber("Shooter/LeftSetpointRPS", lastLeftSetpointRps);
     SmartDashboard.putNumber("Shooter/RightSetpointRPS", lastRightSetpointRps);
   }
