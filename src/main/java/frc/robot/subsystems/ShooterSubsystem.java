@@ -14,10 +14,8 @@ import java.util.function.DoubleSupplier;
 
 public class ShooterSubsystem extends SubsystemBase {
 
-  private final TalonFX leftMaster = new TalonFX(Constants.ShooterConstants.leftShooterMasterId);
-  private final TalonFX leftFollower = new TalonFX(Constants.ShooterConstants.leftShooterFollowerId);
-  private final TalonFX rightMaster = new TalonFX(Constants.ShooterConstants.rightShooterMasterId);
-  private final TalonFX rightFollower = new TalonFX(Constants.ShooterConstants.rightShooterFollowerId);
+  private final TalonFX leftShooter = new TalonFX(Constants.ShooterConstants.leftShooterId);
+  private final TalonFX rightShooter = new TalonFX(Constants.ShooterConstants.rightShooterId);
 
   private final VelocityVoltage velocityCtrl = new VelocityVoltage(0).withSlot(0);
   private final VoltageOut voltageCtrl = new VoltageOut(0);
@@ -51,15 +49,11 @@ public class ShooterSubsystem extends SubsystemBase {
     cfg.CurrentLimits.StatorCurrentLimit = Constants.ShooterConstants.shooterCurrentLimit;
     cfg.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    leftMaster.getConfigurator().apply(cfg);
-    leftFollower.getConfigurator().apply(cfg);
-    rightMaster.getConfigurator().apply(cfg);
-    rightFollower.getConfigurator().apply(cfg);
+    leftShooter.getConfigurator().apply(cfg);
+    rightShooter.getConfigurator().apply(cfg);
 
-    leftMaster.setNeutralMode(NeutralModeValue.Coast);
-    leftFollower.setNeutralMode(NeutralModeValue.Coast);
-    rightMaster.setNeutralMode(NeutralModeValue.Coast);
-    rightFollower.setNeutralMode(NeutralModeValue.Coast);
+    leftShooter.setNeutralMode(NeutralModeValue.Coast);
+    rightShooter.setNeutralMode(NeutralModeValue.Coast);
   }
 
   public void setControlMode(ShooterControlMode mode) {
@@ -70,12 +64,10 @@ public class ShooterSubsystem extends SubsystemBase {
     switch (side) {
       case LEFT:
         return Math
-            .abs(leftMaster.getVelocity().getValueAsDouble()) >= Constants.ShooterConstants.shooterSpeedThresholdRPS;
+            .abs(leftShooter.getVelocity().getValueAsDouble()) >= Constants.ShooterConstants.shooterSpeedThresholdRPS;
       case RIGHT:
         return Math
-            .abs(rightMaster.getVelocity().getValueAsDouble()) >= Constants.ShooterConstants.shooterSpeedThresholdRPS;
-      case BOTH:
-        return isAtSpeed(ShooterSide.LEFT) && isAtSpeed(ShooterSide.RIGHT);
+            .abs(rightShooter.getVelocity().getValueAsDouble()) >= Constants.ShooterConstants.shooterSpeedThresholdRPS;
       default:
         return false;
     }
@@ -85,31 +77,27 @@ public class ShooterSubsystem extends SubsystemBase {
     return isAtSpeed(ShooterSide.BOTH);
   }
 
-  public Command runLeftShooter() {
-    return run(
-        () -> {
-          if (controlMode == ShooterControlMode.VELOCITY) {
-            setLeftVelocity(Constants.ShooterConstants.shooterVelocityRPS);
-          } else {
-            setLeftVoltage(Constants.ShooterConstants.shooterTargetVoltage);
-          }
-        })
-        .finallyDo(this::stopLeftShooter);
+  public Command runLeftShooterToSpeedCommand() {
+    return run(() -> {
+      double target = (controlMode == ShooterControlMode.VELOCITY)
+          ? Constants.ShooterConstants.shooterVelocityRPS
+          : Constants.ShooterConstants.shooterTargetVoltage;
+      setShooterOutput(target, 0);
+    }).until(
+        () -> isAtSpeed(ShooterSide.LEFT)).withName("RunLeftShooterToSpeed");
   }
 
-  public Command runRightShooter() {
-    return run(
-        () -> {
-          if (controlMode == ShooterControlMode.VELOCITY) {
-            setRightVelocity(-Constants.ShooterConstants.shooterVelocityRPS);
-          } else {
-            setRightVoltage(-Constants.ShooterConstants.shooterTargetVoltage);
-          }
-        })
-        .finallyDo(this::stopRightShooter);
+  public Command runRightShooterToSpeedCommand() {
+    return run(() -> {
+      double target = (controlMode == ShooterControlMode.VELOCITY)
+          ? -Constants.ShooterConstants.shooterVelocityRPS
+          : -Constants.ShooterConstants.shooterTargetVoltage;
+      setShooterOutput(0, target);
+    }).until(
+        () -> isAtSpeed(ShooterSide.RIGHT)).withName("RunRightShooterToSpeed");
   }
 
-  public Command runBothShooters() {
+  public Command runBothShootersToSpeedCommand() {
     return run(
         () -> {
           double leftTarget = (controlMode == ShooterControlMode.VELOCITY)
@@ -119,31 +107,24 @@ public class ShooterSubsystem extends SubsystemBase {
           double rightTarget = -leftTarget;
           setShooterOutput(leftTarget, rightTarget);
         })
-        .finallyDo(this::stopShooters);
-  }
-
-  public void startBothShooters() {
-    double leftTarget = (controlMode == ShooterControlMode.VELOCITY)
-        ? Constants.ShooterConstants.shooterVelocityRPS
-        : Constants.ShooterConstants.shooterTargetVoltage;
-
-    double rightTarget = -leftTarget;
-    setShooterOutput(leftTarget, rightTarget);
+        .until(
+            this::areShootersAtSpeed)
+        .withName("RunBothShootersToSpeed");
   }
 
   public void stopLeftShooter() {
     if (controlMode == ShooterControlMode.VELOCITY) {
-      setLeftVelocity(0);
+      leftShooter.setControl(velocityCtrl.withVelocity(0));
     } else {
-      setLeftVoltage(0);
+      leftShooter.setControl(voltageCtrl.withOutput(0));
     }
   }
 
   public void stopRightShooter() {
     if (controlMode == ShooterControlMode.VELOCITY) {
-      setRightVelocity(0);
+      rightShooter.setControl(velocityCtrl.withVelocity(0));
     } else {
-      setRightVoltage(0);
+      rightShooter.setControl(voltageCtrl.withOutput(0));
     }
   }
 
@@ -189,41 +170,21 @@ public class ShooterSubsystem extends SubsystemBase {
 
   private void setShooterOutput(double leftValue, double rightValue) {
     if (controlMode == ShooterControlMode.VELOCITY) {
-      setLeftVelocity(leftValue);
-      setRightVelocity(rightValue);
+      lastLeftSetpointRps = leftValue;
+      leftShooter.setControl(velocityCtrl.withVelocity(leftValue));
+      lastRightSetpointRps = rightValue;
+      rightShooter.setControl(velocityCtrl.withVelocity(rightValue));
     } else {
-      setLeftVoltage(leftValue);
-      setRightVoltage(rightValue);
+      leftShooter.setControl(voltageCtrl.withOutput(leftValue));
+      rightShooter.setControl(voltageCtrl.withOutput(rightValue));
     }
-  }
-
-  private void setLeftVoltage(double volts) {
-    leftMaster.setControl(voltageCtrl.withOutput(volts));
-    leftFollower.setControl(voltageCtrl.withOutput(volts));
-  }
-
-  private void setRightVoltage(double volts) {
-    rightMaster.setControl(voltageCtrl.withOutput(volts));
-    rightFollower.setControl(voltageCtrl.withOutput(volts));
-  }
-
-  private void setLeftVelocity(double rps) {
-    lastLeftSetpointRps = rps;
-    leftMaster.setControl(velocityCtrl.withVelocity(rps));
-    leftFollower.setControl(velocityCtrl.withVelocity(rps));
-  }
-
-  private void setRightVelocity(double rps) {
-    lastRightSetpointRps = rps;
-    rightMaster.setControl(velocityCtrl.withVelocity(rps));
-    rightFollower.setControl(velocityCtrl.withVelocity(rps));
   }
 
   @Override
   public void periodic() {
     SmartDashboard.putString("Shooter/Mode", controlMode.toString());
-    SmartDashboard.putNumber("Shooter/LeftRPS", leftMaster.getVelocity().getValueAsDouble());
-    SmartDashboard.putNumber("Shooter/RightRPS", rightMaster.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("Shooter/LeftRPS", leftShooter.getVelocity().getValueAsDouble());
+    SmartDashboard.putNumber("Shooter/RightRPS", rightShooter.getVelocity().getValueAsDouble());
     SmartDashboard.putBoolean("Shooter/LeftAtSpeed", isAtSpeed(ShooterSide.LEFT));
     SmartDashboard.putBoolean("Shooter/RightAtSpeed", isAtSpeed(ShooterSide.RIGHT));
     SmartDashboard.putNumber("Shooter/LeftSetpointRPS", lastLeftSetpointRps);

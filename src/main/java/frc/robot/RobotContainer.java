@@ -29,6 +29,7 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
+import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.utils.FieldPositions;
 import frc.robot.utils.MathUtil;
 import frc.robot.utils.Controls;
@@ -56,15 +57,15 @@ public class RobotContainer {
         private final IntakeSubsystem intake = new IntakeSubsystem();
         private final ShooterSubsystem shooters = new ShooterSubsystem();
         private final WasherSubsystem washers = new WasherSubsystem();
+        private final FeederSubsystem feeder = new FeederSubsystem();
 
         private final SendableChooser<Command> autoChooser;
 
         public RobotContainer() {
 
-                NamedCommands.registerCommand("shoot_load", new frc.robot.commands.ShootLoad(shooters, washers));
-                NamedCommands.registerCommand("intake",
-                                intake.runOnce(() -> intake.setFlip(IntakeSubsystem.FlipState.Out))
-                                                .andThen(intake.run(intake::runRollerForward)));
+                NamedCommands.registerCommand("shoot_load", new frc.robot.commands.ShootLoad(shooters, washers, feeder));
+                NamedCommands.registerCommand("intake", intake.runOnce(() -> intake.setFlip(IntakeSubsystem.FlipState.Out)));
+                NamedCommands.registerCommand("start_intake", intake.run(intake::runRollerForward));
                 NamedCommands.registerCommand("stop_intake", intake.runOnce(intake::stopRoller)
                                 .andThen(intake.runOnce(() -> intake.setFlip(IntakeSubsystem.FlipState.In))));
 
@@ -107,7 +108,7 @@ public class RobotContainer {
                 }));
 
                 controls.configureDriver(drivetrain, limelight);
-                controls.configureOperator(drivetrain,  intake, shooters, washers, limelight);
+                controls.configureOperator(drivetrain,  intake, shooters, washers, feeder, limelight);
 
                 // climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
 

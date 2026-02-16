@@ -110,10 +110,12 @@ public final class Constants {
     }
 
     public static final class ShooterConstants {
-        public static final int leftShooterMasterId = 17;
-        public static final int leftShooterFollowerId = 18;
-        public static final int rightShooterMasterId = 20;
-        public static final int rightShooterFollowerId = 19;
+        public static final int leftShooterId = 17;
+        public static final int leftFeederId = 18;
+        public static final int rightShooterId = 20;
+        public static final int rightFeederId = 19;
+        public static final double feederVoltage = 8.0; 
+        public static final double feederCurrentLimit = 20.0; 
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
         public static final double shooterVelocityRPS = 200.0;
