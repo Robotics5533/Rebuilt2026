@@ -52,24 +52,32 @@ public class Controls {
         }
 
         public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
-                        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders,
-                        LimelightSubsystem limelight) {
+                        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders) {
 
-                operator.a().onTrue(intake.runOnce(intake::toggleFlip));
+                operator.a().onTrue(intake.runOnce(intake::toggleFlip)
+                                .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
+                                .andThen(Commands.waitSeconds(0.2))
+                                .andThen(Commands.runOnce(() -> setOperatorRumble(0))));
 
                 operator.rightBumper()
-                                .onTrue(intake.run(intake::runRollerForward))
+                                .onTrue(intake.run(intake::runRollerForward)
+                                                .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
+                                                .andThen(Commands.waitSeconds(0.2)))
                                 .onFalse(intake.runOnce(intake::stopRoller));
 
                 operator.leftBumper()
-                                .onTrue(intake.run(intake::runRollerReverse))
+                                .onTrue(intake.run(intake::runRollerReverse)
+                                                .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
+                                                .andThen(Commands.waitSeconds(0.2)))
                                 .onFalse(intake.runOnce(intake::stopRoller));
 
                 operator.leftTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD)
                                 .onTrue(
                                                 Commands.parallel(
                                                                 washers.run(Constants.ShooterConstants.washerVoltage),
-                                                                feeders.runBothFeedersCommand()))
+                                                                feeders.runBothFeedersCommand())
+                                                                .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
+                                                                .andThen(Commands.waitSeconds(0.2)))
                                 .onFalse(
                                                 Commands.parallel(
                                                                 washers.runOnce(washers::stopWasher),
@@ -77,12 +85,28 @@ public class Controls {
 
                 operator.rightTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD)
                                 .onTrue(
-                                                shooters.runBothShootersToSpeedCommand())
+                                                shooters.runBothShootersToSpeedCommand()
+                                                                .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
+                                                                .andThen(Commands.waitSeconds(0.2)))
                                 .onFalse(
                                                 shooters.stopShootersCommand());
 
-                operator.x().whileTrue(intake.flipManualForwardCommand(3.0));
-                operator.back().whileTrue(intake.flipManualReverseCommand(3.0));
+                operator.x().whileTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> setOperatorRumble(0.5)),
+                                                Commands.waitSeconds(0.2),
+                                                Commands.runOnce(() -> setOperatorRumble(0)),
+                                                intake.flipManualForwardCommand(3.0)
+                                                                .withInterruptBehavior(
+                                                                                edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior.kCancelIncoming)));
+                operator.back().whileTrue(
+                                Commands.sequence(
+                                                Commands.runOnce(() -> setOperatorRumble(0.5)),
+                                                Commands.waitSeconds(0.2),
+                                                Commands.runOnce(() -> setOperatorRumble(0)),
+                                                intake.flipManualReverseCommand(3.0)
+                                                                .withInterruptBehavior(
+                                                                                edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior.kCancelIncoming)));
         }
 
         public void setOperatorRumble(double intensity) {

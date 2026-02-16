@@ -66,8 +66,7 @@ public class RobotContainer {
                 NamedCommands.registerCommand("shoot_load", new frc.robot.commands.ShootLoad(shooters, washers, feeder));
                 NamedCommands.registerCommand("intake", intake.runOnce(() -> intake.setFlip(IntakeSubsystem.FlipState.Out)));
                 NamedCommands.registerCommand("start_intake", intake.run(intake::runRollerForward));
-                NamedCommands.registerCommand("stop_intake", intake.runOnce(intake::stopRoller)
-                                .andThen(intake.runOnce(() -> intake.setFlip(IntakeSubsystem.FlipState.In))));
+                NamedCommands.registerCommand("stop_intake", intake.runOnce(intake::stopRoller));
 
                 autoChooser = AutoBuilder.buildAutoChooser("Tests");
                 SmartDashboard.putData("Auto Mode", autoChooser);
@@ -108,7 +107,7 @@ public class RobotContainer {
                 }));
 
                 controls.configureDriver(drivetrain, limelight);
-                controls.configureOperator(drivetrain,  intake, shooters, washers, feeder, limelight);
+                controls.configureOperator(drivetrain,  intake, shooters, washers, feeder);
 
                 // climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
 
