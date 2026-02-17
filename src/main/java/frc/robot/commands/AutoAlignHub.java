@@ -59,7 +59,7 @@ public class AutoAlignHub extends Command {
     SmartDashboard.putNumber("AutoAlign/kD", Constants.DriveConstants.ALIGN_PID_D);
     SmartDashboard.putNumber("AutoAlign/kS", Constants.DriveConstants.ALIGN_KS);
 
-    SmartDashboard.setDefaultBoolean("AutoAlign/TestMode", true);
+    SmartDashboard.setDefaultBoolean("AutoAlign/TestMode", Constants.LimelightConstants.TEST_MODE);
   }
 
   public AutoAlignHub finishWhenAligned() {
@@ -95,7 +95,7 @@ public class AutoAlignHub extends Command {
     double currentHeading = robotPose.getRotation().getDegrees();
 
     double targetAngle;
-    boolean testMode = SmartDashboard.getBoolean("AutoAlign/TestMode", true);
+    boolean testMode = SmartDashboard.getBoolean("AutoAlign/TestMode", Constants.LimelightConstants.TEST_MODE);
 
     if (testMode) {
       targetAngle = 180.0;

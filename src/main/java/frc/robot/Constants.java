@@ -55,6 +55,7 @@ public final class Constants {
         public static final String LIMELIGHT_NAME = "limelight";
 
         public static final boolean ENABLE_VISION_ODOMETRY = true;
+        public static final boolean TEST_MODE = true;
         public static final double VISION_REJECTION_SPEED_THRESHOLD_MPS = 2.0;
         public static final double VISION_REJECTION_DISTANCE_THRESHOLD_METERS = 1.0;
     }

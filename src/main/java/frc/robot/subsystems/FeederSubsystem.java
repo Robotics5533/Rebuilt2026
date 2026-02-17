@@ -35,7 +35,7 @@ public class FeederSubsystem extends SubsystemBase {
     }
 
     public void setRightFeederVoltage(double volts) {
-        rightFeeder.setControl(voltageCtrl.withOutput(volts));
+        rightFeeder.setControl(voltageCtrl.withOutput(-volts));
     }
 
     public void stopLeftFeeder() {
