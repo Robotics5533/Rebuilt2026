@@ -59,7 +59,7 @@ public class RobotContainer {
                         drivetrain); // Limelight subsystem for vision processing
         // private final ClimbSubsystem climb = new ClimbSubsystem(); // Climb subsystem (currently commented out)
         private final IntakeSubsystem intake = new IntakeSubsystem(); // Intake subsystem
-        private final ShooterSubsystem shooters = new ShooterSubsystem(); // Shooter subsystem
+        private final ShooterSubsystem shooters = new ShooterSubsystem(drivetrain, Constants.LimelightConstants.LIMELIGHT_NAME); // Shooter subsystem
         private final WasherSubsystem washers = new WasherSubsystem(); // Washer subsystem
         private final FeederSubsystem feeder = new FeederSubsystem(); // Feeder subsystem
 

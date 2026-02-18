@@ -127,6 +127,7 @@ public final class Constants {
         public static final double washerVoltage = 6.0;
         public static final double shooterTargetVoltage = 12.0;
         public static final double shooterSpeedThresholdRPS = 200.0;
+        public static final double shootAtDistanceDurationSeconds = 3.0; // Default duration for the ShootAtDistance command
         public static final double shooterCurrentLimit = 40.0;
         public static final double fuelApproxVelocityMps = 15.0; 
         public static final InterpolatingDoubleTreeMap distanceToVelocityRPS = new InterpolatingDoubleTreeMap();

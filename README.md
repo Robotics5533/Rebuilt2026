@@ -4,7 +4,7 @@ This repository contains the official software for the Rebuilt2026 FRC robot for
 
 ## Getting Started
 
-To get started with the codebase, ensure you have WPILib (2024 or newer) installed and configured for Java development. Clone this repository and open it in VS Code.
+To get started with the codebase, ensure you have WPILib (2026 or newer) installed and configured for Java development. Clone this repository and open it in VS Code.
 
 ## Codebase Navigation
 

@@ -13,6 +13,7 @@ import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.commands.ShootAtDistance;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public class Controls {
@@ -83,6 +84,9 @@ public class Controls {
                                                 shooters.runBothShootersToSpeedCommand())
                                 .onFalse(
                                                 shooters.stopShootersCommand());
+
+                // Operator Y button for distance-based shot.
+                operator.y().whileTrue(new ShootAtDistance(shooters, washers, feeders));
 
                 operator.x().whileTrue(
                                 Commands.sequence(

@@ -10,6 +10,7 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import frc.robot.utils.AllianceUtil;
 import java.util.function.DoubleSupplier;
 
 /**
@@ -51,11 +52,19 @@ public class ShooterSubsystem extends SubsystemBase {
   // The current control mode for the shooters, defaults to VELOCITY.
   private ShooterControlMode controlMode = ShooterControlMode.VELOCITY;
 
+  // The LimelightSubsystem instance for vision processing.
+  private final CommandSwerveDrivetrain drivetrain;
+  private final String limelightName;
+
   /**
    * Constructs a new ShooterSubsystem.
    * Configures the TalonFX motor controllers with PID gains, current limits, and neutral mode.
+   * @param drivetrain The CommandSwerveDrivetrain instance for odometry.
+   * @param limelightName The name of the Limelight camera.
    */
-  public ShooterSubsystem() {
+  public ShooterSubsystem(CommandSwerveDrivetrain drivetrain, String limelightName) {
+    this.drivetrain = drivetrain;
+    this.limelightName = limelightName;
     // Create a new configuration object for the TalonFXs.
     TalonFXConfiguration cfg = new TalonFXConfiguration();
 
@@ -118,6 +127,14 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public boolean areShootersAtSpeed() {
     return isAtSpeed(ShooterSide.BOTH);
+  }
+
+  /**
+   * Retrieves the current distance to the hub.
+   * @return The distance to the hub in meters.
+   */
+  public double getHubDistance() {
+    return AllianceUtil.getDistanceToHub(drivetrain, limelightName);
   }
 
   /**
@@ -305,5 +322,7 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Shooter/RightAtSpeed", isAtSpeed(ShooterSide.RIGHT));
     SmartDashboard.putNumber("Shooter/LeftSetpointRPS", lastLeftSetpointRps);
     SmartDashboard.putNumber("Shooter/RightSetpointRPS", lastRightSetpointRps);
+    // Log the distance to the speaker for calibration and verification.
+    SmartDashboard.putNumber("Shooter/DistanceMeters", getHubDistance());
   }
 }
