@@ -6,6 +6,7 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import frc.robot.Constants;
 import frc.robot.commands.AutoAlignHub;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
+ import frc.robot.subsystems.LimelightSubsystem;
 // import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -60,24 +61,18 @@ public class Controls {
                                 .andThen(Commands.runOnce(() -> setOperatorRumble(0))));
 
                 operator.rightBumper()
-                                .onTrue(intake.run(intake::runRollerForward)
-                                                .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
-                                                .andThen(Commands.waitSeconds(0.2)))
+                                .onTrue(intake.run(intake::runRollerForward))
                                 .onFalse(intake.runOnce(intake::stopRoller));
 
                 operator.leftBumper()
-                                .onTrue(intake.run(intake::runRollerReverse)
-                                                .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
-                                                .andThen(Commands.waitSeconds(0.2)))
+                                .onTrue(intake.run(intake::runRollerReverse))
                                 .onFalse(intake.runOnce(intake::stopRoller));
 
                 operator.leftTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD)
                                 .onTrue(
                                                 Commands.parallel(
                                                                 washers.run(Constants.ShooterConstants.washerVoltage),
-                                                                feeders.runBothFeedersCommand())
-                                                                .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
-                                                                .andThen(Commands.waitSeconds(0.2)))
+                                                                feeders.runBothFeedersCommand()))
                                 .onFalse(
                                                 Commands.parallel(
                                                                 washers.runOnce(washers::stopWasher),
@@ -85,9 +80,7 @@ public class Controls {
 
                 operator.rightTrigger(Constants.OperatorConstants.TRIGGER_THRESHOLD)
                                 .onTrue(
-                                                shooters.runBothShootersToSpeedCommand()
-                                                                .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
-                                                                .andThen(Commands.waitSeconds(0.2)))
+                                                shooters.runBothShootersToSpeedCommand())
                                 .onFalse(
                                                 shooters.stopShootersCommand());
 

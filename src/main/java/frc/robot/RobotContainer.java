@@ -3,19 +3,11 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.wpilibj2.command.Commands;
-
-import java.util.ArrayList;
-import java.util.List;
-
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.auto.NamedCommands;
-import com.pathplanner.lib.path.PathConstraints;
-import com.pathplanner.lib.pathfinding.Pathfinding;
-import edu.wpi.first.math.Pair;
-import edu.wpi.first.math.geometry.Translation2d;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,42 +22,57 @@ import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
-import frc.robot.utils.FieldPositions;
 import frc.robot.utils.LimelightHelpers;
-import frc.robot.utils.MathUtil;
 import frc.robot.utils.Controls;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+/**
+ * This class is where the bulk of the robot should be declared. Since Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of the robot (including
+ * subsystems, commands, and button mappings) should be declared here.
+ */
 public class RobotContainer {
-
+        // Constants for calculating max speed and angular rate based on configured multipliers.
         private final double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)
                         * (Constants.DriveConstants.SPEED_MULTIPLIER / 100.0);
         private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond)
                         * (Constants.DriveConstants.SPEED_MULTIPLIER / 100.0);
 
+        // SwerveRequest for field-centric driving with deadbands.
         private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
                         .withDeadband(MaxSpeed * Constants.DriveConstants.DEADBAND)
                         .withRotationalDeadband(MaxAngularRate * Constants.DriveConstants.DEADBAND)
                         .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
+        // Telemetry for logging and SmartDashboard updates.
         private final Telemetry logger = new Telemetry(MaxSpeed);
+        // Controls utility for handling driver and operator input.
         private final Controls controls = new Controls();
+        // Field2d for visualizing robot position on the SmartDashboard.
         private final Field2d fieldViz = new Field2d();
 
-        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        // Subsystems
+        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain(); // Drivetrain subsystem
         private final LimelightSubsystem limelight = new LimelightSubsystem(Constants.LimelightConstants.LIMELIGHT_NAME,
-                        drivetrain);
-        // private final ClimbSubsystem climb = new ClimbSubsystem();
-        private final IntakeSubsystem intake = new IntakeSubsystem();
-        private final ShooterSubsystem shooters = new ShooterSubsystem();
-        private final WasherSubsystem washers = new WasherSubsystem();
-        private final FeederSubsystem feeder = new FeederSubsystem();
+                        drivetrain); // Limelight subsystem for vision processing
+        // private final ClimbSubsystem climb = new ClimbSubsystem(); // Climb subsystem (currently commented out)
+        private final IntakeSubsystem intake = new IntakeSubsystem(); // Intake subsystem
+        private final ShooterSubsystem shooters = new ShooterSubsystem(); // Shooter subsystem
+        private final WasherSubsystem washers = new WasherSubsystem(); // Washer subsystem
+        private final FeederSubsystem feeder = new FeederSubsystem(); // Feeder subsystem
 
+        // Autonomous command chooser for selecting auto routines on SmartDashboard.
         private final SendableChooser<Command> autoChooser;
 
+        /**
+         * The container for the robot. Contains subsystems, OI devices, and commands.
+         */
         public RobotContainer() {
-                //Todo Tune this, it's from the center of the robot in order its, forward offset in meters, side offset in meters, up offset in meters, the rest are 0 
+                // Configure Limelight camera pose in robot space.
+                // Todo Tune this, it's from the center of the robot in order its, forward
+                // offset in meters, side offset in meters, up offset in meters, the rest are 0
                 LimelightHelpers.setCameraPose_RobotSpace(
                                 Constants.LimelightConstants.LIMELIGHT_NAME,
                                 -0.1905,
@@ -75,6 +82,7 @@ public class RobotContainer {
                                 0.0,
                                 0.0);
 
+                // Register named commands for use in PathPlanner autonomous routines.
                 NamedCommands.registerCommand("shoot_load",
                                 new frc.robot.commands.ShootLoad(shooters, washers, feeder));
                 NamedCommands.registerCommand("intake",
@@ -82,107 +90,64 @@ public class RobotContainer {
                 NamedCommands.registerCommand("start_intake", intake.run(intake::runRollerForward));
                 NamedCommands.registerCommand("stop_intake", intake.runOnce(intake::stopRoller));
 
+                // Build auto chooser and display on SmartDashboard.
                 autoChooser = AutoBuilder.buildAutoChooser("Tests");
                 SmartDashboard.putData("Auto Mode", autoChooser);
                 SmartDashboard.putData("Field", fieldViz);
 
+                // Configure button bindings and default commands.
                 configureBindings();
+                // Warm up PathPlanner FollowPathCommand to reduce initial latency.
                 FollowPathCommand.warmupCommand();
         }
 
+        /**
+         * Use this method to define your button->command mappings.
+         */
         private void configureBindings() {
 
+                // Set the default command for the drivetrain to field-centric control.
                 drivetrain.setDefaultCommand(drivetrain.run(() -> {
                         drivetrain.setControl(
                                         drive.withVelocityX(controls.getDriveX() * MaxSpeed)
                                                         .withVelocityY(controls.getDriveY() * MaxSpeed)
                                                         .withRotationalRate(controls.getDriveOmega() * MaxAngularRate));
 
-                        // fieldViz.setRobotPose(drivetrain.getState().Pose);
-
-                        // fieldViz.getObject("BlueHub").setPose(FieldPositions.getBlueHubPose());
-                        // fieldViz.getObject("RedHub").setPose(FieldPositions.getRedHubPose());
-
-                        // fieldViz.getObject("BlueTowerRight")
-                        // .setPose(FieldPositions.getBlueTowerRightPose());
-                        // fieldViz.getObject("RedTowerRight")
-                        // .setPose(FieldPositions.getRedTowerRightPose());
-
-                        // fieldViz.getObject("BlueBumpLeft")
-                        // .setPose(FieldPositions.getBlueBumpLeftPose());
-                        // fieldViz.getObject("BlueBumpRight")
-                        // .setPose(FieldPositions.getBlueBumpRightPose());
-                        // fieldViz.getObject("RedBumpLeft")
-                        // .setPose(FieldPositions.getRedBumpLeftPose());
-                        // fieldViz.getObject("RedBumpRight")
-                        // .setPose(FieldPositions.getRedBumpRightPose());
-
-                        // updateDynamicObstacles();
                 }));
 
+                // Configure driver and operator controls.
                 controls.configureDriver(drivetrain, limelight);
                 controls.configureOperator(drivetrain, intake, shooters, washers, feeder);
 
+                // Default command for climb subsystem (currently commented out).
                 // climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
 
-                // controls.getDriver().y().onTrue(pathfindToRightTower());
-
+                // Command to set drivetrain to idle when disabled.
                 final var idle = new SwerveRequest.Idle();
                 RobotModeTriggers.disabled().whileTrue(
                                 drivetrain.applyRequest(() -> idle).ignoringDisable(true));
 
+                // Configure neutral mode for drivetrain based on robot enable/disable state.
                 RobotModeTriggers.disabled()
                                 .onTrue(drivetrain.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Coast)));
                 RobotModeTriggers.disabled().negate()
                                 .onTrue(drivetrain.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Brake)));
 
+                // Rumble the operator controller when shooters reach target speed.
                 new Trigger(shooters::areShootersAtSpeed)
                                 .onTrue(Commands.runOnce(() -> controls.setOperatorRumble(0.5))
                                                 .andThen(Commands.waitSeconds(0.2))
                                                 .andThen(Commands.runOnce(() -> controls.setOperatorRumble(0))));
 
+                // Register drivetrain telemetry for logging.
                 drivetrain.registerTelemetry(logger::telemeterize);
         }
 
-        // private void updateDynamicObstacles() {
-        // List<Pair<Translation2d, Translation2d>> obstacles = new ArrayList<>();
-
-        // obstacles.add(MathUtil.createBoundingBox(
-        // Constants.FieldConstants.blueBumpLeftPose.getTranslation(),
-        // Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
-
-        // obstacles.add(MathUtil.createBoundingBox(
-        // Constants.FieldConstants.blueBumpRightPose.getTranslation(),
-        // Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
-
-        // obstacles.add(MathUtil.createBoundingBox(
-        // Constants.FieldConstants.redBumpLeftPose.getTranslation(),
-        // Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
-
-        // obstacles.add(MathUtil.createBoundingBox(
-        // Constants.FieldConstants.redBumpRightPose.getTranslation(),
-        // Constants.FieldConstants.bumpWidth, Constants.FieldConstants.bumpDepth));
-
-        // Pathfinding.setDynamicObstacles(
-        // obstacles,
-        // drivetrain.getState().Pose.getTranslation());
-        // }
-
-        // public Command pathfindToRightTower() {
-
-        // var target = frc.robot.utils.AllianceUtil.isRedAlliance()
-        // ? FieldPositions.getRedTowerRightPose()
-        // : FieldPositions.getBlueTowerRightPose();
-
-        // PathConstraints constraints = new PathConstraints(
-        // MaxSpeed * 0.8,
-        // MaxSpeed * 1.2,
-        // MaxAngularRate * 0.8,
-        // MaxAngularRate * 1.2);
-
-        // return AutoBuilder.pathfindToPose(target, constraints, 0.0);
-        // }
-
+        /**
+         * Use this to pass the autonomous command to the main {@link Robot} class.
+         *
+         * @return the command to run in autonomous
+         */
         public Command getAutonomousCommand() {
                 return autoChooser.getSelected();
         }
