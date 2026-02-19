@@ -42,9 +42,8 @@ The robot's software is structured according to the WPILib Command-Based paradig
 | A (press) | Intake flip toggle | With rumble feedback |
 | Right Bumper (hold) | Intake roller forward | Stops on release |
 | Left Bumper (hold) | Intake roller reverse | Stops on release |
-| Left Trigger (hold) | Run left shooter, then washer & left feeder | Shooters must be at speed before feeders/washer activate |
-| Right Trigger (hold) | Run right shooter, then washer & right feeder | Shooters must be at speed before feeders/washer activate |
-| Left Trigger + Right Trigger (hold) | Run both shooters, then washer & both feeders | Shooters must be at speed before feeders/washer activate |
+| Left Trigger (hold) | Run washer and both feeders | |
+| Right Trigger (hold) | Run both shooters to speed | |
 | Y (hold) | Shoot at distance | Conditional on being in alliance zone |
 | X (hold) | Intake flip manual forward (3V) | Calibration jog |
 | Back (hold) | Intake flip manual reverse (3V) | Calibration jog |

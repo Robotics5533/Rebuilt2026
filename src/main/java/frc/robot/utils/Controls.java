@@ -72,70 +72,31 @@ public class Controls {
 
         operator.leftTrigger().whileTrue(
             Commands.parallel(
-                shooters.runLeftShooterToSpeedCommand()
-                .withInterruptBehavior(
-                    edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior.kCancelIncoming),
-                Commands.sequence(
-                    Commands.waitUntil(shooters::isLeftAtSpeed),
-                    Commands.parallel(
-                        washers.run(Constants.ShooterConstants.washerVoltage),
-                        feeders.runLeftFeederCommand())))
-            .finallyDo(interrupted -> {
-                shooters.stopLeftShooter();
-                washers.stopWasher();
-                feeders.stopLeftFeeder();
-            })
-            .withName("RunLeftShooterAndFeeder"));
-
-        operator.rightTrigger().whileTrue(
-            Commands.parallel(
-                shooters.runRightShooterToSpeedCommand()
-                .withInterruptBehavior(
-                    edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior.kCancelIncoming),
-                Commands.sequence(
-                    Commands.waitUntil(shooters::isRightAtSpeed),
-                    Commands.parallel(
-                        washers.run(Constants.ShooterConstants.washerVoltage),
-                        feeders.runRightFeederCommand())))
-            .finallyDo(() -> {
-                shooters.stopRightShooter();
-                washers.stopWasher();
-                feeders.stopRightFeeder();
-            })
-            .withName("RunRightShooterAndFeeder"));
-
-        new Trigger(() -> operator.getLeftTriggerAxis() > Constants.OperatorConstants.TRIGGER_THRESHOLD &&
-                operator.getRightTriggerAxis() > Constants.OperatorConstants.TRIGGER_THRESHOLD)
-            .whileTrue(
-                Commands.parallel(
-                    shooters.runBothShootersToSpeedCommand()
-                    .withInterruptBehavior(
-                        edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior.kCancelIncoming),
-                    Commands.sequence(
-                        Commands.waitUntil(
-                            shooters::areShootersAtSpeed),
-                        Commands.parallel(
-                            washers.run(Constants.ShooterConstants.washerVoltage),
-                            feeders.runBothFeedersCommand())))
-                .finallyDo(() -> {
-                    shooters.stopShooters();
+                washers.run(Constants.ShooterConstants.washerVoltage),
+                feeders.runBothFeedersCommand())
+                .finallyDo(interrupted -> {
                     washers.stopWasher();
                     feeders.stopFeeders();
                 })
-                .withName("RunBothShootersAndFeeders"));
+                .withName("RunWashersAndFeeders"));
+
+        operator.rightTrigger().whileTrue(
+            shooters.runBothShootersToSpeedCommand()
+                .finallyDo(() -> {
+                    shooters.stopShooters();
+                })
+                .withName("RunBothShooters"));
+
+
 
         operator.y().and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(new ShootAtDistance(shooters, washers, feeders));
 
         operator.x().whileTrue(
             Commands.sequence(
-                intake.flipManualForwardCommand(3.0)
-                .withInterruptBehavior(
-                    edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior.kCancelIncoming)));
+                intake.flipManualForwardCommand(3.0)));
         operator.back().whileTrue(
             Commands.sequence(
-                intake.flipManualReverseCommand(3.0)
-                .withInterruptBehavior(
-                    edu.wpi.first.wpilibj2.command.Command.InterruptionBehavior.kCancelIncoming)));
+                intake.flipManualReverseCommand(3.0)));
     }
 
     public void setOperatorRumble(double intensity) {
