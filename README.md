@@ -30,19 +30,21 @@ The robot's software is structured according to the WPILib Command-Based paradig
 |---|---|---|
 | Left Stick (X/Y) | Field-centric drive translation | Deadband applied |
 | Right Stick (X) | Field-centric rotation | Deadband applied |
-| Right Bumper (hold) | AutoAlign to hub | Uses Limelight+PID |
-| Left Bumper (press) | Seed field-centric | Sets operator perspective |
-| A (hold) | Swerve drive brake | Hold position |
+| Right Bumper (hold) | AutoAlign to hub | Conditional on active hub trigger and being in alliance zone |
+| Left Bumper (press) | Seed field-centric | Resets field-centric direction |
+| A (hold) | Swerve drive brake | Holds position |
 | B (hold) | Point wheels at left-stick direction | Wheel align |
 
 ### Operator Controls
 
 | Input | Action | Notes |
 |---|---|---|
-| A (press) | Intake flip toggle | Blocks Out when climb engaged |
+| A (press) | Intake flip toggle | With rumble feedback |
 | Right Bumper (hold) | Intake roller forward | Stops on release |
 | Left Bumper (hold) | Intake roller reverse | Stops on release |
-| Left Trigger (hold) | Run washer and both feeders | Threshold 0.5 |
-| Right Trigger (hold) | Run both shooters to speed | Threshold 0.5 |
+| Left Trigger (hold) | Run left shooter, then washer & left feeder | Shooters must be at speed before feeders/washer activate |
+| Right Trigger (hold) | Run right shooter, then washer & right feeder | Shooters must be at speed before feeders/washer activate |
+| Left Trigger + Right Trigger (hold) | Run both shooters, then washer & both feeders | Shooters must be at speed before feeders/washer activate |
+| Y (hold) | Shoot at distance | Conditional on being in alliance zone |
 | X (hold) | Intake flip manual forward (3V) | Calibration jog |
 | Back (hold) | Intake flip manual reverse (3V) | Calibration jog |
