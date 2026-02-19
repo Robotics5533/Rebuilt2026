@@ -130,6 +130,22 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
+   * Checks if the left shooter has reached its target speed.
+   * @return True if the left shooter is at or above the speed threshold, false otherwise.
+   */
+  public boolean isLeftAtSpeed() {
+    return isAtSpeed(ShooterSide.LEFT);
+  }
+
+  /**
+   * Checks if the right shooter has reached its target speed.
+   * @return True if the right shooter is at or above the speed threshold, false otherwise.
+   */
+  public boolean isRightAtSpeed() {
+    return isAtSpeed(ShooterSide.RIGHT);
+  }
+
+  /**
    * Retrieves the current distance to the hub.
    * @return The distance to the hub in meters.
    */

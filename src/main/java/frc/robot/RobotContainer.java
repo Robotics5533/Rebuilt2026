@@ -23,6 +23,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.utils.LimelightHelpers;
+import frc.robot.subsystems.Superstructure;
 import frc.robot.utils.Controls;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -62,9 +63,11 @@ public class RobotContainer {
         private final ShooterSubsystem shooters = new ShooterSubsystem(drivetrain, Constants.LimelightConstants.LIMELIGHT_NAME); // Shooter subsystem
         private final WasherSubsystem washers = new WasherSubsystem(); // Washer subsystem
         private final FeederSubsystem feeder = new FeederSubsystem(); // Feeder subsystem
+        private final Superstructure superstructure = new Superstructure(() -> drivetrain.getState().Pose);
 
         // Autonomous command chooser for selecting auto routines on SmartDashboard.
         private final SendableChooser<Command> autoChooser;
+
 
         /**
          * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -95,12 +98,12 @@ public class RobotContainer {
                 SmartDashboard.putData("Auto Mode", autoChooser);
                 SmartDashboard.putData("Field", fieldViz);
 
+
                 // Configure button bindings and default commands.
                 configureBindings();
                 // Warm up PathPlanner FollowPathCommand to reduce initial latency.
                 FollowPathCommand.warmupCommand();
         }
-
         /**
          * Use this method to define your button->command mappings.
          */
@@ -116,8 +119,8 @@ public class RobotContainer {
                 }));
 
                 // Configure driver and operator controls.
-                controls.configureDriver(drivetrain, limelight);
-                controls.configureOperator(drivetrain, intake, shooters, washers, feeder);
+                controls.configureDriver(drivetrain, limelight, superstructure);
+                controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure);
 
                 // Default command for climb subsystem (currently commented out).
                 // climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
