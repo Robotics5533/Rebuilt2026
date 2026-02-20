@@ -70,7 +70,7 @@ public class IntakeSubsystem extends SubsystemBase {
     cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
     flipMotor.getConfigurator().apply(cfg);
-    flipMotor.setNeutralMode(NeutralModeValue.Brake);
+    flipMotor.setNeutralMode(NeutralModeValue.Coast);
     double inPosRot = Units.degreesToRotations(Constants.IntakeConstants.flipInPositionDeg);
     flipMotor.setPosition(inPosRot);
     flipController.reset(inPosRot);

@@ -56,7 +56,7 @@ public final class Constants {
         public static final String LIMELIGHT_NAME = "limelight";
 
         public static final boolean ENABLE_VISION_ODOMETRY = true;
-        public static final boolean TEST_MODE = true;
+        public static final boolean TEST_MODE = false;
         public static final double VISION_REJECTION_SPEED_THRESHOLD_MPS = 2.0;
         public static final double VISION_REJECTION_DISTANCE_THRESHOLD_METERS = 1.0;
     }
@@ -94,9 +94,9 @@ public final class Constants {
     public static final class IntakeConstants {
         public static final int intakeFlipMotorId = 14;
         public static final int intakeRollerMotorId = 21;
-        public static final double flipGearRatio = 100.0;
-        public static final double flipInPositionDeg = 0.0;
-        public static final double flipOutPositionDeg = 90.0;
+        public static final double flipGearRatio = 120.0;
+        public static final double flipInPositionDeg = -5.0;
+        public static final double flipOutPositionDeg = 110.0;
         public static final double flipToleranceDeg = 2.0;
         public static final double flipMaxVelocityRotPerS = 3.0;
         public static final double flipMaxAccelRotPerSSq = 6.0;
@@ -120,7 +120,7 @@ public final class Constants {
         public static final double feederCurrentLimit = 20.0;
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
-        public static final double shooterVelocityRPS = 200.0;
+        public static final double shooterVelocityRPS = 60.0;
         public static final double kP = 0.2;
         public static final double kI = 0.0;
         public static final double kD = 0.0;

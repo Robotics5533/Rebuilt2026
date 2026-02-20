@@ -62,11 +62,11 @@ public class Controls {
             .andThen(Commands.waitSeconds(0.2))
             .andThen(Commands.runOnce(() -> setOperatorRumble(0))));
 
-        operator.rightBumper()
+        operator.leftBumper()
             .onTrue(intake.run(intake::runRollerForward))
             .onFalse(intake.runOnce(intake::stopRoller));
 
-        operator.leftBumper()
+        operator.rightBumper()
             .onTrue(intake.run(intake::runRollerReverse))
             .onFalse(intake.runOnce(intake::stopRoller));
 
