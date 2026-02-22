@@ -70,6 +70,10 @@ public class Controls {
             .onTrue(intake.run(intake::runRollerReverse))
             .onFalse(intake.runOnce(intake::stopRoller));
 
+            
+        operator.y().and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(new ShootAtDistance(shooters, washers, feeders));
+
+
         operator.leftTrigger().whileTrue(
             Commands.parallel(
                 washers.run(Constants.ShooterConstants.washerVoltage),
@@ -89,7 +93,6 @@ public class Controls {
 
 
 
-        operator.y().and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(new ShootAtDistance(shooters, washers, feeders));
 
         operator.x().whileTrue(
             Commands.sequence(
