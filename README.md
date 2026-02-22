@@ -47,3 +47,5 @@ The robot's software is structured according to the WPILib Command-Based paradig
 | Y (hold) | Shoot at distance | Conditional on being in alliance zone |
 | X (hold) | Intake flip manual forward (3V) | Calibration jog |
 | Back (hold) | Intake flip manual reverse (3V) | Calibration jog |
+| D-pad Up (hold) | Manual climb up | |
+| D-pad Down (hold) | Manual climb down | |

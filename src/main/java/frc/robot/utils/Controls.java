@@ -9,7 +9,7 @@ import frc.robot.commands.AutoAlignHub;
 import frc.robot.commands.ShootAtDistance;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
-// import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.subsystems.ClimbSubsystem; // Uncommented ClimbSubsystem
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Superstructure;
@@ -55,7 +55,7 @@ public class Controls {
     }
 
     public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
-        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure) {
+        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb) {
 
         operator.a().onTrue(intake.runOnce(intake::toggleFlip)
             .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
@@ -100,6 +100,13 @@ public class Controls {
         operator.back().whileTrue(
             Commands.sequence(
                 intake.flipManualReverseCommand(3.0)));
+
+        // Climb controls
+        if (climb != null) {
+            operator.povUp().whileTrue(climb.runManualClimbCommand(Constants.ClimbConstants.maxVoltage));
+            operator.povDown().whileTrue(climb.runManualClimbCommand(-Constants.ClimbConstants.maxVoltage));
+        }
+
     }
 
     public void setOperatorRumble(double intensity) {

@@ -16,6 +16,8 @@ public class ClimbSubsystem extends SubsystemBase {
 
   private final TalonFX motor = new TalonFX(Constants.ClimbConstants.climbMotorId);
   private final MotionMagicVoltage mmCtrl = new MotionMagicVoltage(0).withSlot(0);
+  private boolean manualControlEnabled = false;
+  private final VoltageOut voltageCtrl = new VoltageOut(0);
 
   private State state = State.Inactive;
   private double targetInches = Constants.ClimbConstants.inactivePositionInches;
@@ -84,10 +86,21 @@ public class ClimbSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Climb/Inches", inches);
     SmartDashboard.putNumber("Climb/TargetInches", targetInches);
     SmartDashboard.putNumber("Climb/ErrorInches", targetInches - inches);
+    SmartDashboard.putNumber("Climb/MotorVoltage", motor.getMotorVoltage().getValueAsDouble());
   }
 
   public State getState() {
     return state;
+  }
+
+  public void setManualVoltage(double voltage) {
+    manualControlEnabled = true;
+    motor.setControl(voltageCtrl.withOutput(voltage));
+  }
+
+  public void stopManualControl() {
+    manualControlEnabled = false;
+    applySetpoint();
   }
 
   public Command goInactive() {
@@ -100,5 +113,9 @@ public class ClimbSubsystem extends SubsystemBase {
 
   public Command goHangingDisableImmune() {
     return runOnce(() -> setState(State.Hanging)).ignoringDisable(true);
+  }
+
+  public Command runManualClimbCommand(double voltage) {
+    return run(() -> setManualVoltage(voltage)).finallyDo(this::stopManualControl);
   }
 }

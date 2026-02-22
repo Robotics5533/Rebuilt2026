@@ -338,7 +338,7 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("Shooter/RightAtSpeed", isAtSpeed(ShooterSide.RIGHT));
     SmartDashboard.putNumber("Shooter/LeftSetpointRPS", lastLeftSetpointRps);
     SmartDashboard.putNumber("Shooter/RightSetpointRPS", lastRightSetpointRps);
-    // Log the distance to the speaker for calibration and verification.
+    // Log the distance to the hub for calibration and verification.
     SmartDashboard.putNumber("Shooter/DistanceMeters", getHubDistance());
   }
 }
