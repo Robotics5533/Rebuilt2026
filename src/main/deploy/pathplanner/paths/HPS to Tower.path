@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5732667617689007,
-        "y": 4.054407988587732
-      },
-      "prevControl": null,
-      "nextControl": {
-        "x": 3.92236895424012,
-        "y": 4.054407988587732
-      },
-      "isLocked": false,
-      "linkedName": "Center Hub"
-    },
-    {
-      "anchor": {
         "x": 0.4407535460992906,
         "y": 0.6685017730496452
       },
-      "prevControl": {
-        "x": -0.04117388617279516,
+      "prevControl": null,
+      "nextControl": {
+        "x": 0.694398721849686,
         "y": 0.6685017730496452
+      },
+      "isLocked": false,
+      "linkedName": "HPS"
+    },
+    {
+      "anchor": {
+        "x": 0.6739982269503546,
+        "y": 2.8376773049645383
+      },
+      "prevControl": {
+        "x": 0.4199982269503546,
+        "y": 2.8376773049645383
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "HPS"
+      "linkedName": "Blue Climb"
     }
   ],
   "rotationTargets": [],
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

@@ -130,10 +130,10 @@ public class RobotContainer {
                 controls.configureDriver(drivetrain, limelight, superstructure);
                 if (climb != null) {
                         controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure,
-                                        climb);
+                                        climb, limelight);
                 } else {
                         // If climb is null, configure operator without climb
-                        controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, null);
+                        controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, null, limelight);
                 }
 
                 // Default command for climb subsystem.

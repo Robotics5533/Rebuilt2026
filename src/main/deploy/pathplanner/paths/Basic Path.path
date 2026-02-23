@@ -3,29 +3,29 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5732667617689007,
-        "y": 4.054407988587732
+        "x": 2.2878884934756827,
+        "y": 4.018861209964412
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.92236895424012,
-        "y": 4.054407988587732
+        "x": 3.288587840851998,
+        "y": 4.049180486375344
       },
       "isLocked": false,
-      "linkedName": "Center Hub"
+      "linkedName": null
     },
     {
       "anchor": {
-        "x": 0.4407535460992906,
-        "y": 0.6685017730496452
+        "x": 3.6112692763938323,
+        "y": 4.018861209964412
       },
       "prevControl": {
-        "x": -0.04117388617279516,
-        "y": 0.6685017730496452
+        "x": 2.628942787539197,
+        "y": 4.0129140834593064
       },
       "nextControl": null,
       "isLocked": false,
-      "linkedName": "HPS"
+      "linkedName": null
     }
   ],
   "rotationTargets": [],
@@ -48,7 +48,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 0.0
   },
   "useDefaultConstraints": true
 }

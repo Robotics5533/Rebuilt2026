@@ -45,6 +45,7 @@ The robot's software is structured according to the WPILib Command-Based paradig
 | Left Trigger (hold) | Run washer and both feeders | |
 | Right Trigger (hold) | Run both shooters to speed | |
 | Y (hold) | Shoot at distance | Conditional on being in alliance zone |
+| D-pad Left (hold) | AutoAlign and Shoot | Aligns to hub, spins up shooters, then shoots once aligned and at speed. Conditional on being in alliance zone |
 | X (hold) | Intake flip manual forward (3V) | Calibration jog |
 | Back (hold) | Intake flip manual reverse (3V) | Calibration jog |
 | D-pad Up (hold) | Manual climb up | |

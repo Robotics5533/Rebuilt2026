@@ -3,16 +3,32 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 3.5732667617689007,
-        "y": 4.054407988587732
+        "x": 7.640239361702127,
+        "y": 3.576285460992909
       },
       "prevControl": null,
       "nextControl": {
-        "x": 3.92236895424012,
-        "y": 4.054407988587732
+        "x": 7.595053795258408,
+        "y": 4.111406840295322
       },
       "isLocked": false,
-      "linkedName": "Center Hub"
+      "linkedName": "Blue HPS Middle"
+    },
+    {
+      "anchor": {
+        "x": 6.752953736654805,
+        "y": 0.823380782918149
+      },
+      "prevControl": {
+        "x": 7.849192802189549,
+        "y": 1.4119722220917748
+      },
+      "nextControl": {
+        "x": 5.831215635098716,
+        "y": 0.32848220395588584
+      },
+      "isLocked": false,
+      "linkedName": null
     },
     {
       "anchor": {
@@ -20,15 +36,20 @@
         "y": 0.6685017730496452
       },
       "prevControl": {
-        "x": -0.04117388617279516,
-        "y": 0.6685017730496452
+        "x": 0.7093787281669559,
+        "y": 0.7203775935692144
       },
       "nextControl": null,
       "isLocked": false,
       "linkedName": "HPS"
     }
   ],
-  "rotationTargets": [],
+  "rotationTargets": [
+    {
+      "waypointRelativePos": 1,
+      "rotationDegrees": 0.0
+    }
+  ],
   "constraintZones": [],
   "pointTowardsZones": [],
   "eventMarkers": [],
@@ -48,7 +69,7 @@
   "folder": null,
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 180.0
+    "rotation": 90.0
   },
   "useDefaultConstraints": true
 }

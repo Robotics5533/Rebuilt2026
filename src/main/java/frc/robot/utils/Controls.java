@@ -5,6 +5,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
+import frc.robot.commands.AutoAlignAndShoot;
 import frc.robot.commands.AutoAlignHub;
 import frc.robot.commands.ShootAtDistance;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -55,7 +56,7 @@ public class Controls {
     }
 
     public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
-        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb) {
+        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight) {
 
         operator.a().onTrue(intake.runOnce(intake::toggleFlip)
             .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
@@ -70,8 +71,11 @@ public class Controls {
             .onTrue(intake.run(intake::runRollerReverse))
             .onFalse(intake.runOnce(intake::stopRoller));
 
-            
         operator.y().and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(new ShootAtDistance(shooters, washers, feeders));
+
+        operator.povLeft().and(new Trigger(() -> superstructure.inAllianceZone()))
+            .whileTrue(
+                new AutoAlignAndShoot(drivetrain, shooters, feeders, washers, superstructure, limelight));
 
 
         operator.leftTrigger().whileTrue(
