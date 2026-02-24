@@ -64,7 +64,7 @@ public class DriveMotionShot extends Command {
                 Translation2d targetVec = hubPose.getTranslation().minus(robotPose.getTranslation());
                 double distance = targetVec.getNorm();
 
-                double timeOfFlight = distance / Constants.ShooterConstants.fuelApproxVelocityMps;
+                double timeOfFlight = Constants.ShooterConstants.distanceToTimeOfFlight.get(distance);
 
                 Translation2d robotVelocityVec = new Translation2d(robotVel.vxMetersPerSecond,
                                 robotVel.vyMetersPerSecond);

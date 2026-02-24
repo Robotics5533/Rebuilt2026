@@ -12,6 +12,7 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 import edu.wpi.first.math.util.Units;
 import edu.wpi.first.units.measure.Distance;
+import frc.robot.utils.ShooterUtil;
 
 public final class Constants {
 
@@ -22,11 +23,10 @@ public final class Constants {
 
     public static final class DriveConstants {
         public static final double DEADBAND = 0.05;
-        public static final double SPEED_MULTIPLIER = 100.0; 
-
+        public static final double SPEED_MULTIPLIER = 100.0;
         public static final double ALIGN_PID_P = 0.045;
         public static final double ALIGN_PID_I = 0.05;
-        public static final double ALIGN_PID_D = 0.002;
+        public static final double ALIGN_PID_D = 0.004;
 
         public static final double ALIGN_KS = 0.04;
         public static final double ALIGN_TOLERANCE_DEG = 0.5;
@@ -97,8 +97,7 @@ public final class Constants {
         public static final int intakeRollerMotorId = 21;
         public static final double flipGearRatio = 120.0;
         public static final double flipInPositionDeg = -5.0;
-        public static final double flipStowPositionDeg = 50.0;
-        public static final double flipOutPositionDeg = 125.0;
+        public static final double flipOutPositionDeg = 110.0;
         public static final double flipToleranceDeg = 2.0;
         public static final double flipMaxVelocityRotPerS = 3.0;
         public static final double flipMaxAccelRotPerSSq = 6.0;
@@ -122,68 +121,25 @@ public final class Constants {
         public static final double feederCurrentLimit = 20.0;
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
-        public static final double shooterVelocityRPS = 50;
+        public static final double shooterVelocityRPS = 47.5;
         public static final double kP = 0.2;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kV = 0.12;
         public static final double washerVoltage = 6.0;
         public static final double shooterTargetVoltage = 12.0;
-        public static final double shooterSpeedThresholdRPS = 200.0;
+        public static final double shooterSpeedToleranceRPS = 2.0; 
         public static final double shootAtDistanceDurationSeconds = 3.0;
         public static final double shooterCurrentLimit = 40.0;
-        public static final double fuelApproxVelocityMps = 15.0;
-
-        /**
-         * Represents a single data point for shooter calibration, mapping distance to
-         * target RPS, voltage, and time of flight.
-         */
-        public static class ShotData {
-            public final double distanceMeters;
-            public final double rps;
-            public final double voltage;
-            public final double timeOfFlightSeconds;
-
-            public ShotData(double distanceMeters, double rps, double voltage, double timeOfFlightSeconds) {
-                this.distanceMeters = distanceMeters;
-                this.rps = rps;
-                this.voltage = voltage;
-                this.timeOfFlightSeconds = timeOfFlightSeconds;
-            }
-        }
-
-        public static final ShotData SHOT_1 = new ShotData(1, 65.0, 7.0, 0);
-        public static final ShotData SHOT_2 = new ShotData(1.5, 60.0, 7.5, 0.45);
-        public static final ShotData SHOT_3 = new ShotData(2.0, 65.0, 7.8, 0.48);
-        public static final ShotData SHOT_4 = new ShotData(2.5, 70.0, 8.0, 0.5);
-        public static final ShotData SHOT_5 = new ShotData(3.0, 75.0, 8.5, 0.6);
-        public static final ShotData SHOT_6 = new ShotData(3.5, 80.0, 9.0, 0.7);
-        public static final ShotData SHOT_7 = new ShotData(4.0, 85.0, 9.5, 0.8);
-        public static final ShotData SHOT_8 = new ShotData(4.5, 90.0, 10.0, 0.9);
-        public static final ShotData SHOT_9 = new ShotData(5.0, 95.0, 10.5, 1.0);
-        public static final ShotData SHOT_10 = new ShotData(5.5, 100.0, 11.0, 1.1);
 
         public static final InterpolatingDoubleTreeMap distanceToVelocityRPS = new InterpolatingDoubleTreeMap();
         public static final InterpolatingDoubleTreeMap distanceToVoltage = new InterpolatingDoubleTreeMap();
         public static final InterpolatingDoubleTreeMap distanceToTimeOfFlight = new InterpolatingDoubleTreeMap();
 
-        static {
-            addShotData(SHOT_1);
-            addShotData(SHOT_2);
-            addShotData(SHOT_3);
-            addShotData(SHOT_4);
-            addShotData(SHOT_5);
-            addShotData(SHOT_6);
-            addShotData(SHOT_7);
-            addShotData(SHOT_8);
-            addShotData(SHOT_9);
-            addShotData(SHOT_10);
-        }
+        public static final double SHOOTER_KV_RPS_PER_VOLT = ShooterUtil.SHOOTER_KV_RPS_PER_VOLT;
 
-        private static void addShotData(ShotData data) {
-            distanceToVelocityRPS.put(data.distanceMeters, data.rps);
-            distanceToVoltage.put(data.distanceMeters, data.voltage);
-            distanceToTimeOfFlight.put(data.distanceMeters, data.timeOfFlightSeconds);
+        static {
+            ShooterUtil.populateShotDataMaps(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight);
         }
     }
 

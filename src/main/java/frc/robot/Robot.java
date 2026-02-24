@@ -16,9 +16,7 @@ public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     private final RobotContainer m_robotContainer;
-    // private final PIDTuningLogger m_pidLogger = new PIDTuningLogger();
 
-    /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
         .withTimestampReplay()
         .withJoystickReplay();
@@ -38,7 +36,6 @@ public class Robot extends TimedRobot {
 
     @Override
     public void disabledInit() {
-        // m_pidLogger.stopAndPrintReport();
     }
 
     @Override
@@ -54,12 +51,10 @@ public class Robot extends TimedRobot {
         if (m_autonomousCommand != null) {
             CommandScheduler.getInstance().schedule(m_autonomousCommand);
         }
-        // m_pidLogger.start();
     }
 
     @Override
     public void autonomousPeriodic() {
-        // m_pidLogger.update();
     }
 
     @Override

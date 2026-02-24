@@ -20,17 +20,27 @@ import java.util.function.DoubleSupplier;
  */
 public class ShooterSubsystem extends SubsystemBase {
 
-  // TalonFX motor controllers for the left and right shooter wheels.
   private final TalonFX leftShooter = new TalonFX(Constants.ShooterConstants.leftShooterId);
   private final TalonFX rightShooter = new TalonFX(Constants.ShooterConstants.rightShooterId);
 
-  // Control requests for the TalonFXs. These are reused to reduce object allocation.
   private final VelocityVoltage velocityCtrl = new VelocityVoltage(0).withSlot(0);
   private final VoltageOut voltageCtrl = new VoltageOut(0);
 
-  // Stores the last commanded setpoints for SmartDashboard telemetry.
-  private double lastLeftSetpointRps = 0.0;
-  private double lastRightSetpointRps = 0.0;
+  /**
+   * Represents a setpoint for the shooter, encapsulating both revolutions per second (RPS) and voltage.
+   */
+  private static class ShooterSetpoint {
+    public final double rps;
+    public final double voltage;
+
+    public ShooterSetpoint(double rps, double voltage) {
+      this.rps = rps;
+      this.voltage = voltage;
+    }
+  }
+
+  private ShooterSetpoint lastLeftSetpoint = new ShooterSetpoint(0.0, 0.0);
+  private ShooterSetpoint lastRightSetpoint = new ShooterSetpoint(0.0, 0.0);
 
   /**
    * Defines the side of the shooter (Left, Right, or Both).
@@ -49,10 +59,8 @@ public class ShooterSubsystem extends SubsystemBase {
     VELOCITY
   }
 
-  // The current control mode for the shooters, defaults to VELOCITY.
   private ShooterControlMode controlMode = ShooterControlMode.VELOCITY;
 
-  // The LimelightSubsystem instance for vision processing.
   private final CommandSwerveDrivetrain drivetrain;
   private final String limelightName;
 
@@ -65,27 +73,22 @@ public class ShooterSubsystem extends SubsystemBase {
   public ShooterSubsystem(CommandSwerveDrivetrain drivetrain, String limelightName) {
     this.drivetrain = drivetrain;
     this.limelightName = limelightName;
-    // Create a new configuration object for the TalonFXs.
     TalonFXConfiguration cfg = new TalonFXConfiguration();
 
-    // Configure PID gains for velocity control (Slot 0).
     cfg.Slot0 = new Slot0Configs()
         .withKP(Constants.ShooterConstants.kP)
         .withKI(Constants.ShooterConstants.kI)
         .withKD(Constants.ShooterConstants.kD)
         .withKV(Constants.ShooterConstants.kV);
 
-    // Configure current limits to prevent motor damage.
     cfg.CurrentLimits.SupplyCurrentLimit = Constants.ShooterConstants.shooterCurrentLimit;
     cfg.CurrentLimits.SupplyCurrentLimitEnable = true;
     cfg.CurrentLimits.StatorCurrentLimit = Constants.ShooterConstants.shooterCurrentLimit;
     cfg.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    // Apply the configurations to both shooter motors.
     leftShooter.getConfigurator().apply(cfg);
     rightShooter.getConfigurator().apply(cfg);
 
-    // Set the neutral mode to Coast, allowing the motors to spin freely when idle.
     leftShooter.setNeutralMode(NeutralModeValue.Coast);
     rightShooter.setNeutralMode(NeutralModeValue.Coast);
   }
@@ -104,17 +107,23 @@ public class ShooterSubsystem extends SubsystemBase {
    * @return True if the specified shooter(s) are at or above the speed threshold, false otherwise.
    */
   public boolean isAtSpeed(ShooterSide side) {
+    double currentLeftRPS = leftShooter.getVelocity().getValueAsDouble();
+    double currentRightRPS = rightShooter.getVelocity().getValueAsDouble();
+
+
+    double targetLeftRPS = (controlMode == ShooterControlMode.VELOCITY)
+        ? lastLeftSetpoint.rps
+        : lastLeftSetpoint.voltage / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
+    double targetRightRPS = (controlMode == ShooterControlMode.VELOCITY)
+        ? lastRightSetpoint.rps
+        : lastRightSetpoint.voltage / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
+
     switch (side) {
       case LEFT:
-        // Check if the absolute velocity of the left shooter is at or above the threshold.
-        return Math
-            .abs(leftShooter.getVelocity().getValueAsDouble()) >= Constants.ShooterConstants.shooterSpeedThresholdRPS;
+        return Math.abs(currentLeftRPS - targetLeftRPS) <= Constants.ShooterConstants.shooterSpeedToleranceRPS;
       case RIGHT:
-        // Check if the absolute velocity of the right shooter is at or above the threshold.
-        return Math
-            .abs(rightShooter.getVelocity().getValueAsDouble()) >= Constants.ShooterConstants.shooterSpeedThresholdRPS;
+        return Math.abs(currentRightRPS - targetRightRPS) <= Constants.ShooterConstants.shooterSpeedToleranceRPS;
       case BOTH:
-        // Check if both shooters are at or above the speed threshold.
         return isAtSpeed(ShooterSide.LEFT) && isAtSpeed(ShooterSide.RIGHT);
       default:
         return false;
@@ -160,11 +169,19 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public Command runLeftShooterToSpeedCommand() {
     return run(() -> {
-      double target = (controlMode == ShooterControlMode.VELOCITY)
-          ? Constants.ShooterConstants.shooterVelocityRPS // Target velocity in RPS
-          : Constants.ShooterConstants.shooterTargetVoltage; // Target voltage
-      // Set the output for the left shooter, keeping the right shooter at 0.
-      setShooterOutput(target, 0);
+      ShooterSetpoint leftSetpoint;
+      ShooterSetpoint rightSetpoint = new ShooterSetpoint(0.0, 0.0);
+
+      if (controlMode == ShooterControlMode.VELOCITY) {
+        double targetRPS = Constants.ShooterConstants.shooterVelocityRPS;
+        double targetVoltage = targetRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
+        leftSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
+      } else { // VOLTAGE mode
+        double targetVoltage = Constants.ShooterConstants.shooterTargetVoltage;
+        double targetRPS = targetVoltage * Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
+        leftSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
+      }
+      setShooterOutput(leftSetpoint, rightSetpoint);
     }).until(
         () -> isAtSpeed(ShooterSide.LEFT)).withName("RunLeftShooterToSpeed");
   }
@@ -177,11 +194,19 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public Command runRightShooterToSpeedCommand() {
     return run(() -> {
-      double target = (controlMode == ShooterControlMode.VELOCITY)
-          ? -Constants.ShooterConstants.shooterVelocityRPS // Target velocity in RPS (negative for right shooter)
-          : -Constants.ShooterConstants.shooterTargetVoltage; // Target voltage (negative for right shooter)
-      // Set the output for the right shooter, keeping the left shooter at 0.
-      setShooterOutput(0, target);
+      ShooterSetpoint leftSetpoint = new ShooterSetpoint(0.0, 0.0);
+      ShooterSetpoint rightSetpoint;
+
+      if (controlMode == ShooterControlMode.VELOCITY) {
+        double targetRPS = -Constants.ShooterConstants.shooterVelocityRPS;
+        double targetVoltage = targetRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
+        rightSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
+      } else { // VOLTAGE mode
+        double targetVoltage = -Constants.ShooterConstants.shooterTargetVoltage;
+        double targetRPS = targetVoltage * Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
+        rightSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
+      }
+      setShooterOutput(leftSetpoint, rightSetpoint);
     }).until(
         () -> isAtSpeed(ShooterSide.RIGHT)).withName("RunRightShooterToSpeed");
   }
@@ -194,17 +219,23 @@ public class ShooterSubsystem extends SubsystemBase {
   public Command runBothShootersToSpeedCommand() {
     return run(
         () -> {
-          // Determine the target output based on the current control mode.
-          double leftTarget = (controlMode == ShooterControlMode.VELOCITY)
-              ? Constants.ShooterConstants.shooterVelocityRPS // Target velocity in RPS
-              : Constants.ShooterConstants.shooterTargetVoltage; // Target voltage
+          ShooterSetpoint leftSetpoint;
+          ShooterSetpoint rightSetpoint;
 
-          // Right shooter spins in the opposite direction, so its target is negative.
-          double rightTarget = -leftTarget;
-          setShooterOutput(leftTarget, rightTarget);
+          if (controlMode == ShooterControlMode.VELOCITY) {
+            double targetRPS = Constants.ShooterConstants.shooterVelocityRPS;
+            double targetVoltage = targetRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
+            leftSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
+            rightSetpoint = new ShooterSetpoint(-targetRPS, -targetVoltage);
+          } else { // VOLTAGE mode
+            double targetVoltage = Constants.ShooterConstants.shooterTargetVoltage;
+            double targetRPS = targetVoltage * Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
+            leftSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
+            rightSetpoint = new ShooterSetpoint(-targetRPS, -targetVoltage);
+          }
+          setShooterOutput(leftSetpoint, rightSetpoint);
         })
-        .until(
-            this::areShootersAtSpeed) // Command finishes when both shooters are at speed.
+        .until(this::areShootersAtSpeed)
         .withName("RunBothShootersToSpeed");
   }
 
@@ -268,15 +299,12 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param distance The distance to the target in meters.
    */
   public void setTargetFromDistance(double distance) {
-    if (controlMode == ShooterControlMode.VELOCITY) {
-      // Get target RPS from distance using interpolation table.
-      double rps = Constants.ShooterConstants.distanceToVelocityRPS.get(distance);
-      setShooterOutput(rps, -rps); // Right shooter target is negative.
-    } else {
-      // Get target voltage from distance using interpolation table.
-      double volts = Constants.ShooterConstants.distanceToVoltage.get(distance);
-      setShooterOutput(volts, -volts); // Right shooter target is negative.
-    }
+    double rps = Constants.ShooterConstants.distanceToVelocityRPS.get(distance);
+    double volts = Constants.ShooterConstants.distanceToVoltage.get(distance);
+
+    ShooterSetpoint leftSetpoint = new ShooterSetpoint(rps, volts);
+    ShooterSetpoint rightSetpoint = new ShooterSetpoint(-rps, -volts);
+    setShooterOutput(leftSetpoint, rightSetpoint);
   }
 
   /**
@@ -290,8 +318,9 @@ public class ShooterSubsystem extends SubsystemBase {
         () -> {
           double d = distanceMeters.getAsDouble();
           setTargetFromDistance(d);
-        })
-        .finallyDo(this::stopShooters); // Ensure shooters stop when the command ends.
+        }) 
+        .until(this::areShootersAtSpeed)
+        .finallyDo(this::stopShooters);
   }
 
   /**
@@ -300,7 +329,10 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param rps The target RPS for the left shooter. The right shooter will be set to -rps.
    */
   public void setTargetRPS(double rps) {
-    setShooterOutput(rps, -rps);
+            double voltage = rps / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
+    ShooterSetpoint leftSetpoint = new ShooterSetpoint(rps, voltage);
+    ShooterSetpoint rightSetpoint = new ShooterSetpoint(-rps, -voltage);
+    setShooterOutput(leftSetpoint, rightSetpoint);
   }
 
   /**
@@ -310,18 +342,17 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param leftValue The target value for the left shooter.
    * @param rightValue The target value for the right shooter.
    */
-  private void setShooterOutput(double leftValue, double rightValue) {
+  private void setShooterOutput(ShooterSetpoint leftSetpoint, ShooterSetpoint rightSetpoint) {
     if (controlMode == ShooterControlMode.VELOCITY) {
-      // Store setpoints for telemetry.
-      lastLeftSetpointRps = leftValue;
-      lastRightSetpointRps = rightValue;
-      // Apply velocity control.
-      leftShooter.setControl(velocityCtrl.withVelocity(leftValue));
-      rightShooter.setControl(velocityCtrl.withVelocity(rightValue));
+      lastLeftSetpoint = leftSetpoint;
+      lastRightSetpoint = rightSetpoint;
+      leftShooter.setControl(velocityCtrl.withVelocity(leftSetpoint.rps));
+      rightShooter.setControl(velocityCtrl.withVelocity(rightSetpoint.rps));
     } else {
-      // Apply voltage control.
-      leftShooter.setControl(voltageCtrl.withOutput(leftValue));
-      rightShooter.setControl(voltageCtrl.withOutput(rightValue));
+      lastLeftSetpoint = leftSetpoint;
+      lastRightSetpoint = rightSetpoint;
+      leftShooter.setControl(voltageCtrl.withOutput(leftSetpoint.voltage));
+      rightShooter.setControl(voltageCtrl.withOutput(rightSetpoint.voltage));
     }
   }
 
@@ -336,9 +367,10 @@ public class ShooterSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Shooter/RightRPS", rightShooter.getVelocity().getValueAsDouble());
     SmartDashboard.putBoolean("Shooter/LeftAtSpeed", isAtSpeed(ShooterSide.LEFT));
     SmartDashboard.putBoolean("Shooter/RightAtSpeed", isAtSpeed(ShooterSide.RIGHT));
-    SmartDashboard.putNumber("Shooter/LeftSetpointRPS", lastLeftSetpointRps);
-    SmartDashboard.putNumber("Shooter/RightSetpointRPS", lastRightSetpointRps);
-    // Log the distance to the hub for calibration and verification.
+    SmartDashboard.putNumber("Shooter/LeftSetpointRPS", lastLeftSetpoint.rps);
+    SmartDashboard.putNumber("Shooter/LeftSetpointVoltage", lastLeftSetpoint.voltage);
+    SmartDashboard.putNumber("Shooter/RightSetpointRPS", lastRightSetpoint.rps);
+    SmartDashboard.putNumber("Shooter/RightSetpointVoltage", lastRightSetpoint.voltage);
     SmartDashboard.putNumber("Shooter/DistanceMeters", getHubDistance());
   }
 }

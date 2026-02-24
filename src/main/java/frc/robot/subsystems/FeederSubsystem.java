@@ -15,11 +15,11 @@ import frc.robot.Constants;
  */
 public class FeederSubsystem extends SubsystemBase {
 
-    // TalonFX motor controllers for the left and right feeder motors.
+
     private final TalonFX leftFeeder = new TalonFX(Constants.ShooterConstants.leftFeederId);
     private final TalonFX rightFeeder = new TalonFX(Constants.ShooterConstants.rightFeederId);
 
-    // Control request for the TalonFXs, used for voltage control.
+
     private final VoltageOut voltageCtrl = new VoltageOut(0);
 
     /**
@@ -27,20 +27,20 @@ public class FeederSubsystem extends SubsystemBase {
      * Configures the TalonFX motor controllers with current limits and neutral mode.
      */
     public FeederSubsystem() {
-        // Create a new configuration object for the TalonFXs.
+
         TalonFXConfiguration cfg = new TalonFXConfiguration();
 
-        // Configure current limits to prevent motor damage.
+
         cfg.CurrentLimits.SupplyCurrentLimit = Constants.ShooterConstants.feederCurrentLimit;
         cfg.CurrentLimits.SupplyCurrentLimitEnable = true;
         cfg.CurrentLimits.StatorCurrentLimit = Constants.ShooterConstants.feederCurrentLimit;
         cfg.CurrentLimits.StatorCurrentLimitEnable = true;
 
-        // Apply the configurations to both feeder motors.
+
         leftFeeder.getConfigurator().apply(cfg);
         rightFeeder.getConfigurator().apply(cfg);
 
-        // Set the neutral mode to Coast, allowing the motors to spin freely when idle.
+
         leftFeeder.setNeutralMode(NeutralModeValue.Coast);
         rightFeeder.setNeutralMode(NeutralModeValue.Coast);
     }

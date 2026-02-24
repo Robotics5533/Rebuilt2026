@@ -16,7 +16,7 @@ public class ClimbSubsystem extends SubsystemBase {
 
   private final TalonFX motor = new TalonFX(Constants.ClimbConstants.climbMotorId);
   private final MotionMagicVoltage mmCtrl = new MotionMagicVoltage(0).withSlot(0);
-  private boolean manualControlEnabled = false;
+
   private final VoltageOut voltageCtrl = new VoltageOut(0);
 
   private State state = State.Inactive;
@@ -94,12 +94,10 @@ public class ClimbSubsystem extends SubsystemBase {
   }
 
   public void setManualVoltage(double voltage) {
-    manualControlEnabled = true;
     motor.setControl(voltageCtrl.withOutput(voltage));
   }
 
   public void stopManualControl() {
-    manualControlEnabled = false;
     applySetpoint();
   }
 
