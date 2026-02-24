@@ -52,7 +52,7 @@ public class RobotContainer {
         private final Field2d fieldViz = new Field2d();
 
 
-        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain(logger);
         private final LimelightSubsystem limelight = new LimelightSubsystem(Constants.LimelightConstants.LIMELIGHT_NAME,
                         drivetrain);
         private final IntakeSubsystem intake = new IntakeSubsystem();
@@ -128,7 +128,7 @@ public class RobotContainer {
                                                 .andThen(Commands.waitSeconds(0.2))
                                                 .andThen(Commands.runOnce(() -> controls.setOperatorRumble(0))));
 
-                drivetrain.registerTelemetry(logger::telemeterize);
+
         }
 
         /**

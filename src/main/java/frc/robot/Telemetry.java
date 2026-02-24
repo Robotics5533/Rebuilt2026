@@ -20,6 +20,8 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj.util.Color8Bit;
 
+import frc.robot.utils.LimelightHelpers;
+
 public class Telemetry {
     private final double MaxSpeed;
 
@@ -32,16 +34,16 @@ public class Telemetry {
         MaxSpeed = maxSpeed;
         SignalLogger.start();
 
-        /* Set up the module state Mechanism2d telemetry */
+
         for (int i = 0; i < 4; ++i) {
             SmartDashboard.putData("Module " + i, m_moduleMechanisms[i]);
         }
     }
 
-    /* What to publish over networktables for telemetry */
+
     private final NetworkTableInstance inst = NetworkTableInstance.getDefault();
 
-    /* Robot swerve drive state */
+
     private final NetworkTable driveStateTable = inst.getTable("DriveState");
     private final StructPublisher<Pose2d> drivePose = driveStateTable.getStructTopic("Pose", Pose2d.struct).publish();
     private final StructPublisher<ChassisSpeeds> driveSpeeds = driveStateTable.getStructTopic("Speeds", ChassisSpeeds.struct).publish();
@@ -51,26 +53,31 @@ public class Telemetry {
     private final DoublePublisher driveTimestamp = driveStateTable.getDoubleTopic("Timestamp").publish();
     private final DoublePublisher driveOdometryFrequency = driveStateTable.getDoubleTopic("OdometryFrequency").publish();
 
-    /* Robot pose for field positioning */
+    private final NetworkTable visionTable = inst.getTable("Vision");
+    private final StructPublisher<Pose2d> visionPose = visionTable.getStructTopic("Pose", Pose2d.struct).publish();
+    private final DoublePublisher visionLatency = visionTable.getDoubleTopic("Latency").publish();
+    private final DoublePublisher visionTagCount = visionTable.getDoubleTopic("TagCount").publish();
+    private final DoublePublisher visionAvgTagDist = visionTable.getDoubleTopic("AvgTagDist").publish();
+
     private final NetworkTable table = inst.getTable("Pose");
     private final DoubleArrayPublisher fieldPub = table.getDoubleArrayTopic("robotPose").publish();
     private final StringPublisher fieldTypePub = table.getStringTopic(".type").publish();
 
-    /* Mechanisms to represent the swerve module states */
+
     private final Mechanism2d[] m_moduleMechanisms = new Mechanism2d[] {
         new Mechanism2d(1, 1),
         new Mechanism2d(1, 1),
         new Mechanism2d(1, 1),
         new Mechanism2d(1, 1),
     };
-    /* A direction and length changing ligament for speed representation */
+
     private final MechanismLigament2d[] m_moduleSpeeds = new MechanismLigament2d[] {
         m_moduleMechanisms[0].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
         m_moduleMechanisms[1].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
         m_moduleMechanisms[2].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
         m_moduleMechanisms[3].getRoot("RootSpeed", 0.5, 0.5).append(new MechanismLigament2d("Speed", 0.5, 0)),
     };
-    /* A direction changing and length constant ligament for module direction */
+
     private final MechanismLigament2d[] m_moduleDirections = new MechanismLigament2d[] {
         m_moduleMechanisms[0].getRoot("RootDirection", 0.5, 0.5)
             .append(new MechanismLigament2d("Direction", 0.1, 0, 0, new Color8Bit(Color.kWhite))),
@@ -85,8 +92,8 @@ public class Telemetry {
     private final double[] m_poseArray = new double[3];
 
     /** Accept the swerve drive state and telemeterize it to SmartDashboard and SignalLogger. */
-    public void telemeterize(SwerveDriveState state) {
-        /* Telemeterize the swerve drive state */
+    public void telemeterize(SwerveDriveState state, LimelightHelpers.PoseEstimate visionEst) {
+
         drivePose.set(state.Pose);
         driveSpeeds.set(state.Speeds);
         driveModuleStates.set(state.ModuleStates);
@@ -94,6 +101,11 @@ public class Telemetry {
         driveModulePositions.set(state.ModulePositions);
         driveTimestamp.set(state.Timestamp);
         driveOdometryFrequency.set(1.0 / state.OdometryPeriod);
+
+        visionPose.set(visionEst.pose);
+        visionLatency.set(visionEst.latency);
+        visionTagCount.set(visionEst.tagCount);
+        visionAvgTagDist.set(visionEst.avgTagDist);
 
         /* Also write to log file */
         SignalLogger.writeStruct("DriveState/Pose", Pose2d.struct, state.Pose);

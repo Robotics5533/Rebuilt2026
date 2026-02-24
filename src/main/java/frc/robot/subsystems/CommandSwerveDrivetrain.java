@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
+import frc.robot.Telemetry;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
 import frc.robot.utils.LimelightHelpers;
 
@@ -35,6 +36,7 @@ public class CommandSwerveDrivetrain
     private static final double kSimLoopPeriod = 0.004;
     private Notifier m_simNotifier = null;
     private double m_lastSimTime;
+    private final Telemetry logger;
 
     private static final Rotation2d kBlueAlliancePerspectiveRotation = Rotation2d.kZero;
     private static final Rotation2d kRedAlliancePerspectiveRotation = Rotation2d.k180deg;
@@ -52,9 +54,10 @@ public class CommandSwerveDrivetrain
      * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
      * @param modules             Constants for each specific module
      */
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
+    public CommandSwerveDrivetrain(Telemetry logger, SwerveDrivetrainConstants drivetrainConstants,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, modules);
+        this.logger = logger;
 
         if (Utils.isSimulation()) {
             startSimThread();
@@ -77,10 +80,12 @@ public class CommandSwerveDrivetrain
      *                                on CAN FD, and 100 Hz on CAN 2.0.
      * @param modules                 Constants for each specific module
      */
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
+    public CommandSwerveDrivetrain(Telemetry logger,
+            SwerveDrivetrainConstants drivetrainConstants,
             double odometryUpdateFrequency,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, odometryUpdateFrequency, modules);
+        this.logger = logger;
 
         if (Utils.isSimulation()) {
             startSimThread();
@@ -111,13 +116,15 @@ public class CommandSwerveDrivetrain
      *                                  meters and radians
      * @param modules                   Constants for each specific module
      */
-    public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
+    public CommandSwerveDrivetrain(Telemetry logger,
+            SwerveDrivetrainConstants drivetrainConstants,
             double odometryUpdateFrequency,
             Matrix<N3, N1> odometryStandardDeviation,
             Matrix<N3, N1> visionStandardDeviation,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, odometryUpdateFrequency,
                 odometryStandardDeviation, visionStandardDeviation, modules);
+        this.logger = logger;
 
         if (Utils.isSimulation()) {
             startSimThread();
@@ -175,11 +182,20 @@ public class CommandSwerveDrivetrain
             });
         }
 
-        updateVisionMeasurement();
+        LimelightHelpers.PoseEstimate visionEst = updateVisionMeasurement();
+        logger.telemeterize(getState(), visionEst);
     }
 
-    private void updateVisionMeasurement() {
-        var visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.LimelightConstants.LIMELIGHT_NAME);
+    private LimelightHelpers.PoseEstimate updateVisionMeasurement() {
+        Optional<Alliance> alliance = DriverStation.getAlliance();
+        if (alliance.isEmpty()) return new LimelightHelpers.PoseEstimate();
+
+        LimelightHelpers.PoseEstimate visionEst;
+        if (alliance.get() == Alliance.Red) {
+            visionEst = LimelightHelpers.getBotPoseEstimate_wpiRed(Constants.LimelightConstants.LIMELIGHT_NAME);
+        } else {
+            visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.LimelightConstants.LIMELIGHT_NAME);
+        }
 
         if (visionEst.tagCount > 0) {
             double xyStdDev = 0.7;
@@ -195,8 +211,8 @@ public class CommandSwerveDrivetrain
             setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, degStdDev));
             addVisionMeasurement(visionEst.pose, visionEst.timestampSeconds);
         }
+        return visionEst;
     }
-
     public boolean isValidAllianceTag(int tagId) {
         Optional<Alliance> alliance = DriverStation.getAlliance();
 
