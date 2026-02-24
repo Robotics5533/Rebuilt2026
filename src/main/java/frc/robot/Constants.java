@@ -97,7 +97,8 @@ public final class Constants {
         public static final int intakeRollerMotorId = 21;
         public static final double flipGearRatio = 120.0;
         public static final double flipInPositionDeg = -5.0;
-        public static final double flipOutPositionDeg = 110.0;
+        public static final double flipStowPositionDeg = 50.0;
+        public static final double flipOutPositionDeg = 125.0;
         public static final double flipToleranceDeg = 2.0;
         public static final double flipMaxVelocityRotPerS = 3.0;
         public static final double flipMaxAccelRotPerSSq = 6.0;
@@ -121,7 +122,7 @@ public final class Constants {
         public static final double feederCurrentLimit = 20.0;
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
-        public static final double shooterVelocityRPS = 65;
+        public static final double shooterVelocityRPS = 50;
         public static final double kP = 0.2;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
@@ -151,9 +152,9 @@ public final class Constants {
             }
         }
 
-        public static final ShotData SHOT_1 = new ShotData(9.96, 65.0, 7.0, 0);
-        public static final ShotData SHOT_2 = new ShotData(1.5, 65.0, 7.5, 0.45);
-        public static final ShotData SHOT_3 = new ShotData(2.0, 68.0, 7.8, 0.48);
+        public static final ShotData SHOT_1 = new ShotData(1, 65.0, 7.0, 0);
+        public static final ShotData SHOT_2 = new ShotData(1.5, 60.0, 7.5, 0.45);
+        public static final ShotData SHOT_3 = new ShotData(2.0, 65.0, 7.8, 0.48);
         public static final ShotData SHOT_4 = new ShotData(2.5, 70.0, 8.0, 0.5);
         public static final ShotData SHOT_5 = new ShotData(3.0, 75.0, 8.5, 0.6);
         public static final ShotData SHOT_6 = new ShotData(3.5, 80.0, 9.0, 0.7);

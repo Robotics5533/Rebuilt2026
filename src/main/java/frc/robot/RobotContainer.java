@@ -86,11 +86,11 @@ public class RobotContainer {
                 // offset in meters, side offset in meters, up offset in meters, the rest are 0
                 LimelightHelpers.setCameraPose_RobotSpace(
                                 Constants.LimelightConstants.LIMELIGHT_NAME,
-                                -0.1905,
-                                -0.3175,
-                                0.3112,
+                                0.381,
+                                0.3175,
+                                0.079375,
                                 0.0,
-                                0.0,
+                                7.5,
                                 0.0);
 
                 // Register named commands for use in PathPlanner autonomous routines.

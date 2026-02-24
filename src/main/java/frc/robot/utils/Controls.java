@@ -89,7 +89,7 @@ public class Controls {
                 .withName("RunWashersAndFeeders"));
 
         operator.rightTrigger().whileTrue(
-            shooters.runBothShootersToSpeedCommand()
+            shooters.runInterpolatedShot(shooters::getHubDistance)
                 .finallyDo(() -> {
                     shooters.stopShooters();
                 })
