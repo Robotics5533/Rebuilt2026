@@ -14,7 +14,7 @@ import frc.robot.subsystems.ClimbSubsystem;import frc.robot.subsystems.IntakeSub
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.WasherSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.IFeederSubsystem;
 import edu.wpi.first.wpilibj2.command.Commands;
 
 public class Controls {
@@ -55,7 +55,7 @@ public class Controls {
     }
 
     public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
-        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight) {
+        ShooterSubsystem shooters, WasherSubsystem washers, IFeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight) {
 
         operator.a().onTrue(intake.runOnce(intake::toggleFlip)
             .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
@@ -80,7 +80,7 @@ public class Controls {
         operator.leftTrigger().whileTrue(
             Commands.parallel(
                 washers.run(Constants.ShooterConstants.washerVoltage),
-                feeders.runBothFeedersCommand())
+                feeders.runFeedersCommand())
                 .finallyDo(interrupted -> {
                     washers.stopWasher();
                     feeders.stopFeeders();

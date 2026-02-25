@@ -5,7 +5,7 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.IFeederSubsystem;
 
 /**
  * A command to perform a shot sequence based on the robot's distance to the speaker,
@@ -21,25 +21,18 @@ public class ShootAtDistance extends Command {
    * then run the washer and feeders until the command is interrupted (e.g., button released).
    * @param shooters The ShooterSubsystem instance.
    * @param washers The WasherSubsystem instance.
-   * @param feeders The FeederSubsystem instance.
+   * @param feeders The IFeederSubsystem instance.
    */
-  public ShootAtDistance(ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders) {
-    // Declare subsystem requirements to prevent conflicts.
+  public ShootAtDistance(ShooterSubsystem shooters, WasherSubsystem washers, IFeederSubsystem feeders) {
     addRequirements(shooters, washers, feeders);
 
-    // Build the full command sequence:
-    // 1. Start shooters spinning to interpolated speed based on hub distance (runs continuously).
-    // 2. In parallel, wait until shooters are at speed, then start washer and feeders (run continuously).
-    // 3. All mechanisms stop when the command is interrupted (button released).
     fullCommand = Commands.parallel(
-        // Continuously run shooters at interpolated speed
         shooters.runInterpolatedShot(shooters::getHubDistance),
-        // Wait until shooters are at speed, then run washer and feeders
         Commands.sequence(
             Commands.waitUntil(shooters::areShootersAtSpeed),
             Commands.parallel(
                 washers.run(Constants.ShooterConstants.washerVoltage),
-                feeders.runBothFeedersCommand()
+                feeders.runFeedersCommand()
             )
         )
     ).finallyDo(interrupted -> {
@@ -47,7 +40,7 @@ public class ShootAtDistance extends Command {
       washers.stopWasher();
       feeders.stopFeeders();
     })
-    .withName("ShootAtDistance"); // Assign a name for debugging.
+    .withName("ShootAtDistance");
   }
 
   @Override

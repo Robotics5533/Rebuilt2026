@@ -143,6 +143,18 @@ public final class Constants {
         }
     }
 
+    public static final class FeederConstants {
+        public static final boolean USE_RPS_FEEDER = true; 
+        public static final double FEEDER_RPS_KP = 0.2; 
+        public static final double FEEDER_RPS_KI = 0.0;
+        public static final double FEEDER_RPS_KD = 0.0;
+        public static final double FEEDER_RPS_KS = 0.0;
+        public static final double FEEDER_RPS_KV = 0.12;
+        public static final double FEEDER_RPS_KA = 0.0; 
+        public static final double FEEDER_RPS_TOLERANCE = 1.0; 
+        public static final double FEEDER_RPS_SETPOINT = 40.0;
+    }
+
     public static final class FieldConstants {
 
         static final AprilTagFieldLayout aprilTagFieldLayout = AprilTagFieldLayout

@@ -20,22 +20,15 @@ import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
+import frc.robot.subsystems.IFeederSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.FeederRPSSubsystem;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.utils.Controls;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
-/**
- * This class is where the bulk of the robot should be declared. Since
- * Command-based is a
- * "declarative" paradigm, very little robot logic should actually be handled in
- * the {@link Robot}
- * periodic methods (other than the scheduler calls). Instead, the structure of
- * the robot (including
- * subsystems, commands, and button mappings) should be declared here.
- */
 public class RobotContainer {
         private final double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)
                         * (Constants.DriveConstants.SPEED_MULTIPLIER / 100.0);
@@ -59,7 +52,7 @@ public class RobotContainer {
         private final ShooterSubsystem shooters = new ShooterSubsystem(drivetrain,
                         Constants.LimelightConstants.LIMELIGHT_NAME);
         private final WasherSubsystem washers = new WasherSubsystem();
-        private final FeederSubsystem feeder = new FeederSubsystem();
+        private final IFeederSubsystem feeder = Constants.FeederConstants.USE_RPS_FEEDER ? new FeederRPSSubsystem() : new FeederSubsystem();
         private final Superstructure superstructure = new Superstructure(() -> drivetrain.getState().Pose);
         private final ClimbSubsystem climb = Constants.ClimbConstants.climbEnabled ? new ClimbSubsystem() : null;
         private final SendableChooser<Command> autoChooser;

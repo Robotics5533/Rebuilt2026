@@ -5,23 +5,23 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
-import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.subsystems.IFeederSubsystem;
 
 public class ShootLoad extends Command {
   private final Command fullCommand;
 
-  public ShootLoad(ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders) {
+  public ShootLoad(ShooterSubsystem shooters, WasherSubsystem washers, IFeederSubsystem feeders) {
     this(shooters, washers, feeders, 2.0);
   }
 
-  public ShootLoad(ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders,
+  public ShootLoad(ShooterSubsystem shooters, WasherSubsystem washers, IFeederSubsystem feeders,
       double durationSeconds) {
     addRequirements(shooters, washers, feeders);
 
     fullCommand = shooters.runBothShootersToSpeedCommand()
         .andThen(Commands.parallel(
             washers.run(Constants.ShooterConstants.washerVoltage),
-            feeders.runBothFeedersCommand()))
+            feeders.runFeedersCommand()))
         .withTimeout(durationSeconds)
         .finallyDo(interrupted -> {
           shooters.stopShooters();

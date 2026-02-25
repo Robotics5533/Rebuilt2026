@@ -13,51 +13,43 @@ import frc.robot.Constants;
  * Represents the robot's feeder mechanism, responsible for moving game pieces
  * towards the shooter. It controls two Falcon 500 (TalonFX) motors.
  */
-public class FeederSubsystem extends SubsystemBase {
-
+public class FeederSubsystem extends SubsystemBase implements IFeederSubsystem {
 
     private final TalonFX leftFeeder = new TalonFX(Constants.ShooterConstants.leftFeederId);
     private final TalonFX rightFeeder = new TalonFX(Constants.ShooterConstants.rightFeederId);
 
-
     private final VoltageOut voltageCtrl = new VoltageOut(0);
+    private double targetVoltage = 0.0;
 
     /**
      * Constructs a new FeederSubsystem.
      * Configures the TalonFX motor controllers with current limits and neutral mode.
      */
     public FeederSubsystem() {
-
         TalonFXConfiguration cfg = new TalonFXConfiguration();
-
 
         cfg.CurrentLimits.SupplyCurrentLimit = Constants.ShooterConstants.feederCurrentLimit;
         cfg.CurrentLimits.SupplyCurrentLimitEnable = true;
         cfg.CurrentLimits.StatorCurrentLimit = Constants.ShooterConstants.feederCurrentLimit;
         cfg.CurrentLimits.StatorCurrentLimitEnable = true;
 
-
         leftFeeder.getConfigurator().apply(cfg);
         rightFeeder.getConfigurator().apply(cfg);
-
 
         leftFeeder.setNeutralMode(NeutralModeValue.Coast);
         rightFeeder.setNeutralMode(NeutralModeValue.Coast);
     }
+
 
     /**
      * Sets the voltage output for the left feeder motor.
      * @param volts The voltage to apply to the left feeder motor.
      */
     public void setLeftFeederVoltage(double volts) {
+        targetVoltage = volts;
         leftFeeder.setControl(voltageCtrl.withOutput(volts));
     }
 
-    /**
-     * Sets the voltage output for the right feeder motor.
-     * Note: The right feeder motor typically spins in the opposite direction, hence the negative voltage.
-     * @param volts The voltage to apply to the right feeder motor.
-     */
     public void setRightFeederVoltage(double volts) {
         rightFeeder.setControl(voltageCtrl.withOutput(-volts));
     }
@@ -76,72 +68,66 @@ public class FeederSubsystem extends SubsystemBase {
         setRightFeederVoltage(0);
     }
 
-    /**
-     * Stops both feeder motors.
-     */
+    @Override
     public void stopFeeders() {
         stopLeftFeeder();
         stopRightFeeder();
+        targetVoltage = 0.0;
     }
 
-    /**
-     * Returns a command that runs the left feeder at a predefined voltage.
-     * @return A command to run the left feeder.
-     */
-    public Command runLeftFeederCommand() {
-        return run(() -> setLeftFeederVoltage(Constants.ShooterConstants.feederVoltage));
-    }
-
-    /**
-     * Returns a command that runs the right feeder at a predefined voltage.
-     * @return A command to run the right feeder.
-     */
-    public Command runRightFeederCommand() {
-        return run(() -> setRightFeederVoltage(Constants.ShooterConstants.feederVoltage));
-    }
-
-    /**
-     * Returns a command that runs both feeders at a predefined voltage.
-     * @return A command to run both feeders.
-     */
-    public Command runBothFeedersCommand() {
+    @Override
+    public Command runFeedersCommand() {
         return run(() -> {
             setLeftFeederVoltage(Constants.ShooterConstants.feederVoltage);
             setRightFeederVoltage(Constants.ShooterConstants.feederVoltage);
         });
     }
 
-    /**
-     * Returns a command that stops the left feeder.
-     * @return A command to stop the left feeder.
-     */
-    public Command stopLeftFeederCommand() {
-        return runOnce(this::stopLeftFeeder);
-    }
-
-    /**
-     * Returns a command that stops the right feeder.
-     * @return A command to stop the right feeder.
-     */
-    public Command stopRightFeederCommand() {
-        return runOnce(this::stopRightFeeder);
-    }
-
-    /**
-     * Returns a command that stops both feeders.
-     * @return A command to stop both feeders.
-     */
+    @Override
     public Command stopFeedersCommand() {
         return runOnce(this::stopFeeders);
     }
 
-    /**
-     * Called periodically by the scheduler.
-     * Updates SmartDashboard with current feeder motor voltages.
-     */
+    @Override
+    public boolean areFeedersAtSpeed() {
+        return targetVoltage != 0.0;
+    }
+
+    @Override
+    public double getLeftFeederVoltage() {
+        return leftFeeder.getMotorVoltage().getValueAsDouble();
+    }
+
+    @Override
+    public double getRightFeederVoltage() {
+        return rightFeeder.getMotorVoltage().getValueAsDouble();
+    }
+
+    @Override
+    public double getLeftFeederRPS() {
+        return 0.0;
+    }
+
+    @Override
+    public double getRightFeederRPS() {
+        return 0.0;
+    }
+
+    @Override
+    public double getTargetRPS() {
+        return 0.0;
+    }
+
+    @Override
+    public double getTargetVoltage() {
+        return targetVoltage;
+    }
+
     @Override
     public void periodic() {
         SmartDashboard.putNumber("Feeder/LeftVoltage", leftFeeder.getMotorVoltage().getValueAsDouble());
         SmartDashboard.putNumber("Feeder/RightVoltage", rightFeeder.getMotorVoltage().getValueAsDouble());
+        SmartDashboard.putNumber("Feeder/TargetVoltage", targetVoltage);
+        SmartDashboard.putBoolean("Feeder/AreFeedersAtSpeed", areFeedersAtSpeed());
     }
 }
