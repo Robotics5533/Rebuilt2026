@@ -207,6 +207,23 @@ public class ShooterSubsystem extends SubsystemBase {
             this::areShootersAtSpeed) // Command finishes when both shooters are at speed.
         .withName("RunBothShootersToSpeed");
   }
+  
+public Command invertedrunBothShootersToSpeedCommand() {
+    return run(
+        () -> {
+          // Determine the target output based on the current control mode.
+          double leftTarget = (controlMode == ShooterControlMode.VELOCITY)
+              ? -Constants.ShooterConstants.shooterVelocityRPS // Target velocity in RPS
+              : -Constants.ShooterConstants.shooterTargetVoltage; // Target voltage
+
+          // Right shooter spins in the opposite direction, so its target is negative.
+          double rightTarget = -leftTarget;
+          setShooterOutput(leftTarget, rightTarget);
+        })
+        .until(
+            this::areShootersAtSpeed) // Command finishes when both shooters are at speed.
+        .withName("RunBothShootersToSpeed");
+  }
 
   /**
    * Stops the left shooter motor, setting its output to zero based on the current control mode.

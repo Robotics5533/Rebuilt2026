@@ -18,6 +18,7 @@ import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.ManualIntakeFlip;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
@@ -130,10 +131,10 @@ public class RobotContainer {
                 controls.configureDriver(drivetrain, limelight, superstructure);
                 if (climb != null) {
                         controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure,
-                                        climb, limelight);
+                                        climb, limelight, manualIntakeFlip);
                 } else {
                         // If climb is null, configure operator without climb
-                        controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, null, limelight);
+                        controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, null, limelight, manualIntakeFlip);
                 }
 
                 // Default command for climb subsystem.

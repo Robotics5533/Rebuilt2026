@@ -2,6 +2,7 @@ package frc.robot.utils;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Rotation2d;
+import edu.wpi.first.wpilibj.XboxController;
 import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
@@ -10,6 +11,7 @@ import frc.robot.commands.AutoAlignHub;
 import frc.robot.commands.ShootAtDistance;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.ManualIntakeFlip;
 import frc.robot.subsystems.ClimbSubsystem; // Uncommented ClimbSubsystem
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
@@ -56,7 +58,7 @@ public class Controls {
     }
 
     public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
-        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight) {
+        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight, ManualIntakeFlip manualIntakeFlip) {
 
         operator.a().onTrue(intake.runOnce(intake::toggleFlip)
             .andThen(Commands.runOnce(() -> setOperatorRumble(0.5)))
@@ -87,6 +89,20 @@ public class Controls {
                     feeders.stopFeeders();
                 })
                 .withName("RunWashersAndFeeders"));
+    operator.b().whileTrue(
+            Commands.parallel(
+                washers.run(-Constants.ShooterConstants.washerVoltage),
+                feeders.invertedrunBothFeedersCommand(),
+                shooters.invertedrunBothShootersToSpeedCommand())
+
+                .finallyDo(interrupted -> {
+                    washers.stopWasher();
+                    feeders.stopFeeders();
+                    shooters.stopShooters();
+                })
+               
+                .withName("Runeverythinginverted"));
+
 
         operator.rightTrigger().whileTrue(
             shooters.runBothShootersToSpeedCommand()
@@ -104,14 +120,18 @@ public class Controls {
         operator.back().whileTrue(
             Commands.sequence(
                 intake.flipManualReverseCommand(3.0)));
-
-        // Climb controls
-        if (climb != null) {
-            operator.povUp().whileTrue(climb.runManualClimbCommand(Constants.ClimbConstants.maxVoltage));
-            operator.povDown().whileTrue(climb.runManualClimbCommand(-Constants.ClimbConstants.maxVoltage));
+        
+       operator.povUp().whileTrue(
+            manualIntakeFlip.run(10.0));
+        operator.povDown().whileTrue(
+            manualIntakeFlip.runDown(-10.0));
+        //Climb controls
+         if (climb != null) {
+             operator.povUp().whileTrue(climb.runManualClimbCommand(Constants.ClimbConstants.maxVoltage));
+             operator.povDown().whileTrue(climb.runManualClimbCommand(-Constants.ClimbConstants.maxVoltage));
         }
 
-    }
+     }
 
     public void setOperatorRumble(double intensity) {
         operator.getHID().setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, intensity);
