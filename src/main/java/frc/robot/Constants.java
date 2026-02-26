@@ -107,6 +107,7 @@ public final class Constants {
     public static final class IntakeConstants {
         public static final int intakeFlipMotorId = 14;
         public static final int intakeRollerMotorId = 21;
+        public static final int intakeFlipEncoder = 23;
         public static final double flipGearRatio = 120.0;
         public static final double flipInPositionDeg = -5.0;
         public static final double flipOutPositionDeg = 110.0;
@@ -116,6 +117,7 @@ public final class Constants {
         public static final double flipkP = 40.0;
         public static final double flipkI = 1.0;
         public static final double flipkD = 0.0;
+        public static final double flipCANCoderOffset = 0.0;
         public static final double flipkV = 0.0;
         public static final double flipkA = 0.0;
         public static final double flipCurrentLimit = 40.0;
