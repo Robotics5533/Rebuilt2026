@@ -34,19 +34,21 @@ The robot's software is structured according to the WPILib Command-Based paradig
 | Left Bumper (press) | Seed field-centric | Resets field-centric direction |
 | A (hold) | Swerve drive brake | Holds position |
 | B (hold) | Point wheels at left-stick direction | Wheel align |
+| Y (hold) | Face 0 degrees | Robot will orient to 0 degrees field-centric |
+| D-pad Up (hold) | Manual climb up | |
+| D-pad Down (hold) | Manual climb down | |
 
 ### Operator Controls
 
 | Input | Action | Notes |
 |---|---|---|
-| A (press) | Intake flip toggle | With rumble feedback |
-| Right Bumper (hold) | Intake roller forward | Stops on release |
-| Left Bumper (hold) | Intake roller reverse | Stops on release |
-| Left Trigger (hold) | Run washer and both feeders | |
-| Right Trigger (hold) | Run both shooters to speed | |
-| Y (hold) | Shoot at distance | Conditional on being in alliance zone |
+| Left Trigger (hold) | Feed/washer | Runs washer and both feeders |
+| Right Trigger (hold) | Shooting | Runs interpolated shot |
+| Left Bumper (hold) | Intake power out | Stops on release |
+| Right Bumper (hold) | Intake power in | Stops on release |
+| B (press) | Intake out position | Sets intake to out position |
+| X (press) | Intake in position | Sets intake to in position |
+| Y (hold) | Shooter at 47.5 RPS | Fixed speed shooting, not interpolated |
 | D-pad Left (hold) | AutoAlign and Shoot | Aligns to hub, spins up shooters, then shoots once aligned and at speed. Conditional on being in alliance zone |
-| X (hold) | Intake flip manual forward (3V) | Calibration jog |
-| Back (hold) | Intake flip manual reverse (3V) | Calibration jog |
-| D-pad Up (hold) | Manual climb up | |
-| D-pad Down (hold) | Manual climb down | |
+| D-pad Up (press) | Increment shooter RPS adjustment | Adjusts target RPS for interpolated and fixed shots |
+| D-pad Down (press) | Decrement shooter RPS adjustment | Adjusts target RPS for interpolated and fixed shots |

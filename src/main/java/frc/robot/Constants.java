@@ -44,6 +44,18 @@ public final class Constants {
         public static final double AUTO_ROTATION_D = 1.0;
     }
 
+    public static final class FaceAngleConstants {
+        public static final double kP = 0.045; 
+        public static final double kI = 0.05; 
+        public static final double kD = 0.004;
+
+        public static final double MAX_ANGULAR_VELOCITY_RAD_PER_SEC = 2.0 * Math.PI;
+        public static final double MAX_ANGULAR_ACCELERATION_RAD_PER_SEC_SQ = 2.0 * Math.PI; 
+
+        public static final double ANGULAR_POSITION_TOLERANCE_RAD = Math.toRadians(0.5);
+        public static final double ANGULAR_VELOCITY_TOLERANCE_RAD_PER_SEC = Math.toRadians(5.0);
+    }
+
     public static final class OperatorConstants {
         public static final int DRIVER_CONTROLLER_PORT = 0;
         public static final int OPERATOR_CONTROLLER_PORT = 1;
@@ -131,6 +143,7 @@ public final class Constants {
         public static final double shooterSpeedToleranceRPS = 2.0; 
         public static final double shootAtDistanceDurationSeconds = 3.0;
         public static final double shooterCurrentLimit = 40.0;
+        public static final double rpsAdjustmentDelta = 2.5;
 
         public static final InterpolatingDoubleTreeMap distanceToVelocityRPS = new InterpolatingDoubleTreeMap();
         public static final InterpolatingDoubleTreeMap distanceToVoltage = new InterpolatingDoubleTreeMap();

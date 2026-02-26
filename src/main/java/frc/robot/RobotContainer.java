@@ -102,7 +102,7 @@ public class RobotContainer {
 
                 }));
 
-                controls.configureDriver(drivetrain, limelight, superstructure);
+                controls.configureDriver(drivetrain, limelight, superstructure, climb);
                 if (climb != null) {
                         controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure,
                                         climb, limelight);

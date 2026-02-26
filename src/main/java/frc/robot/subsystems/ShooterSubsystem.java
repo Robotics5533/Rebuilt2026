@@ -42,6 +42,8 @@ public class ShooterSubsystem extends SubsystemBase {
   private ShooterSetpoint lastLeftSetpoint = new ShooterSetpoint(0.0, 0.0);
   private ShooterSetpoint lastRightSetpoint = new ShooterSetpoint(0.0, 0.0);
 
+  private double rpsAdjustment = 0.0;
+
   /**
    * Defines the side of the shooter (Left, Right, or Both).
    */
@@ -99,6 +101,14 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public void setControlMode(ShooterControlMode mode) {
     this.controlMode = mode;
+  }
+
+  public void incrementRPSAdjustment(double delta) {
+    this.rpsAdjustment += delta;
+  }
+
+  public void resetRPSAdjustment() {
+    this.rpsAdjustment = 0.0;
   }
 
   /**
@@ -160,6 +170,91 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public double getHubDistance() {
     return AllianceUtil.getDistanceToHub(drivetrain, limelightName);
+  }
+
+
+
+
+
+
+
+  /**
+   * Sets the target output for both shooters based on a given distance to the target.
+   * Uses interpolation tables defined in Constants to convert distance to target velocity or voltage.
+   * @param distance The distance to the target in meters.
+   */
+  public void setTargetFromDistance(double distance) {
+    double rps = Constants.ShooterConstants.distanceToVelocityRPS.get(distance);
+    double adjustedRPS = rps + rpsAdjustment;
+    double volts = adjustedRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT; // Recalculate voltage based on adjusted RPS
+
+    ShooterSetpoint leftSetpoint = new ShooterSetpoint(adjustedRPS, volts);
+    ShooterSetpoint rightSetpoint = new ShooterSetpoint(-adjustedRPS, -volts);
+    setShooterOutput(leftSetpoint, rightSetpoint);
+  }
+
+  /**
+   * Sets the target Revolutions Per Second (RPS) for both shooters.
+   * Only applicable when in VELOCITY control mode.
+   * @param rps The target RPS for the left shooter. The right shooter will be set to -rps.
+   */
+  public void setTargetRPS(double rps) {
+    double adjustedRPS = rps + rpsAdjustment;
+    double voltage = adjustedRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
+    ShooterSetpoint leftSetpoint = new ShooterSetpoint(adjustedRPS, voltage);
+    ShooterSetpoint rightSetpoint = new ShooterSetpoint(-adjustedRPS, -voltage);
+    setShooterOutput(leftSetpoint, rightSetpoint);
+  }
+
+  /**
+   * Sets the output for the left and right shooter motors.
+   * The interpretation of `leftValue` and `rightValue` depends on the current `controlMode`.
+   * If in VELOCITY mode, values are RPS. If in VOLTAGE mode, values are Volts.
+   * @param leftValue The target value for the left shooter.
+   * @param rightValue The target value for the right shooter.
+   */
+  private void setShooterOutput(ShooterSetpoint leftSetpoint, ShooterSetpoint rightSetpoint) {
+    if (controlMode == ShooterControlMode.VELOCITY) {
+      lastLeftSetpoint = leftSetpoint;
+      lastRightSetpoint = rightSetpoint;
+      leftShooter.setControl(velocityCtrl.withVelocity(leftSetpoint.rps));
+      rightShooter.setControl(velocityCtrl.withVelocity(rightSetpoint.rps));
+    } else {
+      lastLeftSetpoint = leftSetpoint;
+      lastRightSetpoint = rightSetpoint;
+      leftShooter.setControl(voltageCtrl.withOutput(leftSetpoint.voltage));
+      rightShooter.setControl(voltageCtrl.withOutput(rightSetpoint.voltage));
+    }
+  }
+
+  /**
+   * Stops the left shooter motor, setting its output to zero based on the current control mode.
+   */
+  public void stopLeftShooter() {
+    if (controlMode == ShooterControlMode.VELOCITY) {
+      leftShooter.setControl(velocityCtrl.withVelocity(0));
+    } else {
+      leftShooter.setControl(voltageCtrl.withOutput(0));
+    }
+  }
+
+  /**
+   * Stops the right shooter motor, setting its output to zero based on the current control mode.
+   */
+  public void stopRightShooter() {
+    if (controlMode == ShooterControlMode.VELOCITY) {
+      rightShooter.setControl(velocityCtrl.withVelocity(0));
+    } else {
+      rightShooter.setControl(voltageCtrl.withOutput(0));
+    }
+  }
+
+  /**
+   * Stops both shooter motors.
+   */
+  public void stopShooters() {
+    stopLeftShooter();
+    stopRightShooter();
   }
 
   /**
@@ -240,36 +335,6 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * Stops the left shooter motor, setting its output to zero based on the current control mode.
-   */
-  public void stopLeftShooter() {
-    if (controlMode == ShooterControlMode.VELOCITY) {
-      leftShooter.setControl(velocityCtrl.withVelocity(0));
-    } else {
-      leftShooter.setControl(voltageCtrl.withOutput(0));
-    }
-  }
-
-  /**
-   * Stops the right shooter motor, setting its output to zero based on the current control mode.
-   */
-  public void stopRightShooter() {
-    if (controlMode == ShooterControlMode.VELOCITY) {
-      rightShooter.setControl(velocityCtrl.withVelocity(0));
-    } else {
-      rightShooter.setControl(voltageCtrl.withOutput(0));
-    }
-  }
-
-  /**
-   * Stops both shooter motors.
-   */
-  public void stopShooters() {
-    stopLeftShooter();
-    stopRightShooter();
-  }
-
-  /**
    * Returns a command that stops the left shooter.
    * @return A command to stop the left shooter.
    */
@@ -294,20 +359,6 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the target output for both shooters based on a given distance to the target.
-   * Uses interpolation tables defined in Constants to convert distance to target velocity or voltage.
-   * @param distance The distance to the target in meters.
-   */
-  public void setTargetFromDistance(double distance) {
-    double rps = Constants.ShooterConstants.distanceToVelocityRPS.get(distance);
-    double volts = Constants.ShooterConstants.distanceToVoltage.get(distance);
-
-    ShooterSetpoint leftSetpoint = new ShooterSetpoint(rps, volts);
-    ShooterSetpoint rightSetpoint = new ShooterSetpoint(-rps, -volts);
-    setShooterOutput(leftSetpoint, rightSetpoint);
-  }
-
-  /**
    * Returns a command that runs the shooters at a speed interpolated from the distance to the target.
    * The command will stop the shooters when it ends.
    * @param distanceMeters A DoubleSupplier providing the current distance to the target.
@@ -324,37 +375,24 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
   /**
-   * Sets the target Revolutions Per Second (RPS) for both shooters.
-   * Only applicable when in VELOCITY control mode.
-   * @param rps The target RPS for the left shooter. The right shooter will be set to -rps.
+   * Returns a command that runs the shooters at a fixed RPS.
+   * The command will stop the shooters when it ends.
+   * @param rps The target Revolutions Per Second for the shooters.
+   * @return A command to run shooters at a fixed RPS.
    */
-  public void setTargetRPS(double rps) {
-            double voltage = rps / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
-    ShooterSetpoint leftSetpoint = new ShooterSetpoint(rps, voltage);
-    ShooterSetpoint rightSetpoint = new ShooterSetpoint(-rps, -voltage);
-    setShooterOutput(leftSetpoint, rightSetpoint);
+  public Command runFixedRPSShoot(double rps) {
+    return run(
+        () -> setTargetRPS(rps))
+        .until(this::areShootersAtSpeed)
+        .finallyDo(this::stopShooters);
   }
 
-  /**
-   * Sets the output for the left and right shooter motors.
-   * The interpretation of `leftValue` and `rightValue` depends on the current `controlMode`.
-   * If in VELOCITY mode, values are RPS. If in VOLTAGE mode, values are Volts.
-   * @param leftValue The target value for the left shooter.
-   * @param rightValue The target value for the right shooter.
-   */
-  private void setShooterOutput(ShooterSetpoint leftSetpoint, ShooterSetpoint rightSetpoint) {
-    if (controlMode == ShooterControlMode.VELOCITY) {
-      lastLeftSetpoint = leftSetpoint;
-      lastRightSetpoint = rightSetpoint;
-      leftShooter.setControl(velocityCtrl.withVelocity(leftSetpoint.rps));
-      rightShooter.setControl(velocityCtrl.withVelocity(rightSetpoint.rps));
-    } else {
-      lastLeftSetpoint = leftSetpoint;
-      lastRightSetpoint = rightSetpoint;
-      leftShooter.setControl(voltageCtrl.withOutput(leftSetpoint.voltage));
-      rightShooter.setControl(voltageCtrl.withOutput(rightSetpoint.voltage));
-    }
-  }
+
+
+
+
+
+
 
   /**
    * Called periodically by the scheduler.
