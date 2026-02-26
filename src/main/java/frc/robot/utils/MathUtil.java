@@ -6,7 +6,7 @@ import edu.wpi.first.math.geometry.Translation2d;
 public class MathUtil {
     /**
      * Creates a bounding box pair representing opposite corners of a rectangle
-     * 
+     
      * @param center Center position of the obstacle
      * @param width  Width of the obstacle (X dimension)
      * @param depth  Depth of the obstacle (Y dimension)
