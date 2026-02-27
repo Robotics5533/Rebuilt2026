@@ -41,6 +41,7 @@ public class Controls {
     }
 
     public void configureDriver(CommandSwerveDrivetrain drivetrain, LimelightSubsystem limelight, Superstructure superstructure, ClimbSubsystem climb) {
+        
         driver.rightBumper().and(superstructure.activeHubTrigger).and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(
             new AutoAlignCommand(drivetrain, () -> Rotation2d.fromDegrees(AllianceUtil.getTargetHeadingToHub(drivetrain, Constants.LimelightConstants.LIMELIGHT_NAME)), () -> getDriveX(), () -> getDriveY())); // Updated for hub alignment with translation
 
