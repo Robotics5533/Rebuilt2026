@@ -1,5 +1,7 @@
 package frc.robot.utils;
 
+import java.lang.reflect.Array;
+
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
 
 public class ShooterUtil {
@@ -23,14 +25,28 @@ public class ShooterUtil {
         }
     }
 
+    public static final ShooterShotData[] SHOT_DATA = {
+        new ShooterShotData(1.0, 60, 4.8, 0.20),
+        new ShooterShotData(2.0, 56.0, 5.7, 0.28),
+        new ShooterShotData(3.0, 70.0, 6.6, 0.35),
+        new ShooterShotData(4.0, 80.0, 7.6, 0.43),
+        new ShooterShotData(4.5, 85.0, 9.9, 0.61),
+        new ShooterShotData(5.0, 90.0, 8.7, 0.52),
+        new ShooterShotData(6.0, 105.0, 9.9, 0.61),
+    };
 
-    public static final ShooterShotData SHOT_1_METER = new ShooterShotData(1.0, 60, 4.8, 0.20);
-    public static final ShooterShotData SHOT_2_METER = new ShooterShotData(2.0, 56.0, 5.7, 0.28);
-    public static final ShooterShotData SHOT_3_METER = new ShooterShotData(3.0, 70.0, 6.6, 0.35);
-    public static final ShooterShotData SHOT_4_METER = new ShooterShotData(4.0, 80.0, 7.6, 0.43);
-    public static final ShooterShotData SHOT_4HALF_METER = new ShooterShotData(4.5, 85.0, 9.9, 0.61);
-    public static final ShooterShotData SHOT_5_METER = new ShooterShotData(5.0, 90.0, 8.7, 0.52);
-    public static final ShooterShotData SHOT_6_METER = new ShooterShotData(6.0, 105.0, 9.9, 0.61);
+
+    /**
+     * Calcuates the ideal target velocity in m/s to a specified distance and height away, 
+     * @param distance
+     * @param height
+     * @param gravity
+     * @param shotAngleRadians
+     * @return
+     */
+    public static double calculateTargetVelocity(double distance, double height, double gravity, double shotAngleRadians){
+        return Math.sqrt((gravity*distance*distance)/(2.0*Math.pow(Math.cos(shotAngleRadians),2)*(height-distance*Math.tan(shotAngleRadians))));
+    }
 
 
     /**
@@ -52,13 +68,9 @@ public class ShooterUtil {
         distanceToTimeOfFlight.clear();
 
         
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_1_METER);
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_2_METER);
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_3_METER);
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_4_METER);
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_4HALF_METER);
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_5_METER);
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_6_METER);
+        for (ShooterShotData shooterShotData : SHOT_DATA) {
+            addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, shooterShotData);
+        }
     }
 
     private static void addShotData(
