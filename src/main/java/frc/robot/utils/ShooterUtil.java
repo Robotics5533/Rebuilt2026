@@ -24,16 +24,13 @@ public class ShooterUtil {
     }
 
 
-    public static final ShooterShotData SHOT_1_METER = new ShooterShotData(1.0, 47.5, 4.8, 0.20);
+    public static final ShooterShotData SHOT_1_METER = new ShooterShotData(1.0, 60, 4.8, 0.20);
     public static final ShooterShotData SHOT_2_METER = new ShooterShotData(2.0, 56.0, 5.7, 0.28);
-    public static final ShooterShotData SHOT_3_METER = new ShooterShotData(3.0, 65.0, 6.6, 0.35);
-    public static final ShooterShotData SHOT_4_METER = new ShooterShotData(4.0, 75.0, 7.6, 0.43);
-    public static final ShooterShotData SHOT_5_METER = new ShooterShotData(5.0, 86.0, 8.7, 0.52);
-    public static final ShooterShotData SHOT_6_METER = new ShooterShotData(6.0, 98.0, 9.9, 0.61);
-    public static final ShooterShotData SHOT_7_METER = new ShooterShotData(7.0, 111.0, 11.2, 0.71);
-    public static final ShooterShotData SHOT_8_METER = new ShooterShotData(8.0, 125.0, 12.6, 0.82);
-    public static final ShooterShotData SHOT_9_METER = new ShooterShotData(9.0, 140.0, 14.1, 0.94);
-    public static final ShooterShotData SHOT_10_METER = new ShooterShotData(10.0, 156.0, 15.7, 1.07);
+    public static final ShooterShotData SHOT_3_METER = new ShooterShotData(3.0, 70.0, 6.6, 0.35);
+    public static final ShooterShotData SHOT_4_METER = new ShooterShotData(4.0, 80.0, 7.6, 0.43);
+    public static final ShooterShotData SHOT_4HALF_METER = new ShooterShotData(4.5, 85.0, 9.9, 0.61);
+    public static final ShooterShotData SHOT_5_METER = new ShooterShotData(5.0, 90.0, 8.7, 0.52);
+    public static final ShooterShotData SHOT_6_METER = new ShooterShotData(6.0, 105.0, 9.9, 0.61);
 
 
     /**
@@ -59,12 +56,9 @@ public class ShooterUtil {
         addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_2_METER);
         addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_3_METER);
         addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_4_METER);
+        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_4HALF_METER);
         addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_5_METER);
         addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_6_METER);
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_7_METER);
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_8_METER);
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_9_METER);
-        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_10_METER);
     }
 
     private static void addShotData(

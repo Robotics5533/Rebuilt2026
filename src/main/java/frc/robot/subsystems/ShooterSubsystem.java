@@ -370,7 +370,6 @@ public class ShooterSubsystem extends SubsystemBase {
           double d = distanceMeters.getAsDouble();
           setTargetFromDistance(d);
         }) 
-        .until(this::areShootersAtSpeed)
         .finallyDo(this::stopShooters);
   }
 
@@ -382,9 +381,7 @@ public class ShooterSubsystem extends SubsystemBase {
    */
   public Command runFixedRPSShoot(double rps) {
     return run(
-        () -> setTargetRPS(rps))
-        .until(this::areShootersAtSpeed)
-        .finallyDo(this::stopShooters);
+        () -> setTargetRPS(rps));
   }
 
 

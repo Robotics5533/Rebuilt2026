@@ -43,9 +43,7 @@ public class FaceAngle extends Command {
     public void execute() {
         double currentAngle = m_drivetrain.getState().Pose.getRotation().getRadians();
         double rotationalRate = m_pidController.calculate(currentAngle, m_targetAngle.getRadians());
-
-        // Apply the rotational rate to the drivetrain. Linear velocities are zero.
-        m_drivetrain.applyRequest(() -> m_drive.withRotationalRate(rotationalRate));
+                m_drivetrain.applyRequest(() -> m_drive.withRotationalRate(rotationalRate));
     }
 
     @Override

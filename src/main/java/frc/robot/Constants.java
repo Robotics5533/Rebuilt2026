@@ -26,7 +26,7 @@ public final class Constants {
         public static final double SPEED_MULTIPLIER = 100.0;
         public static final double ALIGN_PID_P = 0.045;
         public static final double ALIGN_PID_I = 0.05;
-        public static final double ALIGN_PID_D = 0.004;
+        public static final double ALIGN_PID_D = 0.04;
 
         public static final double ALIGN_KS = 0.04;
         public static final double ALIGN_TOLERANCE_DEG = 0.5;
@@ -109,7 +109,7 @@ public final class Constants {
         public static final int intakeRollerMotorId = 21;
         public static final int intakeFlipEncoder = 23;
         public static final double flipGearRatio = 120.0;
-        public static final double flipInPositionDeg = -5.0;
+        public static final double flipInPositionDeg = 0.0;
         public static final double flipOutPositionDeg = 110.0;
         public static final double flipToleranceDeg = 2.0;
         public static final double flipMaxVelocityRotPerS = 3.0;
@@ -135,7 +135,7 @@ public final class Constants {
         public static final double feederCurrentLimit = 20.0;
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
-        public static final double shooterVelocityRPS = 47.5;
+        public static final double shooterVelocityRPS = 60;
         public static final double kP = 0.2;
         public static final double kI = 0.0;
         public static final double kD = 0.0;

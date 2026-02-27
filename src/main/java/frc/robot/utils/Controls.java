@@ -7,7 +7,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.commands.AutoAlignAndShoot;
 import frc.robot.commands.AutoAlignHub;
-import frc.robot.commands.FaceAngle; // New import
+import frc.robot.commands.FaceAngle; 
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -54,7 +54,6 @@ public class Controls {
             () -> new com.ctre.phoenix6.swerve.SwerveRequest.PointWheelsAt().withModuleDirection(
                 new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
-        // Driver Y Button: Face 0 degrees
         driver.y().whileTrue(new FaceAngle(drivetrain, Rotation2d.kZero));
 
         // Climb controls
@@ -88,12 +87,12 @@ public class Controls {
                 .withName("RunBothShooters"));
 
         // Left Bumper: Intake power out
-        operator.leftBumper()
+        operator.rightBumper()
             .onTrue(intake.run(intake::runRollerReverse))
             .onFalse(intake.runOnce(intake::stopRoller));
 
         // Right Bumper: Intake power in
-        operator.rightBumper()
+        operator.leftBumper()
             .onTrue(intake.run(intake::runRollerForward))
             .onFalse(intake.runOnce(intake::stopRoller));
 
@@ -105,7 +104,7 @@ public class Controls {
 
         // Y Button: Shooter with fixed RPS (47.5)
         operator.y().whileTrue(
-            shooters.runFixedRPSShoot(47.5)
+            shooters.runFixedRPSShoot(Constants.ShooterConstants.shooterVelocityRPS)
                 .finallyDo(interrupted -> {
                     shooters.stopShooters();
                     shooters.resetRPSAdjustment(); // Reset adjustment after shooting

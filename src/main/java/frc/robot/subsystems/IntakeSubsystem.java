@@ -5,7 +5,6 @@ import edu.wpi.first.math.util.Units;
 import static edu.wpi.first.units.Units.Degrees;
 
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
-import com.ctre.phoenix6.configs.CANcoderConfiguration;
 import edu.wpi.first.math.controller.ProfiledPIDController;
 import edu.wpi.first.math.trajectory.TrapezoidProfile;
 import edu.wpi.first.units.measure.Angle;
@@ -18,7 +17,6 @@ import frc.robot.Constants;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
-import com.ctre.phoenix6.hardware.CANcoder;
 
 public class IntakeSubsystem extends SubsystemBase {
   public enum FlipState {
@@ -38,7 +36,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   private final TalonFX flipMotor = new TalonFX(Constants.IntakeConstants.intakeFlipMotorId);
   private final TalonFX rollerMotor = new TalonFX(Constants.IntakeConstants.intakeRollerMotorId);
-  private final CANcoder flipCANCoder = new CANcoder(Constants.IntakeConstants.intakeFlipEncoder);
 
   private final VoltageOut rollerCtrl = new VoltageOut(0);
   private final VoltageOut flipVoltageCtrl = new VoltageOut(0);
@@ -56,33 +53,27 @@ public class IntakeSubsystem extends SubsystemBase {
   private boolean flipManualOverride = false;
 
   public IntakeSubsystem() {
-    var motorCfg = new TalonFXConfiguration();
+    var cfg = new TalonFXConfiguration();
 
-    motorCfg.Feedback.SensorToMechanismRatio = Constants.IntakeConstants.flipGearRatio;
+    cfg.Feedback.SensorToMechanismRatio = Constants.IntakeConstants.flipGearRatio;
 
-    motorCfg.CurrentLimits.SupplyCurrentLimit = Constants.IntakeConstants.flipCurrentLimit;
-    motorCfg.CurrentLimits.SupplyCurrentLimitEnable = true;
-    motorCfg.CurrentLimits.StatorCurrentLimit = Constants.IntakeConstants.flipCurrentLimit;
-    motorCfg.CurrentLimits.StatorCurrentLimitEnable = true;
+    cfg.CurrentLimits.SupplyCurrentLimit = Constants.IntakeConstants.flipCurrentLimit;
+    cfg.CurrentLimits.SupplyCurrentLimitEnable = true;
+    cfg.CurrentLimits.StatorCurrentLimit = Constants.IntakeConstants.flipCurrentLimit;
+    cfg.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    motorCfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units
+    cfg.SoftwareLimitSwitch.ForwardSoftLimitThreshold = Units
         .degreesToRotations(Constants.IntakeConstants.softLimitForwardDeg);
-    motorCfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
-    motorCfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Units
+    cfg.SoftwareLimitSwitch.ForwardSoftLimitEnable = true;
+    cfg.SoftwareLimitSwitch.ReverseSoftLimitThreshold = Units
         .degreesToRotations(Constants.IntakeConstants.softLimitReverseDeg);
-    motorCfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
+    cfg.SoftwareLimitSwitch.ReverseSoftLimitEnable = true;
 
-    flipMotor.getConfigurator().apply(motorCfg);
+    flipMotor.getConfigurator().apply(cfg);
     flipMotor.setNeutralMode(NeutralModeValue.Coast);
-
-    var canCoderCfg = new CANcoderConfiguration();
-    canCoderCfg.MagnetSensor.MagnetOffset = Constants.IntakeConstants.flipCANCoderOffset;
-    flipCANCoder.getConfigurator().apply(canCoderCfg);
-
-    double initialCANCoderRotations = Units.degreesToRotations(flipCANCoder.getAbsolutePosition().getValueAsDouble());
-    
-    flipMotor.setPosition(initialCANCoderRotations);
-    flipController.reset(initialCANCoderRotations);
+    double inPosRot = Units.degreesToRotations(Constants.IntakeConstants.flipInPositionDeg);
+    flipMotor.setPosition(inPosRot);
+    flipController.reset(inPosRot);
 
     flipController.setTolerance(Units.degreesToRotations(Constants.IntakeConstants.flipToleranceDeg));
 
@@ -136,10 +127,6 @@ public class IntakeSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    double currentCANCoderDegrees = flipCANCoder.getAbsolutePosition().getValueAsDouble();
-    double currentCANCoderRotations = Units.degreesToRotations(currentCANCoderDegrees);
-    flipMotor.setPosition(currentCANCoderRotations);
-
     double currentRot = getFlipPositionRot();
     double targetRot = Units.degreesToRotations(flipState.angleDeg);
 
@@ -155,8 +142,6 @@ public class IntakeSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Intake/FlipGoalDeg", flipState.angleDeg);
     SmartDashboard.putNumber("Intake/FlipAppliedVolts", totalVoltage);
     SmartDashboard.putBoolean("Intake/FlipAtTarget", flipAtTarget());
-    SmartDashboard.putNumber("Intake/CANCoderDeg", currentCANCoderDegrees);
-    SmartDashboard.putNumber("Intake/FlipVelocityRotPerSec", flipMotor.getVelocity().getValueAsDouble());
 
     if (flipManualOverride) {
       SmartDashboard.putNumber("Intake/CapturedFlipOutDeg", Units.rotationsToDegrees(currentRot));

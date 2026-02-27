@@ -11,14 +11,14 @@ public class ShootLoad extends Command {
   private final Command fullCommand;
 
   public ShootLoad(ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders) {
-    this(shooters, washers, feeders, 2.0);
+    this(shooters, washers, feeders, 5.0);
   }
 
   public ShootLoad(ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders,
       double durationSeconds) {
     addRequirements(shooters, washers, feeders);
 
-    fullCommand = shooters.runBothShootersToSpeedCommand()
+    fullCommand = shooters.runInterpolatedShot(shooters::getHubDistance)
         .andThen(Commands.parallel(
             washers.run(Constants.ShooterConstants.washerVoltage),
             feeders.runBothFeedersCommand()))
