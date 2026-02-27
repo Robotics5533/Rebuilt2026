@@ -5,9 +5,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
 
-
 public class AllianceUtil {
-  
+
   public static boolean isRedAlliance() {
     return DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red;
   }
@@ -45,7 +44,8 @@ public class AllianceUtil {
     return robotPose.getTranslation().getDistance(getHubPose().getTranslation());
   }
 
-  public static double getTargetHeadingToHub(frc.robot.subsystems.CommandSwerveDrivetrain drivetrain, String limelightName) {
+  public static double getTargetHeadingToHub(frc.robot.subsystems.CommandSwerveDrivetrain drivetrain,
+      String limelightName) {
     var llResults = frc.robot.utils.LimelightHelpers.getLatestResults(limelightName);
     double currentHeading = drivetrain.getState().Pose.getRotation().getDegrees();
     if (llResults.valid && llResults.targets_Fiducials.length > 0) {

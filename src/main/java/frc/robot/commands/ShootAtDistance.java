@@ -24,17 +24,10 @@ public class ShootAtDistance extends Command {
    * @param feeders The FeederSubsystem instance.
    */
   public ShootAtDistance(ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders) {
-    // Declare subsystem requirements to prevent conflicts.
     addRequirements(shooters, washers, feeders);
 
-    // Build the full command sequence:
-    // 1. Start shooters spinning to interpolated speed based on hub distance (runs continuously).
-    // 2. In parallel, wait until shooters are at speed, then start washer and feeders (run continuously).
-    // 3. All mechanisms stop when the command is interrupted (button released).
     fullCommand = Commands.parallel(
-        // Continuously run shooters at interpolated speed
         shooters.runInterpolatedShot(shooters::getHubDistance),
-        // Wait until shooters are at speed, then run washer and feeders
         Commands.sequence(
             Commands.waitUntil(shooters::areShootersAtSpeed),
             Commands.parallel(
@@ -42,12 +35,14 @@ public class ShootAtDistance extends Command {
                 feeders.runBothFeedersCommand()
             )
         )
-    ).finallyDo(interrupted -> {
+    )
+    .finallyDo(interrupted -> {
       shooters.stopShooters();
+      shooters.resetRPSAdjustment();
       washers.stopWasher();
       feeders.stopFeeders();
     })
-    .withName("ShootAtDistance"); // Assign a name for debugging.
+    .withName("ShootAtDistance");
   }
 
   @Override

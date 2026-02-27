@@ -9,29 +9,39 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
+import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
+import frc.robot.utils.AllianceUtil;
 
 /**
- * A complex command that combines automatic alignment to the hub with a distance-based shooting sequence.
- * This command first aligns the robot to the hub and spins up the shooters to the calculated speed in parallel.
- * Once both conditions (alignment and shooter at speed) are met, it activates the feeder and washer subsystems
+ * A complex command that combines automatic alignment to the hub with a
+ * distance-based shooting sequence.
+ * This command first aligns the robot to the hub and spins up the shooters to
+ * the calculated speed in parallel.
+ * Once both conditions (alignment and shooter at speed) are met, it activates
+ * the feeder and washer subsystems
  * to initiate shooting. All mechanisms stop when the command is interrupted.
  */
 public class AutoAlignAndShoot extends Command {
     private final Command fullCommand;
-    private final AutoAlignHub autoAlignCommand;
+    private final AutoAlignCommand autoAlignCommand;
     private final ShooterSubsystem shooter;
 
     /**
      * Creates a new AutoAlignAndShoot command.
      *
-     * @param drivetrain The {@link CommandSwerveDrivetrain} subsystem for robot movement and alignment.
-     * @param shooter The {@link ShooterSubsystem} for controlling shooter motors.
-     * @param feeder The {@link FeederSubsystem} for controlling the feeder mechanism.
-     * @param washer The {@link WasherSubsystem} for controlling the washer mechanism.
+     * @param drivetrain     The {@link CommandSwerveDrivetrain} subsystem for robot
+     *                       movement and alignment.
+     * @param shooter        The {@link ShooterSubsystem} for controlling shooter
+     *                       motors.
+     * @param feeder         The {@link FeederSubsystem} for controlling the feeder
+     *                       mechanism.
+     * @param washer         The {@link WasherSubsystem} for controlling the washer
+     *                       mechanism.
      * @param superstructure The {@link Superstructure} for alliance zone checks.
-     * @param limelight The {@link LimelightSubsystem} for vision data used in alignment.
+     * @param limelight      The {@link LimelightSubsystem} for vision data used in
+     *                       alignment.
      */
     public AutoAlignAndShoot(
             CommandSwerveDrivetrain drivetrain,
@@ -41,46 +51,31 @@ public class AutoAlignAndShoot extends Command {
             Superstructure superstructure,
             LimelightSubsystem limelight) {
 
-        // Initialize the AutoAlignHub command, which handles the rotational alignment.
-        // The controller parameter is null because this command manages the drivetrain's movement.
-        autoAlignCommand = new AutoAlignHub(drivetrain, limelight, null);
+        autoAlignCommand = new AutoAlignCommand(drivetrain,
+                () -> Rotation2d.fromDegrees(
+                        AllianceUtil.getTargetHeadingToHub(drivetrain, Constants.LimelightConstants.LIMELIGHT_NAME)),
+                () -> 0.0, () -> 0.0);
         this.shooter = shooter;
 
-        // Declare all required subsystems to prevent conflicts and ensure exclusive access.
         addRequirements(drivetrain, shooter, feeder, washer, superstructure, limelight);
 
-        // Define the full sequence of actions for this command.
         fullCommand = Commands.parallel(
-                // 1. Run the auto-alignment command in parallel with other actions.
                 autoAlignCommand,
-                // 2. Spin up the shooters to the interpolated speed based on distance to the hub.
-                // This runs continuously while the command is active.
                 shooter.runInterpolatedShot(shooter::getHubDistance),
-                // 3. Define a sequential action that waits for conditions before activating feeders/washer.
                 Commands.sequence(
-                    // Wait until both the robot is aligned AND the shooters are at target speed.
-                    Commands.waitUntil(() ->
-                        autoAlignCommand.isAligned() &&
-                        shooter.areShootersAtSpeed()
-                    ),
-                    // Once conditions are met, run the feeder and washer in parallel.
-                    // These will continue to run until the overall command is interrupted.
-                    Commands.parallel(
-                        feeder.runBothFeedersCommand(),
-                        washer.run(Constants.ShooterConstants.washerVoltage)
-                    )
-                )
-            )
-            // Specify behavior when the command is interrupted: ensure all mechanisms stop.
-            .finallyDo(interrupted -> {
-                drivetrain.setControl(new SwerveRequest.SwerveDriveBrake()); // Brake the drivetrain.
-                shooter.stopShooters(); // Stop shooter motors.
-                feeder.stopFeeders();   // Stop feeder motors.
-                washer.stopWasher();   // Stop washer motor.
-            })
-            .withName("AutoAlignAndShoot"); // Assign a descriptive name for debugging and logging.
+                        Commands.waitUntil(shooter::areShootersAtSpeed),
+                        Commands.parallel(
+                                feeder.runBothFeedersCommand(),
+                                washer.run(Constants.ShooterConstants.washerVoltage))))
+                .finallyDo(interrupted -> {
+                    drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
+                    shooter.stopShooters();
+                    feeder.stopFeeders();
+                    washer.stopWasher();
+                })
+                .withName("AutoAlignAndShoot");
     }
-
+    
     @Override
     public void initialize() {
         fullCommand.initialize();
@@ -89,8 +84,7 @@ public class AutoAlignAndShoot extends Command {
     @Override
     public void execute() {
         fullCommand.execute();
-        // Log key states for debugging and analysis
-        SmartDashboard.putBoolean("AutoAlignAndShoot/Aligned", autoAlignCommand.isAligned());
+
         SmartDashboard.putBoolean("AutoAlignAndShoot/ShootersAtSpeed", shooter.areShootersAtSpeed());
         SmartDashboard.putNumber("AutoAlignAndShoot/HubDistance", shooter.getHubDistance());
     }

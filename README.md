@@ -16,7 +16,14 @@ The robot's software is structured according to the WPILib Command-Based paradig
 *   **Command Bindings & Subsystem Instantiation**: All robot subsystems are instantiated and operator controls are bound to commands in [`RobotContainer.java`](RobotContainer.java).
 *   **Mechanisms (Subsystems)**: Code related to specific robot mechanisms (e.g., Shooter, Drivetrain, Intake) can be found in the `src/main/java/frc/robot/subsystems/` directory. Each subsystem manages its hardware and exposes control methods.
 *   **Robot Actions (Commands)**: Complex robot behaviors and actions are defined as commands in the `src/main/java/frc/robot/commands/` directory. Commands orchestrate subsystems to perform tasks.
+*   [`AutoAlignCommand.java`](src/main/java/frc/robot/commands/AutoAlignCommand.java):
+    - A general-purpose command for aligning the robot to a specified field-centric angle. It uses a ProfiledPIDController for smooth, controlled rotation.
+    - Can be used for facing a fixed angle (e.g., 0 degrees) or dynamically calculated angles (e.g., aligning to the hub).
 *   **Utilities**: Helper classes, such as controller mappings and rumble feedback, are located in `src/main/java/frc/robot/utils/`. For a detailed explanation of the code layout, refer to the [Code Layout Explanation](layout.md).
+*   [`Controls.java`](src/main/java/frc/robot/utils/Controls.java):
+    - Centralizes the configuration of driver and operator controllers.
+    - Maps controller inputs (buttons, triggers, and joysticks) to specific robot commands.
+    - Includes methods for setting controller rumble feedback.
 
 ## Documentation
 - [Code Layout Explanation](layout.md)
@@ -30,11 +37,11 @@ The robot's software is structured according to the WPILib Command-Based paradig
 |---|---|---|
 | Left Stick (X/Y) | Field-centric drive translation | Deadband applied |
 | Right Stick (X) | Field-centric rotation | Deadband applied |
-| Right Bumper (hold) | AutoAlign to hub | Conditional on active hub trigger and being in alliance zone |
+| Right Bumper (hold) | AutoAlign to hub | Uses AutoAlignCommand and HubAlignmentUtil; conditional on active hub trigger and being in alliance zone |
 | Left Bumper (press) | Seed field-centric | Resets field-centric direction |
 | A (hold) | Swerve drive brake | Holds position |
 | B (hold) | Point wheels at left-stick direction | Wheel align |
-| Y (hold) | Face 0 degrees | Robot will orient to 0 degrees field-centric |
+| Y (hold) | Face 0 degrees | Uses AutoAlignCommand to orient robot to 0 degrees field-centric |
 | D-pad Up (hold) | Manual climb up | |
 | D-pad Down (hold) | Manual climb down | |
 
@@ -49,6 +56,7 @@ The robot's software is structured according to the WPILib Command-Based paradig
 | B (press) | Intake out position | Sets intake to out position |
 | X (press) | Intake in position | Sets intake to in position |
 | Y (hold) | Shooter at 47.5 RPS | Fixed speed shooting, not interpolated |
-| D-pad Left (hold) | AutoAlign and Shoot | Aligns to hub, spins up shooters, then shoots once aligned and at speed. Conditional on being in alliance zone |
+| D-pad Left (hold) | AutoAlign and Shoot | Aligns to hub (using AutoAlignCommand and AllianceUtil), spins up shooters, then shoots once aligned and at speed. Conditional on being in alliance zone |
 | D-pad Up (press) | Increment shooter RPS adjustment | Adjusts target RPS for interpolated and fixed shots |
 | D-pad Down (press) | Decrement shooter RPS adjustment | Adjusts target RPS for interpolated and fixed shots |
+| A (hold) | Shoot at Distance | Runs interpolated shot based on current hub distance, with RPS adjustment and full stop on release |

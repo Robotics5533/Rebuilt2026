@@ -25,8 +25,8 @@ public final class Constants {
         public static final double DEADBAND = 0.05;
         public static final double SPEED_MULTIPLIER = 100.0;
         public static final double ALIGN_PID_P = 0.045;
-        public static final double ALIGN_PID_I = 0.05;
-        public static final double ALIGN_PID_D = 0.04;
+        public static final double ALIGN_PID_I = 0.0;
+        public static final double ALIGN_PID_D = 0.0;
 
         public static final double ALIGN_KS = 0.04;
         public static final double ALIGN_TOLERANCE_DEG = 0.5;

@@ -6,8 +6,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.commands.AutoAlignAndShoot;
-import frc.robot.commands.AutoAlignHub;
-import frc.robot.commands.FaceAngle; 
+import frc.robot.commands.AutoAlignCommand; // New import
+import frc.robot.commands.ShootAtDistance;
+import frc.robot.utils.AllianceUtil; // New import
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
@@ -41,7 +42,7 @@ public class Controls {
 
     public void configureDriver(CommandSwerveDrivetrain drivetrain, LimelightSubsystem limelight, Superstructure superstructure, ClimbSubsystem climb) {
         driver.rightBumper().and(superstructure.activeHubTrigger).and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(
-            new AutoAlignHub(drivetrain, limelight, driver));
+            new AutoAlignCommand(drivetrain, () -> Rotation2d.fromDegrees(AllianceUtil.getTargetHeadingToHub(drivetrain, Constants.LimelightConstants.LIMELIGHT_NAME)), () -> getDriveX(), () -> getDriveY())); // Updated for hub alignment with translation
 
         driver.leftBumper().onTrue(
             drivetrain.runOnce(drivetrain::seedFieldCentric));
@@ -54,7 +55,7 @@ public class Controls {
             () -> new com.ctre.phoenix6.swerve.SwerveRequest.PointWheelsAt().withModuleDirection(
                 new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
-        driver.y().whileTrue(new FaceAngle(drivetrain, Rotation2d.kZero));
+        driver.y().whileTrue(new AutoAlignCommand(drivetrain, () -> Rotation2d.kZero, () -> 0.0, () -> 0.0)); // Updated for facing 0 degrees with no translation
 
         // Climb controls
         if (climb != null) {
@@ -82,7 +83,7 @@ public class Controls {
             shooters.runInterpolatedShot(shooters::getHubDistance)
                 .finallyDo(interrupted -> {
                     shooters.stopShooters();
-                    shooters.resetRPSAdjustment(); // Reset adjustment after shooting
+                    shooters.resetRPSAdjustment();
                 })
                 .withName("RunBothShooters"));
 
@@ -118,6 +119,9 @@ public class Controls {
         // Operator D-pad Down: Decrement Shooter RPS Adjustment
         operator.povDown().onTrue(
             shooters.runOnce(() -> shooters.incrementRPSAdjustment(-Constants.ShooterConstants.rpsAdjustmentDelta)));
+
+        // Operator A Button: Shoot at Distance
+        operator.a().whileTrue(new ShootAtDistance(shooters, washers, feeders));
 
 
         // Original operator.povLeft() for AutoAlignAndShoot, if still desired.
