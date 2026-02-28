@@ -5,6 +5,8 @@ import static edu.wpi.first.units.Units.Meters;
 
 import java.util.Set;
 
+import com.ctre.phoenix6.Utils;
+
 import edu.wpi.first.apriltag.AprilTagFieldLayout;
 import edu.wpi.first.apriltag.AprilTagFields;
 import edu.wpi.first.math.geometry.Pose2d;
@@ -149,6 +151,12 @@ public final class Constants {
         public static final double shootAtDistanceDurationSeconds = 3.0;
         public static final double shooterCurrentLimit = 40.0;
         public static final double rpsAdjustmentDelta = 2.5;
+
+        public static final double GRAVITY = 9.8; 
+        public static final double SHOOTER_HEIGHT_METERS = 0.0; 
+        public static final double SHOOTER_ANGLE_RADIANS = 0.0; 
+        public static final double SHOOTER_WHEEL_DIAMETER_METERS = Units.inchesToMeters(4.0); // dawg idk how to get this, ask Evan and just type it in
+        public static final double METERS_PER_SECOND_TO_RPS = 1.0 / (SHOOTER_WHEEL_DIAMETER_METERS * Math.PI);
 
         public static final InterpolatingDoubleTreeMap distanceToVelocityRPS = new InterpolatingDoubleTreeMap();
         public static final InterpolatingDoubleTreeMap distanceToVoltage = new InterpolatingDoubleTreeMap();

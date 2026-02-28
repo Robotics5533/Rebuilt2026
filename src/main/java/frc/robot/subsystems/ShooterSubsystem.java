@@ -172,6 +172,32 @@ public class ShooterSubsystem extends SubsystemBase {
     return AllianceUtil.getDistanceToHub(drivetrain, limelightName);
   }
 
+  /**
+   * Calculates the required shooter velocity based on the distance to the target using a physics equation.
+   * v = sqrt((g * d^2) / ((2 * cos(theta_0)^2) * (h - d * tan(theta_0))))
+   *
+   * @param distanceMeters The distance to the target in meters.
+   * @return The calculated velocity in meters per second.
+   */
+  public double calculateVelocityFromDistance(double distanceMeters) {
+    double g = Constants.ShooterConstants.GRAVITY;
+    double d = distanceMeters;
+    double h = Constants.ShooterConstants.SHOOTER_HEIGHT_METERS;
+    double theta_0 = Constants.ShooterConstants.SHOOTER_ANGLE_RADIANS;
+
+    double cos_theta_0 = Math.cos(theta_0);
+    double tan_theta_0 = Math.tan(theta_0);
+
+    double numerator = g * d * d;
+    double denominator = 2 * cos_theta_0 * cos_theta_0 * (h - d * tan_theta_0);
+    
+    if (denominator <= 0) {
+      return 0.0; 
+    }
+
+    return Math.sqrt(numerator / denominator);
+  }
+
 
 
 
@@ -184,9 +210,10 @@ public class ShooterSubsystem extends SubsystemBase {
    * @param distance The distance to the target in meters.
    */
   public void setTargetFromDistance(double distance) {
-    double rps = Constants.ShooterConstants.distanceToVelocityRPS.get(distance);
+    double velocityMetersPerSecond = calculateVelocityFromDistance(distance);
+    double rps = velocityMetersPerSecond * Constants.ShooterConstants.METERS_PER_SECOND_TO_RPS;
     double adjustedRPS = rps + rpsAdjustment;
-    double volts = adjustedRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT; 
+    double volts = adjustedRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
 
     ShooterSetpoint leftSetpoint = new ShooterSetpoint(adjustedRPS, volts);
     ShooterSetpoint rightSetpoint = new ShooterSetpoint(-adjustedRPS, -volts);
