@@ -104,26 +104,29 @@ public final class Constants {
         public static final boolean climbEnabled = true;
     }
 
-    public static final class IntakeConstants {
-        public static final int intakeFlipMotorId = 14;
-        public static final int intakeRollerMotorId = 21;
-        public static final int intakeFlipEncoder = 23;
+    public static final class IntakeRollerConstants {
+        public static final int rollerMotorId = 21;
+        public static final double rollerVoltage = 12.0;
+        public static final double rollerCurrentLimit = 30.0;
+    }
+
+    public static final class IntakeFlipConstants {
+        public static final int flipMotorId = 14;
+        public static final int flipEncoderId = 23;
         public static final double flipGearRatio = 120.0;
-        public static final double flipInPositionDeg = 0.0;
-        public static final double flipOutPositionDeg = 110.0;
+        public static final double flipInPositionDeg = 110.0; 
+        public static final double flipOutPositionDeg = 0.0; 
         public static final double flipToleranceDeg = 2.0;
-        public static final double flipMaxVelocityRotPerS = 3.0;
-        public static final double flipMaxAccelRotPerSSq = 6.0;
         public static final double flipkP = 40.0;
         public static final double flipkI = 1.0;
         public static final double flipkD = 0.0;
-        public static final double flipCANCoderOffset = 0.0;
         public static final double flipkV = 0.0;
         public static final double flipkA = 0.0;
+        public static final double flipkG = 0.2; 
         public static final double flipCurrentLimit = 40.0;
-        public static final double rollerVoltage = 12.0;
-        public static final double softLimitForwardDeg = 95.0;
+        public static final double softLimitForwardDeg = 115.0;
         public static final double softLimitReverseDeg = -5.0;
+        public static final double manualFlipVoltage = 7.0;
     }
 
     public static final class ShooterConstants {

@@ -12,11 +12,11 @@ import frc.robot.Constants;
  * for shooting or to clear the shooting path. It controls two Falcon 500 (TalonFX) motors.
  */
 public class WasherSubsystem extends SubsystemBase {
-    // TalonFX motor controllers for the left and right washer motors.
+    
     private final TalonFX leftWasher = new TalonFX(Constants.ShooterConstants.leftWasherMotorId);
     private final TalonFX rightWasher = new TalonFX(Constants.ShooterConstants.rightWasherMotorId);
 
-    // Control request for the TalonFXs, used for voltage control.
+    
     private final VoltageOut voltageCtrl = new VoltageOut(0);
 
     /**
@@ -24,7 +24,7 @@ public class WasherSubsystem extends SubsystemBase {
      * Configures the TalonFX motor controllers with a neutral mode of Brake.
      */
     public WasherSubsystem() {
-        // Set the neutral mode to Brake, causing the motors to actively resist movement when idle.
+        
         leftWasher.setNeutralMode(NeutralModeValue.Brake);
         rightWasher.setNeutralMode(NeutralModeValue.Brake);
     }

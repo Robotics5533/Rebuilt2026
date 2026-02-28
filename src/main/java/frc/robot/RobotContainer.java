@@ -17,7 +17,8 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.IntakeFlip;
+import frc.robot.subsystems.IntakeRoller;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
@@ -26,7 +27,6 @@ import frc.robot.utils.LimelightHelpers;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.utils.Controls;
-import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -55,7 +55,8 @@ public class RobotContainer {
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         private final LimelightSubsystem limelight = new LimelightSubsystem(Constants.LimelightConstants.LIMELIGHT_NAME,
                         drivetrain);
-        private final IntakeSubsystem intake = new IntakeSubsystem();
+        private final IntakeRoller intakeRoller = new IntakeRoller();
+        private final IntakeFlip intakeFlip = new IntakeFlip();
         private final ShooterSubsystem shooters = new ShooterSubsystem(drivetrain,
                         Constants.LimelightConstants.LIMELIGHT_NAME);
         private final WasherSubsystem washers = new WasherSubsystem();
@@ -76,12 +77,10 @@ public class RobotContainer {
 
                 NamedCommands.registerCommand("shoot_load",
                                 new frc.robot.commands.ShootLoad(shooters, washers, feeder));
-                // NamedCommands.registerCommand("intake",
-                // intake.runOnce(() -> intake.setFlip(IntakeSubsystem.FlipState.Out)));
-                // NamedCommands.registerCommand("start_intake",
-                // intake.run(intake::runRollerForward));
-                // NamedCommands.registerCommand("stop_intake",
-                // intake.runOnce(intake::stopRoller));
+                NamedCommands.registerCommand("intake_in", intakeFlip.inPosition());
+                NamedCommands.registerCommand("intake_out", intakeFlip.outPosition());
+                NamedCommands.registerCommand("run_intake", Commands.run(() -> intakeRoller.runRollerForward(), intakeRoller));
+                NamedCommands.registerCommand("stop_intake", Commands.runOnce(() -> intakeRoller.stopRoller(), intakeRoller));
 
                 autoChooser = AutoBuilder.buildAutoChooser();
                 SmartDashboard.putData("Auto Mode", autoChooser);
@@ -106,10 +105,10 @@ public class RobotContainer {
 
                 controls.configureDriver(drivetrain, limelight, superstructure, climb);
                 if (climb != null) {
-                        controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure,
+                        controls.configureOperator(drivetrain, intakeRoller, intakeFlip, shooters, washers, feeder, superstructure,
                                         climb, limelight);
                 } else {
-                        controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, null,
+                        controls.configureOperator(drivetrain, intakeRoller, intakeFlip, shooters, washers, feeder, superstructure, null,
                                         limelight);
                 }
 

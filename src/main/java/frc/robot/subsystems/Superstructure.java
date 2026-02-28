@@ -28,7 +28,7 @@ public class Superstructure extends SubsystemBase {
 
     @Override
     public void periodic() {
-        // Log if the robot is in the alliance zone to SmartDashboard
+        
         SmartDashboard.putBoolean("Superstructure/InAllianceZone", inAllianceZone());
     }
 }

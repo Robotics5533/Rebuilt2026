@@ -186,7 +186,7 @@ public class ShooterSubsystem extends SubsystemBase {
   public void setTargetFromDistance(double distance) {
     double rps = Constants.ShooterConstants.distanceToVelocityRPS.get(distance);
     double adjustedRPS = rps + rpsAdjustment;
-    double volts = adjustedRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT; // Recalculate voltage based on adjusted RPS
+    double volts = adjustedRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT; 
 
     ShooterSetpoint leftSetpoint = new ShooterSetpoint(adjustedRPS, volts);
     ShooterSetpoint rightSetpoint = new ShooterSetpoint(-adjustedRPS, -volts);
@@ -271,7 +271,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double targetRPS = Constants.ShooterConstants.shooterVelocityRPS;
         double targetVoltage = targetRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
         leftSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
-      } else { // VOLTAGE mode
+      } else { 
         double targetVoltage = Constants.ShooterConstants.shooterTargetVoltage;
         double targetRPS = targetVoltage * Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
         leftSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
@@ -296,7 +296,7 @@ public class ShooterSubsystem extends SubsystemBase {
         double targetRPS = -Constants.ShooterConstants.shooterVelocityRPS;
         double targetVoltage = targetRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
         rightSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
-      } else { // VOLTAGE mode
+      } else { 
         double targetVoltage = -Constants.ShooterConstants.shooterTargetVoltage;
         double targetRPS = targetVoltage * Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
         rightSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
@@ -322,7 +322,7 @@ public class ShooterSubsystem extends SubsystemBase {
             double targetVoltage = targetRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
             leftSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);
             rightSetpoint = new ShooterSetpoint(-targetRPS, -targetVoltage);
-          } else { // VOLTAGE mode
+          } else { 
             double targetVoltage = Constants.ShooterConstants.shooterTargetVoltage;
             double targetRPS = targetVoltage * Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
             leftSetpoint = new ShooterSetpoint(targetRPS, targetVoltage);

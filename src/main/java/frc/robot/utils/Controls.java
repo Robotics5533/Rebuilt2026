@@ -6,13 +6,15 @@ import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.commands.AutoAlignAndShoot;
-import frc.robot.commands.AutoAlignCommand; // New import
+import frc.robot.commands.AutoAlignCommand;
 import frc.robot.commands.ShootAtDistance;
-import frc.robot.utils.AllianceUtil; // New import
+import frc.robot.Constants.IntakeFlipConstants;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.ClimbSubsystem;import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.subsystems.IntakeFlip;
+import frc.robot.subsystems.IntakeRoller;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.WasherSubsystem;
@@ -40,96 +42,111 @@ public class Controls {
         return -MathUtil.applyDeadband(driver.getRightX(), Constants.DriveConstants.DEADBAND);
     }
 
-    public void configureDriver(CommandSwerveDrivetrain drivetrain, LimelightSubsystem limelight, Superstructure superstructure, ClimbSubsystem climb) {
-        
-        driver.rightBumper().and(superstructure.activeHubTrigger).and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(
-            new AutoAlignCommand(drivetrain, () -> Rotation2d.fromDegrees(AllianceUtil.getTargetHeadingToHub(drivetrain, Constants.LimelightConstants.LIMELIGHT_NAME)), () -> getDriveX(), () -> getDriveY())); // Updated for hub alignment with translation
+    public void configureDriver(CommandSwerveDrivetrain drivetrain, LimelightSubsystem limelight,
+            Superstructure superstructure, ClimbSubsystem climb) {
+
+        driver.rightBumper().and(superstructure.activeHubTrigger)
+                .and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(
+                        new AutoAlignCommand(drivetrain,
+                                () -> Rotation2d.fromDegrees(AllianceUtil.getTargetHeadingToHub(drivetrain,
+                                        Constants.LimelightConstants.LIMELIGHT_NAME)),
+                                () -> getDriveX(), () -> getDriveY())); 
 
         driver.leftBumper().onTrue(
-            drivetrain.runOnce(drivetrain::seedFieldCentric));
+                drivetrain.runOnce(drivetrain::seedFieldCentric));
 
         driver.a().whileTrue(
-            drivetrain.applyRequest(
-                () -> new com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake()));
+                drivetrain.applyRequest(
+                        () -> new com.ctre.phoenix6.swerve.SwerveRequest.SwerveDriveBrake()));
 
         driver.b().whileTrue(drivetrain.applyRequest(
-            () -> new com.ctre.phoenix6.swerve.SwerveRequest.PointWheelsAt().withModuleDirection(
-                new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
+                () -> new com.ctre.phoenix6.swerve.SwerveRequest.PointWheelsAt().withModuleDirection(
+                        new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
-        driver.y().whileTrue(new AutoAlignCommand(drivetrain, () -> Rotation2d.kZero, () -> 0.0, () -> 0.0)); // Updated for facing 0 degrees with no translation
+        driver.y().whileTrue(new AutoAlignCommand(drivetrain, () -> Rotation2d.kZero, () -> 0.0, () -> 0.0)); 
+                                                                                                              
+                                                                                                              
+                                                                                                              
+                                                                                                              
+                                                                                                              
+                                                                                                              
 
-        // Climb controls
+        
         if (climb != null) {
             driver.povUp().whileTrue(climb.runManualClimbCommand(Constants.ClimbConstants.maxVoltage));
             driver.povDown().whileTrue(climb.runManualClimbCommand(-Constants.ClimbConstants.maxVoltage));
         }
     }
 
-    public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
-        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight) {
+    public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeRoller intakeRoller, IntakeFlip intakeFlip,
+            ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure,
+            ClimbSubsystem climb, LimelightSubsystem limelight) {
 
-        // Left Trigger: Feed/Washer
+        
         operator.leftTrigger().whileTrue(
-            Commands.parallel(
-                washers.run(Constants.ShooterConstants.washerVoltage),
-                feeders.runBothFeedersCommand())
-                .finallyDo(interrupted -> {
-                    washers.stopWasher();
-                    feeders.stopFeeders();
-                })
-                .withName("RunWashersAndFeeders"));
+                Commands.parallel(
+                        washers.run(Constants.ShooterConstants.washerVoltage),
+                        feeders.runBothFeedersCommand())
+                        .finallyDo(interrupted -> {
+                            washers.stopWasher();
+                            feeders.stopFeeders();
+                        })
+                        .withName("RunWashersAndFeeders"));
 
-        // Right Trigger: Shooting (Interpolated)
+        
         operator.rightTrigger().whileTrue(
-            shooters.runInterpolatedShot(shooters::getHubDistance)
-                .finallyDo(interrupted -> {
-                    shooters.stopShooters();
-                    shooters.resetRPSAdjustment();
-                })
-                .withName("RunBothShooters"));
+                shooters.runInterpolatedShot(shooters::getHubDistance)
+                        .finallyDo(interrupted -> {
+                            shooters.stopShooters();
+                            shooters.resetRPSAdjustment();
+                        })
+                        .withName("RunBothShooters"));
 
-        // Left Bumper: Intake power out
+        
         operator.rightBumper()
-            .onTrue(intake.run(intake::runRollerReverse))
-            .onFalse(intake.runOnce(intake::stopRoller));
+                .onTrue(Commands.run(() -> intakeRoller.runRollerReverse(), intakeRoller))
+                .onFalse(Commands.runOnce(() -> intakeRoller.stopRoller(), intakeRoller));
 
-        // Right Bumper: Intake power in
+        
         operator.leftBumper()
-            .onTrue(intake.run(intake::runRollerForward))
-            .onFalse(intake.runOnce(intake::stopRoller));
+                .onTrue(Commands.run(() -> intakeRoller.runRollerForward(), intakeRoller))
+                .onFalse(Commands.runOnce(() -> intakeRoller.stopRoller(), intakeRoller));
 
-        // B Button: Intake out position
-        operator.b().onTrue(intake.runOnce(() -> intake.setFlip(IntakeSubsystem.FlipState.Out)));
+        
+ 
+        operator.b().onTrue(intakeFlip.outPosition());
 
-        // X Button: Intake in position
-        operator.x().onTrue(intake.stowIntake());
+      
+        operator.x()
+            .whileTrue(Commands.run(() -> intakeFlip.runManual(IntakeFlipConstants.manualFlipVoltage), intakeFlip))
+            .onFalse(Commands.runOnce(intakeFlip::stopManual, intakeFlip)
+            .andThen(Commands.either(intakeFlip.inPosition(), intakeFlip.outPosition(), intakeFlip::isAtInPosition)));
 
-        // Y Button: Shooter with fixed RPS (47.5)
+        
         operator.y().whileTrue(
-            shooters.runFixedRPSShoot(Constants.ShooterConstants.shooterVelocityRPS)
-                .finallyDo(interrupted -> {
-                    shooters.stopShooters();
-                    shooters.resetRPSAdjustment(); // Reset adjustment after shooting
-                })
-                .withName("RunFixedRPSShoot"));
+                shooters.runFixedRPSShoot(Constants.ShooterConstants.shooterVelocityRPS)
+                        .finallyDo(interrupted -> {
+                            shooters.stopShooters();
+                            shooters.resetRPSAdjustment(); 
+                        })
+                        .withName("RunFixedRPSShoot"));
 
-        // Operator D-pad Up: Increment Shooter RPS Adjustment
+        
         operator.povUp().onTrue(
-            shooters.runOnce(() -> shooters.incrementRPSAdjustment(Constants.ShooterConstants.rpsAdjustmentDelta)));
+                shooters.runOnce(() -> shooters.incrementRPSAdjustment(Constants.ShooterConstants.rpsAdjustmentDelta)));
 
-        // Operator D-pad Down: Decrement Shooter RPS Adjustment
+        
         operator.povDown().onTrue(
-            shooters.runOnce(() -> shooters.incrementRPSAdjustment(-Constants.ShooterConstants.rpsAdjustmentDelta)));
+                shooters.runOnce(
+                        () -> shooters.incrementRPSAdjustment(-Constants.ShooterConstants.rpsAdjustmentDelta)));
 
-        // Operator A Button: Shoot at Distance
+        
         operator.a().whileTrue(new ShootAtDistance(shooters, washers, feeders));
 
-
-        // Original operator.povLeft() for AutoAlignAndShoot, if still desired.
+        
         operator.povLeft().and(new Trigger(() -> superstructure.inAllianceZone()))
-            .whileTrue(
-                new AutoAlignAndShoot(drivetrain, shooters, feeders, washers, superstructure, limelight));
-
+                .whileTrue(
+                        new AutoAlignAndShoot(drivetrain, shooters, feeders, washers, superstructure, limelight));
 
     }
 
