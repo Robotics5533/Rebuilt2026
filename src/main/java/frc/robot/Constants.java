@@ -122,6 +122,8 @@ public final class Constants {
         public static final double flipkA = 0.0;
         public static final double flipCurrentLimit = 40.0;
         public static final double rollerVoltage = 12.0;
+        public static final double manualFlipVoltage = 8.0;
+        public static final double flipGravityAssistVoltage = 1.5;
         public static final double softLimitForwardDeg = 95.0;
         public static final double softLimitReverseDeg = -5.0;
     }

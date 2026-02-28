@@ -97,13 +97,20 @@ public class Controls {
             .onTrue(intake.run(intake::runRollerForward))
             .onFalse(intake.runOnce(intake::stopRoller));
 
-        // B Button: Intake out position
-        operator.b().onTrue(intake.runOnce(() -> intake.setFlip(IntakeSubsystem.FlipState.Out)));
+        // B and X Buttons: Manual Intake Control
+        intake.setDefaultCommand(
+            Commands.run(() -> {
+                double speed = Constants.IntakeConstants.flipGravityAssistVoltage;
+                if (operator.b().getAsBoolean()) {
+                    speed = Constants.IntakeConstants.manualFlipVoltage;
+                } else if (operator.x().getAsBoolean()) {
+                    speed = -Constants.IntakeConstants.manualFlipVoltage;
+                }
+                intake.setFlipManualVoltage(speed);
+            }, intake)
+        );
 
-        // X Button: Intake in position
-        operator.x().onTrue(intake.stowIntake());
-
-        // Y Button: Shooter with fixed RPS (47.5)
+        // Y Button: Shooter with fixed RPS
         operator.y().whileTrue(
             shooters.runFixedRPSShoot(Constants.ShooterConstants.shooterVelocityRPS)
                 .finallyDo(interrupted -> {
