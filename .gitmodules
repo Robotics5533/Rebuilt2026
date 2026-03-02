@@ -1,0 +1,3 @@
+[submodule "thirdparty/TracyJavaBindings"]
+	path = thirdparty/TracyJavaBindings
+	url = https://github.com/MovingBlocks/TracyJavaBindings

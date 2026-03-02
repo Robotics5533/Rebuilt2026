@@ -37,7 +37,7 @@ public class ShooterUtil {
 
 
     /**
-     * Calcuates the ideal target velocity in m/s to a specified distance and height away, 
+     * Calcuates the ideal target velocity in m/s to a specified distance and height away, 1.2827m is delta H
      * @param distance
      * @param height
      * @param gravity

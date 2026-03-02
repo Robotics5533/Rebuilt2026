@@ -26,6 +26,7 @@ import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.utils.Controls;
 import com.ctre.phoenix6.signals.NeutralModeValue;
+import frc.robot.utils.FuelSim;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -64,6 +65,8 @@ public class RobotContainer {
         private final ClimbSubsystem climb = Constants.ClimbConstants.climbEnabled ? new ClimbSubsystem() : null;
         private final SendableChooser<Command> autoChooser;
 
+
+        public FuelSim fuelSim = new FuelSim();
         public RobotContainer() {
                 LimelightHelpers.setCameraPose_RobotSpace(
                                 Constants.LimelightConstants.LIMELIGHT_NAME,
@@ -87,6 +90,9 @@ public class RobotContainer {
 
                 configureBindings();
                 FollowPathCommand.warmupCommand();
+
+                fuelSim.spawnStartingFuel();
+                // fuelSim.registerRobot(0.684,0.871,0.164,);
         }
 
         /**

@@ -12,8 +12,12 @@ import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 
+import io.github.benjaminamos.tracy.Tracy;
+
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
+
+    private static long ROBOT_PERIODIC_LOC;
 
     private final RobotContainer m_robotContainer;
 
@@ -25,12 +29,32 @@ public class Robot extends TimedRobot {
         m_robotContainer = new RobotContainer();
         DataLogManager.start();
         DriverStation.startDataLog(DataLogManager.getLog());
+        // System.loadLibrary("tracy-jni-amd64");
+        // String libPath = System.getProperty("user.dir") + "/libs/x86_64/libtracy-jni-amd64.so";
+        // System.load(libPath);
+        // Tracy.startupProfiler();
+    }
+
+    @Override
+    public void robotInit() {
+        // Initialize the location here, after Main.java has done its work
+        ROBOT_PERIODIC_LOC = Tracy.allocSourceLocation(
+            0, "Robot.java", "robotPeriodic", "Main Robot Loop", 0
+        );
+        Tracy.startupProfiler();
     }
 
     @Override
     public void robotPeriodic() {
+        Tracy.markFrame();
+        Tracy.ZoneContext context = Tracy.zoneBegin(ROBOT_PERIODIC_LOC, 1);
+        try{
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
+        }
+        finally{
+            Tracy.zoneEnd(context);
+        }
 
     }
 
@@ -85,5 +109,7 @@ public class Robot extends TimedRobot {
     public void testExit() {}
 
     @Override
-    public void simulationPeriodic() {}
+    public void simulationPeriodic() {
+        m_robotContainer.fuelSim.updateSim();
+    }
 }
