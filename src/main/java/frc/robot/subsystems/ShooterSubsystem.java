@@ -173,11 +173,6 @@ public class ShooterSubsystem extends SubsystemBase {
   }
 
 
-
-
-
-
-
   /**
    * Sets the target output for both shooters based on a given distance to the target.
    * Uses interpolation tables defined in Constants to convert distance to target velocity or voltage.

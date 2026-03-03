@@ -98,18 +98,15 @@ public class Controls {
             .onFalse(intake.runOnce(intake::stopRoller));
 
         // B and X Buttons: Manual Intake Control
-        intake.setDefaultCommand(
-            Commands.run(() -> {
-                double speed = Constants.IntakeConstants.flipGravityAssistVoltage;
-                if (operator.b().getAsBoolean()) {
-                    speed = Constants.IntakeConstants.manualFlipVoltage;
-                } else if (operator.x().getAsBoolean()) {
-                    speed = -Constants.IntakeConstants.manualFlipVoltage;
-                }
-                intake.setFlipManualVoltage(speed);
-            }, intake)
-        );
 
+        operator.b().whileTrue(intake.flipManualForwardCommand(Constants.IntakeConstants.manualFlipVoltage));
+        operator.x().whileTrue(intake.flipManualReverseCommand(Constants.IntakeConstants.manualFlipVoltage));
+
+        operator.povRight()
+                .onTrue(Commands.parallel(washers.run(-Constants.ShooterConstants.washerVoltage), feeders.InvertrunBothFeedersCommand(),
+                        shooters.runFixedRPSShoot(-Constants.ShooterConstants.shooterVelocityRPS)))
+                .onFalse(Commands.parallel(intake.runOnce(intake::stopRoller), washers.runOnce(washers::stopWasher),
+                        feeders.runOnce(feeders::stopFeeders), shooters.runOnce(shooters::stopShooters)));
         // Y Button: Shooter with fixed RPS
         operator.y().whileTrue(
             shooters.runFixedRPSShoot(Constants.ShooterConstants.shooterVelocityRPS)

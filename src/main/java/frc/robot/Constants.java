@@ -24,7 +24,7 @@ public final class Constants {
     public static final class DriveConstants {
         public static final double DEADBAND = 0.05;
         public static final double SPEED_MULTIPLIER = 100.0;
-        public static final double ALIGN_PID_P = 0.045;
+        public static final double ALIGN_PID_P = 0.05;
         public static final double ALIGN_PID_I = 0.0;
         public static final double ALIGN_PID_D = 0.0;
 
@@ -122,7 +122,7 @@ public final class Constants {
         public static final double flipkA = 0.0;
         public static final double flipCurrentLimit = 40.0;
         public static final double rollerVoltage = 12.0;
-        public static final double manualFlipVoltage = 8.0;
+        public static final double manualFlipVoltage = 5.0;
         public static final double flipGravityAssistVoltage = 1.5;
         public static final double softLimitForwardDeg = 95.0;
         public static final double softLimitReverseDeg = -5.0;
@@ -137,7 +137,7 @@ public final class Constants {
         public static final double feederCurrentLimit = 20.0;
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
-        public static final double shooterVelocityRPS = 60;
+        public static final double shooterVelocityRPS = 62;
         public static final double kP = 0.2;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
