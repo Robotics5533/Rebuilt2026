@@ -117,8 +117,8 @@ public class RobotContainer {
 
                 RobotModeTriggers.disabled()
                                 .onTrue(drivetrain.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Coast)));
-                RobotModeTriggers.disabled().negate()
-                                .onTrue(drivetrain.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Brake)));
+               RobotModeTriggers.disabled().negate()
+    .onTrue(Commands.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Brake)));
 
                 new Trigger(shooters::areShootersAtSpeed)
                                 .onTrue(Commands.runOnce(() -> controls.setOperatorRumble(0.5))
