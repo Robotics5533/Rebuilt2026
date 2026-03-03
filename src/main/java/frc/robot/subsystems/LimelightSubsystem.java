@@ -9,6 +9,7 @@ import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.networktables.NetworkTable;
 import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
+import edu.wpi.first.wpilibj.Notifier;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.utils.LimelightHelpers;
@@ -26,6 +27,10 @@ public class LimelightSubsystem extends SubsystemBase {
 
   private final CommandSwerveDrivetrain drivetrain;
 
+  private final Notifier limelightNotifier_;
+
+  private PoseEstimate lastPoseEstimate_ = new PoseEstimate();
+
   public LimelightSubsystem(String name, CommandSwerveDrivetrain drivetrain) {
     this.name = name;
     this.drivetrain = drivetrain;
@@ -39,96 +44,39 @@ public class LimelightSubsystem extends SubsystemBase {
     if (!SmartDashboard.containsKey("Vision/Enabled")) {
       SmartDashboard.putBoolean("Vision/Enabled", Constants.LimelightConstants.ENABLE_VISION_ODOMETRY);
     }
+
+    limelightNotifier_ = new Notifier(this::updatePoseEstimate);
+    limelightNotifier_.setName("limelight-poller");
+    limelightNotifier_.startPeriodic(0.05); // 20 Hz
+  }
+
+  private void updatePoseEstimate() {
+    lastPoseEstimate_ = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
   }   
 
-  public Optional<Measurement> getMeasurement(Pose2d currentRobotPose) {
-    if (!SmartDashboard.getBoolean("Vision/Enabled", true)) {
-      return Optional.empty();
-    }
+  @Override
+  public void periodic() {
+    if (lastPoseEstimate_ != null && lastPoseEstimate_.tagCount > 0) {
 
-    double yawDeg = drivetrain.getPigeon2().getYaw().getValueAsDouble();
+      if (!SmartDashboard.getBoolean("Vision/Enabled", true)) {
+        return;
+      }
 
-    LimelightHelpers.SetRobotOrientation(
-        name,
-        yawDeg,
-        0, 0, 0, 0, 0);
+      double xyStdDev = 0.7;
+      double degStdDev = 0.7;
+      if (lastPoseEstimate_.tagCount >= 2) {
+        xyStdDev = 0.1;
+        degStdDev = 0.1;
+      } else if (lastPoseEstimate_.avgTagDist < 4.0) {
+        xyStdDev = 0.3;
+        degStdDev = 0.3;
+      }
 
-    PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
-
-    
-    if (poseEstimate == null || poseEstimate.tagCount < 1) {
-      return Optional.empty();
-    }
-
-    Pose2d visionPose = poseEstimate.pose;
-
-    if (currentRobotPose != null && currentRobotPose.getTranslation().getNorm() > 0.1) {
-       double distance = currentRobotPose.getTranslation().getDistance(visionPose.getTranslation());
-       if (distance > Constants.LimelightConstants.VISION_REJECTION_DISTANCE_THRESHOLD_METERS) {
-           return Optional.empty();
-       }
-    }
-    
-    double speed = Math.hypot(
-        drivetrain.getState().Speeds.vxMetersPerSecond,
-        drivetrain.getState().Speeds.vyMetersPerSecond);
-    
-    double xyStDev = 0.25 * poseEstimate.avgTagDist;
-    double degStDev = 8.0;
-    
-    if (speed > Constants.LimelightConstants.VISION_REJECTION_SPEED_THRESHOLD_MPS) {
-      xyStDev *= 1.5;
-      degStDev *= 1.5;
-    }
-    
-    if (poseEstimate.tagCount == 1) {
-      xyStDev *= 2.0;
-      degStDev *= 2.0;
-    }
-
-    
-    
-    
-    Matrix<N3, N1> standardDeviations = VecBuilder.fill(
-        xyStDev, 
-        xyStDev, 
-        edu.wpi.first.math.util.Units.degreesToRadians(degStDev)
-    );
-
-    
-    
-    Pose2d correctedPose = new Pose2d(
-        poseEstimate.pose.getTranslation(),
-        poseEstimate.pose.getRotation().plus(Rotation2d.fromDegrees(180))
-    );
-
-    posePublisher.set(correctedPose);
-
-    
-    PoseEstimate correctedEstimate = new PoseEstimate();
-    correctedEstimate.pose = correctedPose;
-    correctedEstimate.timestampSeconds = poseEstimate.timestampSeconds;
-    correctedEstimate.tagCount = poseEstimate.tagCount;
-    correctedEstimate.tagSpan = poseEstimate.tagSpan;
-    correctedEstimate.avgTagDist = poseEstimate.avgTagDist;
-    correctedEstimate.avgTagArea = poseEstimate.avgTagArea;
-    correctedEstimate.rawFiducials = poseEstimate.rawFiducials;
-
-    return Optional.of(new Measurement(correctedEstimate, standardDeviations));
-  }
-
-  public static class Measurement {
-    public final PoseEstimate poseEstimate;
-    public final Matrix<N3, N1> standardDeviations;
-
-    public Measurement(PoseEstimate poseEstimate,
-        Matrix<N3, N1> standardDeviations) {
-      this.poseEstimate = poseEstimate;
-      this.standardDeviations = standardDeviations;
+      drivetrain.setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, degStdDev));
+      drivetrain.addVisionMeasurement(lastPoseEstimate_.pose, lastPoseEstimate_.timestampSeconds);
     }
   }
 
-  
   public boolean hasTarget() {
     return LimelightHelpers.getTV(name);
   }

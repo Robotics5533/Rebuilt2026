@@ -153,7 +153,7 @@ public final class Constants {
         public static final double rpsAdjustmentDelta = 2.5;
 
         public static final double GRAVITY = 9.8; 
-        public static final double SHOOTER_HEIGHT_METERS = 0.0; 
+        public static final double SHOOTER_HEIGHT_METERS = 1.827; 
         public static final double SHOOTER_ANGLE_RADIANS = 0.0; 
         public static final double SHOOTER_WHEEL_DIAMETER_METERS = Units.inchesToMeters(4.0); // dawg idk how to get this, ask Evan and just type it in
         public static final double METERS_PER_SECOND_TO_RPS = 1.0 / (SHOOTER_WHEEL_DIAMETER_METERS * Math.PI);

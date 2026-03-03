@@ -23,10 +23,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 import frc.robot.Constants;
 import frc.robot.generated.TunerConstants.TunerSwerveDrivetrain;
-import frc.robot.utils.LimelightHelpers;
-
-import java.util.Optional;
 import java.util.function.Supplier;
+import java.util.Optional;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -175,27 +173,9 @@ public class CommandSwerveDrivetrain
             });
         }
 
-        updateVisionMeasurement();
+
     }
 
-    private void updateVisionMeasurement() {
-        var visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.LimelightConstants.LIMELIGHT_NAME);
-
-        if (visionEst.tagCount > 0) {
-            double xyStdDev = 0.7;
-            double degStdDev = 0.7;
-            if (visionEst.tagCount >= 2) {
-                xyStdDev = 0.1;
-                degStdDev = 0.1;
-            } else if (visionEst.avgTagDist < 4.0) {
-                xyStdDev = 0.3;
-                degStdDev = 0.3;
-            }
-
-            setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, degStdDev));
-            addVisionMeasurement(visionEst.pose, visionEst.timestampSeconds);
-        }
-    }
 
     public boolean isValidAllianceTag(int tagId) {
         Optional<Alliance> alliance = DriverStation.getAlliance();
