@@ -110,6 +110,12 @@ public class FeederSubsystem extends SubsystemBase {
             setRightFeederVoltage(Constants.ShooterConstants.feederVoltage);
         });
     }
+     public Command autonrunBothFeedersCommand() {
+        return run(() -> {
+            setLeftFeederVoltage(Constants.ShooterConstants.autonfeederVoltage);
+            setRightFeederVoltage(Constants.ShooterConstants.autonfeederVoltage);
+        });
+    }
      public Command InvertrunBothFeedersCommand() {
         return run(() -> {
             setLeftFeederVoltage(-Constants.ShooterConstants.feederVoltage);

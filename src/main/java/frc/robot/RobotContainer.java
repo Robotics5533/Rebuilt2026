@@ -75,7 +75,7 @@ public class RobotContainer {
                                 0.0);
 
                 NamedCommands.registerCommand("shoot_load",
-                                new frc.robot.commands.ShootLoad(shooters, washers, feeder));
+                                new frc.robot.commands.ShootLoad(shooters, washers, feeder,5.0));
 
                 autoChooser = AutoBuilder.buildAutoChooser();
                 SmartDashboard.putData("Auto Mode", autoChooser);
