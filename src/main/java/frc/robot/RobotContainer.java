@@ -15,7 +15,6 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
-import frc.robot.commands.AutoAlignAndShoot;
 import frc.robot.commands.AutoAutonAlignAndShoot;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -52,7 +51,6 @@ public class RobotContainer {
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
         private final Controls controls = new Controls();
-        private final Field2d fieldViz = new Field2d();
 
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
         private final LimelightSubsystem limelight = new LimelightSubsystem(Constants.LimelightConstants.LIMELIGHT_NAME,
@@ -128,9 +126,10 @@ public class RobotContainer {
     .onTrue(Commands.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Brake)));
 
                 new Trigger(shooters::areShootersAtSpeed)
-                                .onTrue(Commands.runOnce(() -> controls.setOperatorRumble(0.5))
+                                .onTrue(Commands.runOnce(() -> controls.setOperatorRumble(1))
                                                 .andThen(Commands.waitSeconds(0.2))
                                                 .andThen(Commands.runOnce(() -> controls.setOperatorRumble(0))));
+                
 
                 drivetrain.registerTelemetry(logger::telemeterize);
         }
