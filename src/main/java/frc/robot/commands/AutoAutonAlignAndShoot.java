@@ -23,13 +23,13 @@ import frc.robot.utils.AllianceUtil;
  * the feeder and washer subsystems
  * to initiate shooting. All mechanisms stop when the command is interrupted.
  */
-public class AutoAlignAndShoot extends Command {
+public class AutoAutonAlignAndShoot extends Command {
     private final Command fullCommand;
     private final AutoAlignCommand autoAlignCommand;
     private final ShooterSubsystem shooter;
 
     /**
-     * Creates a new AutoAlignAndShoot command.
+     * Creates a new AutoAutonAlignAndShoot command.
      *
      * @param drivetrain     The {@link CommandSwerveDrivetrain} subsystem for robot
      *                       movement and alignment.
@@ -43,14 +43,14 @@ public class AutoAlignAndShoot extends Command {
      * @param limelight      The {@link LimelightSubsystem} for vision data used in
      *                       alignment.
      */
-    public AutoAlignAndShoot(
+    public AutoAutonAlignAndShoot(
             CommandSwerveDrivetrain drivetrain,
             ShooterSubsystem shooter,
             FeederSubsystem feeder,
             WasherSubsystem washer,
             Superstructure superstructure,
-            LimelightSubsystem limelight
-            ) {
+            LimelightSubsystem limelight,
+            double durationSeconds) {
 
         autoAlignCommand = new AutoAlignCommand(drivetrain,
                 () -> Rotation2d.fromDegrees(
@@ -69,7 +69,7 @@ public class AutoAlignAndShoot extends Command {
                             washer.run(Constants.ShooterConstants.autonWasherVoltage),
                                 feeder.autonrunBothFeedersCommand()
                                 )))
-                
+                .withTimeout(durationSeconds)
                 .finallyDo(interrupted -> {
                     shooter.stopShooters();
                     feeder.stopFeeders();
