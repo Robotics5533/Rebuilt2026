@@ -12,6 +12,7 @@ import frc.robot.Constants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 public class AutoAlignCommand extends Command {
@@ -33,11 +34,12 @@ public class AutoAlignCommand extends Command {
   private Supplier<Rotation2d> m_targetRotationSupplier;
   private Supplier<Double> m_vxSupplier;
   private Supplier<Double> m_vySupplier;
+  private Consumer<Boolean> m_alignedConsumer;
 
   public AutoAlignCommand(
       CommandSwerveDrivetrain drivetrain,
       Supplier<Rotation2d> targetRotationSupplier) {
-    this(drivetrain, targetRotationSupplier, () -> 0.0, () -> 0.0);
+    this(drivetrain, targetRotationSupplier, () -> 0.0, () -> 0.0, (aligned) -> {});
   }
 
   public AutoAlignCommand(
@@ -45,10 +47,20 @@ public class AutoAlignCommand extends Command {
       Supplier<Rotation2d> targetRotationSupplier,
       Supplier<Double> vxSupplier,
       Supplier<Double> vySupplier) {
+        this(drivetrain, targetRotationSupplier, vxSupplier, vySupplier, (aligned) -> {});
+      }
+
+  public AutoAlignCommand(
+      CommandSwerveDrivetrain drivetrain,
+      Supplier<Rotation2d> targetRotationSupplier,
+      Supplier<Double> vxSupplier,
+      Supplier<Double> vySupplier,
+      Consumer<Boolean> alignedConsumer) {
     this.drivetrain = drivetrain;
     this.m_targetRotationSupplier = targetRotationSupplier;
     this.m_vxSupplier = vxSupplier;
     this.m_vySupplier = vySupplier;
+    this.m_alignedConsumer = alignedConsumer;
 
     addRequirements(drivetrain);
 
@@ -105,6 +117,8 @@ public class AutoAlignCommand extends Command {
     SmartDashboard.putBoolean("AutoAlign/AtSetpoint", alignPID.atSetpoint());
     SmartDashboard.putNumber("AutoAlign/ProfileVelocity", setpointVelocity);
 
+    m_alignedConsumer.accept(alignPID.atSetpoint());
+
     drivetrain.setControl(driveRequest
         .withVelocityX(m_vxSupplier.get())
         .withVelocityY(m_vySupplier.get())
@@ -113,6 +127,7 @@ public class AutoAlignCommand extends Command {
 
   @Override
   public void end(boolean interrupted) {
+    m_alignedConsumer.accept(false);
     drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
   }
 

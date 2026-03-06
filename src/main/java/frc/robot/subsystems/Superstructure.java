@@ -15,8 +15,18 @@ public class Superstructure extends SubsystemBase {
     private final Supplier<Pose2d> poseSupplier;
     public final Trigger activeHubTrigger = new Trigger(HubTracker::isActive).or(() -> HubTracker.getMatchTime() < 0);
 
+    private boolean m_isAligned = false;
+
     public Superstructure(Supplier<Pose2d> poseSupplier) {
         this.poseSupplier = poseSupplier;
+    }
+
+    public void setAligned(boolean isAligned) {
+        m_isAligned = isAligned;
+    }
+
+    public boolean isAligned() {
+        return m_isAligned;
     }
 
     public boolean inAllianceZone() {

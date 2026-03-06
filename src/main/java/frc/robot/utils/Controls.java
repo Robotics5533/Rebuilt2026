@@ -8,8 +8,6 @@ import frc.robot.Constants;
 import frc.robot.commands.AutoAlignAndShoot;
 import frc.robot.commands.AutoAlignCommand; // New import
 import frc.robot.commands.ShootAtDistance;
-import frc.robot.utils.AllianceUtil; // New import
-
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;import frc.robot.subsystems.IntakeSubsystem;
@@ -42,7 +40,7 @@ public class Controls {
 
     public void configureDriver(CommandSwerveDrivetrain drivetrain, LimelightSubsystem limelight, Superstructure superstructure, ClimbSubsystem climb) {
         driver.rightBumper().and(superstructure.activeHubTrigger).and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(
-            new AutoAlignCommand(drivetrain, () -> Rotation2d.fromDegrees(AllianceUtil.getTargetHeadingToHub(drivetrain, Constants.LimelightConstants.LIMELIGHT_NAME)), () -> getDriveX(), () -> getDriveY())); // Updated for hub alignment with translation
+            new AutoAlignCommand(drivetrain, () -> Rotation2d.fromDegrees(AllianceUtil.getTargetHeadingToHub(drivetrain, Constants.LimelightConstants.LIMELIGHT_NAME)), () -> getDriveX(), () -> getDriveY(), superstructure::setAligned)); 
 
         driver.leftBumper().onTrue(
             drivetrain.runOnce(drivetrain::seedFieldCentric));
@@ -138,6 +136,10 @@ public class Controls {
 
     public void setOperatorRumble(double intensity) {
         operator.getHID().setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, intensity);
+    }
+
+    public void setDriverRumble(double intensity) {
+        driver.getHID().setRumble(edu.wpi.first.wpilibj.GenericHID.RumbleType.kBothRumble, intensity);
     }
 
     public CommandXboxController getDriver() {

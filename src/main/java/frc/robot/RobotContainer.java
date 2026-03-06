@@ -129,6 +129,11 @@ public class RobotContainer {
                                 .onTrue(Commands.runOnce(() -> controls.setOperatorRumble(1))
                                                 .andThen(Commands.waitSeconds(0.2))
                                                 .andThen(Commands.runOnce(() -> controls.setOperatorRumble(0))));
+
+                new Trigger(superstructure::isAligned)
+                                .onTrue(Commands.runOnce(() -> controls.setDriverRumble(1))
+                                                .andThen(Commands.waitSeconds(0.2))
+                                                .andThen(Commands.runOnce(() -> controls.setDriverRumble(0))));
                 
 
                 drivetrain.registerTelemetry(logger::telemeterize);
