@@ -16,6 +16,8 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoAutonAlignAndShoot;
+import frc.robot.commands.FlipOutIntake;
+import frc.robot.commands.RunIntakeRollers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -81,6 +83,10 @@ public class RobotContainer {
                                 new frc.robot.commands.ShootLoad(shooters, washers, feeder,5.0));
 
                 NamedCommands.registerCommand("shoot_interpolated", autoAutonAlignAndShootCommand);
+
+                NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 0.5));
+
+                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(intake, 2.0));
 
                 autoChooser = AutoBuilder.buildAutoChooser();
                 SmartDashboard.putData("Auto Mode", autoChooser);
