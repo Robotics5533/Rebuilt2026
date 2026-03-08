@@ -11,6 +11,9 @@ import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import io.pyroscope.javaagent.PyroscopeAgent;
+import io.pyroscope.javaagent.config.Config;
+import io.pyroscope.javaagent.EventType;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
@@ -25,6 +28,20 @@ public class Robot extends TimedRobot {
         m_robotContainer = new RobotContainer();
         DataLogManager.start();
         DriverStation.startDataLog(DataLogManager.getLog());
+    }
+
+    @Override
+    public void robotInit() {
+        // Start Pyroscope Agent
+        PyroscopeAgent.start(
+            new Config.Builder()
+                .setApplicationName("FRC-Robot-2026")
+                .setServerAddress("http://10.55.33.2:4040") // Replace TE.AM with your team number
+                .setProfilingEvent(EventType.ITIMER)     // Use ITIMER for CPU profiling
+                .build()
+        );
+        
+        // ... rest of your initialization
     }
 
     @Override
