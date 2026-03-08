@@ -11,6 +11,12 @@
           }
         },
         {
+          "type": "named",
+          "data": {
+            "name": "flip_out_intake"
+          }
+        },
+        {
           "type": "path",
           "data": {
             "pathName": "Blue Right Stage 2"
@@ -20,6 +26,12 @@
           "type": "path",
           "data": {
             "pathName": "Blue Right Stage 3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot_interpolated"
           }
         }
       ]
