@@ -36,7 +36,8 @@ public class Robot extends TimedRobot {
         PyroscopeAgent.start(
             new Config.Builder()
                 .setApplicationName("FRC-Robot-2026")
-                .setServerAddress("http://10.55.33.2:4040") // Replace TE.AM with your team number
+                .setServerAddress("http://10.0.0.203:4040") // debug sim
+                //.setServerAddress("http://10.55.33.2:4040") // Realbot
                 .setProfilingEvent(EventType.ITIMER)     // Use ITIMER for CPU profiling
                 .build()
         );
