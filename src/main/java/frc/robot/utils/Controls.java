@@ -7,7 +7,9 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.commands.AutoAlignAndShoot;
 import frc.robot.commands.AutoAlignCommand; // New import
+import frc.robot.commands.DriveMotionShot;
 import frc.robot.commands.ShootAtDistance;
+import frc.robot.commands.ShakeIntake;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;import frc.robot.subsystems.IntakeSubsystem;
@@ -38,7 +40,7 @@ public class Controls {
         return -MathUtil.applyDeadband(driver.getRightX(), Constants.DriveConstants.DEADBAND);
     }
 
-    public void configureDriver(CommandSwerveDrivetrain drivetrain, LimelightSubsystem limelight, Superstructure superstructure, ClimbSubsystem climb) {
+    public void configureDriver(CommandSwerveDrivetrain drivetrain, ShooterSubsystem shooters, LimelightSubsystem limelight, Superstructure superstructure, ClimbSubsystem climb) {
         driver.rightBumper().and(superstructure.activeHubTrigger).and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(
             new AutoAlignCommand(drivetrain, () -> Rotation2d.fromDegrees(AllianceUtil.getTargetHeadingToHub(drivetrain, Constants.LimelightConstants.LIMELIGHT_NAME)), () -> getDriveX(), () -> getDriveY(), superstructure::setAligned)); 
 
@@ -55,6 +57,8 @@ public class Controls {
 
         driver.y().whileTrue(new AutoAlignCommand(drivetrain, () -> Rotation2d.kZero, () -> 0.0, () -> 0.0)); // Updated for facing 0 degrees with no translation
 
+        driver.x().whileTrue(new DriveMotionShot(drivetrain, shooters, driver));
+
         // Climb controls
         if (climb != null) {
             driver.povUp().whileTrue(climb.runManualClimbCommand(Constants.ClimbConstants.maxVoltage));
@@ -69,12 +73,15 @@ public class Controls {
         operator.leftTrigger().whileTrue(
             Commands.parallel(
                 washers.run(Constants.ShooterConstants.washerVoltage),
-                feeders.runBothFeedersCommand())
+                feeders.runBothFeedersCommand(),
+                new ShakeIntake(intake))
                 .finallyDo(interrupted -> {
                     washers.stopWasher();
                     feeders.stopFeeders();
+                    intake.stopRoller();
+                    intake.stopFlip(); 
                 })
-                .withName("RunWashersAndFeeders"));
+                .withName("RunWashersAndFeedersAndShake"));
 
         // Right Trigger: Shooting (Interpolated)
         operator.rightTrigger().whileTrue(

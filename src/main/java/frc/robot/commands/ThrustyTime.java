@@ -6,10 +6,10 @@ import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.depoIntakeSubsystem;
 
-public class IntakeShakeDatAss extends Command {
+public class ThrustyTime extends Command {
     private final Command fullCommand;
 
-    public IntakeShakeDatAss(IntakeSubsystem intake, depoIntakeSubsystem depoIntake, int loopCount) {
+    public ThrustyTime(IntakeSubsystem intake, depoIntakeSubsystem depoIntake, int loopCount) {
         addRequirements(intake);
         addRequirements(depoIntake);
 

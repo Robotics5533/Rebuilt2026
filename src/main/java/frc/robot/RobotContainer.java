@@ -6,9 +6,9 @@ import edu.wpi.first.wpilibj2.command.Commands;
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
-import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.auto.NamedCommands;
-import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.events.EventTrigger;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -17,7 +17,7 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoAutonAlignAndShoot;
 import frc.robot.commands.FlipOutIntake;
-import frc.robot.commands.IntakeShakeDatAss;
+import frc.robot.commands.ThrustyTime;
 import frc.robot.commands.RunIntakeRollers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -82,6 +82,7 @@ public class RobotContainer {
                 
                 
 
+
                 NamedCommands.registerCommand("shoot_load",
                                 new frc.robot.commands.ShootLoad(shooters, washers, feeder,5.0));
 
@@ -89,9 +90,15 @@ public class RobotContainer {
 
                 NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1));
 
-                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(intake, 4.0));
+               // NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(intake, 4.0));
 
-                NamedCommands.registerCommand("shake_intake", new IntakeShakeDatAss(intake, depoIntake, 4));
+                NamedCommands.registerCommand("shake_intake", new ThrustyTime(intake, depoIntake, 4));
+
+                // new EventTrigger("shoot_load").onTrue(new frc.robot.commands.ShootLoad(shooters, washers, feeder,5.0));
+                // new EventTrigger("shoot_interpolated").onTrue(autoAutonAlignAndShootCommand);
+                // new EventTrigger("flip_out_intake").onTrue(new FlipOutIntake(intake, 1));
+                new EventTrigger("run_intake_rollers").onTrue(intake.runRollerForwardCommand()).onFalse(intake.runRollerReverseCommand());
+                // new EventTrigger("shake_intake").onTrue(new ThrustyTime(intake, depoIntake, 4));
 
                 autoChooser = AutoBuilder.buildAutoChooser();
                 SmartDashboard.putData("Auto Mode", autoChooser);
@@ -114,14 +121,14 @@ public class RobotContainer {
 
                 }));
 
-                controls.configureDriver(drivetrain, limelight, superstructure, climb);
+                controls.configureDriver(drivetrain, shooters, limelight, superstructure, climb);
                 if (climb != null) {
-                        controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure,
-                                        climb, limelight);
-                } else {
-                        controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, null,
-                                        limelight);
-                }
+            controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure,
+                            climb, limelight);
+        } else {
+            controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, null,
+                            limelight);
+        }
 
                 if (climb != null) {
                         climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
