@@ -7,13 +7,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "tune"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "shake_intake"
+            "pathName": "turn tune"
           }
         }
       ]

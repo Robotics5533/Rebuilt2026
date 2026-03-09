@@ -35,8 +35,8 @@ public final class Constants {
         public static final double ALIGN_MAX_VELOCITY_DEG_PER_SEC = 250.0;
         public static final double ALIGN_MAX_ACCEL_DEG_PER_SEC_SQ = 300.0;
 
-        public static final double AUTO_DRIVE_P = 125/4;
-        public static final double AUTO_DRIVE_I = 0.0;
+        public static final double AUTO_DRIVE_P = 10;
+        public static final double AUTO_DRIVE_I = 0;
         public static final double AUTO_DRIVE_D = 0;
 
         public static final double AUTO_ROTATION_P = 7;

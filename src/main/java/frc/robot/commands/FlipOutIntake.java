@@ -10,7 +10,7 @@ public class FlipOutIntake extends Command {
     public FlipOutIntake(IntakeSubsystem intake, double durationSeconds) {
         addRequirements(intake);
 
-        fullCommand = intake.flipManualForwardCommand(Constants.IntakeConstants.manualFlipVoltage)
+        fullCommand = intake.flipManualForwardCommand(-Constants.IntakeConstants.manualFlipVoltage)
             .withTimeout(durationSeconds);
     }
 

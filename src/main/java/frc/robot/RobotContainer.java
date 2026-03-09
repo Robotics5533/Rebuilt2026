@@ -17,10 +17,12 @@ import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoAutonAlignAndShoot;
 import frc.robot.commands.FlipOutIntake;
+import frc.robot.commands.IntakeShakeDatAss;
 import frc.robot.commands.RunIntakeRollers;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.depoIntakeSubsystem;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
@@ -58,6 +60,7 @@ public class RobotContainer {
         private final LimelightSubsystem limelight = new LimelightSubsystem(Constants.LimelightConstants.LIMELIGHT_NAME,
                         drivetrain);
         private final IntakeSubsystem intake = new IntakeSubsystem();
+        private final depoIntakeSubsystem depoIntake = new depoIntakeSubsystem();
         private final ShooterSubsystem shooters = new ShooterSubsystem(drivetrain,
                         Constants.LimelightConstants.LIMELIGHT_NAME);
         private final WasherSubsystem washers = new WasherSubsystem();
@@ -84,9 +87,11 @@ public class RobotContainer {
 
                 NamedCommands.registerCommand("shoot_interpolated", autoAutonAlignAndShootCommand);
 
-                NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 0.5));
+                NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1));
 
-                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(intake, 2.0));
+                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(intake, 4.0));
+
+                NamedCommands.registerCommand("shake_intake", new IntakeShakeDatAss(intake, depoIntake, 4));
 
                 autoChooser = AutoBuilder.buildAutoChooser();
                 SmartDashboard.putData("Auto Mode", autoChooser);
@@ -132,14 +137,18 @@ public class RobotContainer {
     .onTrue(Commands.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Brake)));
 
                 new Trigger(shooters::areShootersAtSpeed)
-                                .onTrue(Commands.runOnce(() -> controls.setOperatorRumble(1))
-                                                .andThen(Commands.waitSeconds(0.2))
-                                                .andThen(Commands.runOnce(() -> controls.setOperatorRumble(0))));
+                                .onTrue(Commands.sequence(
+                                                Commands.runOnce(() -> controls.setOperatorRumble(1)),
+                                                Commands.waitSeconds(0.2),
+                                                Commands.runOnce(() -> controls.setOperatorRumble(0))
+                                ).repeatedly().withTimeout(1.5));
 
                 new Trigger(superstructure::isAligned)
-                                .onTrue(Commands.runOnce(() -> controls.setDriverRumble(1))
-                                                .andThen(Commands.waitSeconds(0.2))
-                                                .andThen(Commands.runOnce(() -> controls.setDriverRumble(0))));
+                                .onTrue(Commands.sequence(
+                                                Commands.runOnce(() -> controls.setDriverRumble(1)),
+                                                Commands.waitSeconds(0.2),
+                                                Commands.runOnce(() -> controls.setDriverRumble(0))
+                                ).repeatedly().withTimeout(1.5));
                 
 
                 drivetrain.registerTelemetry(logger::telemeterize);
