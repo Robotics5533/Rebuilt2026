@@ -87,7 +87,7 @@ public class RobotContainer {
                 NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1.0));
 
                 NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(intake, 2.0));
-                NamedCommands.registerCommand("face_otherside", new frc.robot.commands.AutoFace(drivetrain, shooters, feeder, washers, superstructure, limelight,0.5));
+                NamedCommands.registerCommand("face_otherside", new frc.robot.commands.AutoFace(drivetrain, shooters, feeder, washers, superstructure, limelight,0.25));
 
                 autoChooser = AutoBuilder.buildAutoChooser();
                 SmartDashboard.putData("Auto Mode", autoChooser);
