@@ -11,9 +11,9 @@ import frc.robot.commands.ShakeIntake;
 import frc.robot.commands.ShootAtDistance;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.RunRollers;
 import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
-//import frc.robot.subsystems.RunRollers;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.WasherSubsystem;
@@ -66,19 +66,19 @@ public class Controls {
     }
 
     public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
-        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight ) {
+        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight, RunRollers runRollers) {
 
         // Left Trigger: Feed/Washer
         operator.leftTrigger().whileTrue(
             Commands.parallel(
                 washers.run(Constants.ShooterConstants.washerVoltage),
                 feeders.runBothFeedersCommand(),
-                new ShakeIntake(intake))
+                new ShakeIntake(intake, runRollers))
             
                 .finallyDo(interrupted -> {
                     washers.stopWasher();
                     feeders.stopFeeders();
-                    intake.stopRoller();
+                    runRollers.stopRoller();
                     intake.stopFlip();
                 })
                 .withName("RunWashersAndFeedersAndShake"));
@@ -94,13 +94,13 @@ public class Controls {
 
         // Left Bumper: Intake power out
         operator.rightBumper()
-            .onTrue(intake.run(intake::runRollerReverse))
-            .onFalse(intake.runOnce(intake::stopRoller));
+            .onTrue(runRollers.runRollerReverseCommand())
+            .onFalse(runRollers.runOnce(runRollers::stopRoller));
 
         // Right Bumper: Intake power in
         operator.leftBumper()
-            .onTrue(intake.run(intake::runRollerForward))
-            .onFalse(intake.runOnce(intake::stopRoller));
+            .onTrue(runRollers.runRollerForwardCommand())
+            .onFalse(runRollers.runOnce(runRollers::stopRoller));
 
         // B and X Buttons: Manual Intake Control
 
@@ -110,7 +110,7 @@ public class Controls {
         operator.povRight()
                 .onTrue(Commands.parallel(washers.run(-Constants.ShooterConstants.washerVoltage), feeders.InvertrunBothFeedersCommand(),
                         shooters.runFixedRPSShoot(-Constants.ShooterConstants.shooterVelocityRPS)))
-                .onFalse(Commands.parallel(intake.runOnce(intake::stopRoller), washers.runOnce(washers::stopWasher),
+                .onFalse(Commands.parallel(runRollers.runOnce(runRollers::stopRoller), washers.runOnce(washers::stopWasher),
                         feeders.runOnce(feeders::stopFeeders), shooters.runOnce(shooters::stopShooters)));
         // Y Button: Shooter with fixed RPS
         operator.y().whileTrue(
@@ -134,9 +134,9 @@ public class Controls {
 
 
         // Original operator.povLeft() for AutoAlignAndShoot, if still desired.
-        operator.povLeft().and(new Trigger(() -> superstructure.inAllianceZone()))
-            .whileTrue(
-                new AutoAlignAndShoot(drivetrain, shooters, feeders, washers, superstructure, limelight));
+        // operator.povLeft().and(new Trigger(() -> climb.inAllianceZone()))
+        //     .whileTrue(
+        //         new AutoAlignAndShoot(drivetrain, shooters, feeders, washers, climb, runRollers));
 
 
     }

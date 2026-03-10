@@ -4,14 +4,14 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
-//import frc.robot.subsystems.RunRollers;
+import frc.robot.subsystems.RunRollers;
 
 public class ShakeIntake extends Command {
     private final Command fullCommand;
 
-    public ShakeIntake(IntakeSubsystem intake) {
+    public ShakeIntake(IntakeSubsystem intake, RunRollers runRollers) {
         addRequirements(intake);
-        //addRequirements(runRollers);
+        addRequirements(runRollers);
 
         Command shakeAction = Commands.sequence(
             intake.flipManualReverseCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.8),
@@ -19,8 +19,8 @@ public class ShakeIntake extends Command {
              Commands.waitSeconds(1)
         ).repeatedly();
 
-        fullCommand = shakeAction.repeatedly(); 
-        //fullCommand = runRollers.runRollerReverseCommand().alongWith(shakeAction);
+        //fullCommand = shakeAction.repeatedly(); 
+        fullCommand = runRollers.runRollerReverseCommand().alongWith(shakeAction);
         fullCommand.setName("ShakeIntake");
     }
 

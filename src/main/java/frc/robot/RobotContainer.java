@@ -30,7 +30,7 @@ import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.ClimbSubsystem;
-//import frc.robot.subsystems.RunRollers;
+import frc.robot.subsystems.RunRollers;
 import frc.robot.utils.Controls;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -63,7 +63,7 @@ public class RobotContainer {
         private final IntakeSubsystem intake = new IntakeSubsystem();
         private final ShooterSubsystem shooters = new ShooterSubsystem(drivetrain,
                         Constants.LimelightConstants.LIMELIGHT_NAME);
-        //private final RunRollers runRollers = new RunRollers();
+        private final RunRollers runRollers = new RunRollers();
         private final WasherSubsystem washers = new WasherSubsystem();
         private final FeederSubsystem feeder = new FeederSubsystem();
         private final Superstructure superstructure = new Superstructure(() -> drivetrain.getState().Pose);
@@ -90,7 +90,7 @@ public class RobotContainer {
 
                 NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1.0));
 
-                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(intake, 2.0));
+                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers, 2.0));
 
                // NamedCommands.registerCommand("shake_intake", new ThrustyTime(intake, 4));
 
@@ -120,10 +120,10 @@ public class RobotContainer {
                 controls.configureDriver(drivetrain, limelight, superstructure, climb);
                 if (climb != null) {
                         controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure,
-                                        climb, limelight);
+                                        climb, limelight, runRollers);
                 } else {
                         controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, null,
-                                        limelight);
+                                        limelight, runRollers);
                 }
 
                 if (climb != null) {
