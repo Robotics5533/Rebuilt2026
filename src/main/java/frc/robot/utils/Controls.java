@@ -7,10 +7,13 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.Constants;
 import frc.robot.commands.AutoAlignAndShoot;
 import frc.robot.commands.AutoAlignCommand; // New import
+import frc.robot.commands.ShakeIntake;
 import frc.robot.commands.ShootAtDistance;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
-import frc.robot.subsystems.ClimbSubsystem;import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.ClimbSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+//import frc.robot.subsystems.RunRollers;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.WasherSubsystem;
@@ -63,18 +66,22 @@ public class Controls {
     }
 
     public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
-        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight) {
+        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight ) {
 
         // Left Trigger: Feed/Washer
         operator.leftTrigger().whileTrue(
             Commands.parallel(
                 washers.run(Constants.ShooterConstants.washerVoltage),
-                feeders.runBothFeedersCommand())
+                feeders.runBothFeedersCommand(),
+                new ShakeIntake(intake))
+            
                 .finallyDo(interrupted -> {
                     washers.stopWasher();
                     feeders.stopFeeders();
+                    intake.stopRoller();
+                    intake.stopFlip();
                 })
-                .withName("RunWashersAndFeeders"));
+                .withName("RunWashersAndFeedersAndShake"));
 
         // Right Trigger: Shooting (Interpolated)
         operator.rightTrigger().whileTrue(

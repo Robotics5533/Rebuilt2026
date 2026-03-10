@@ -9,6 +9,8 @@ import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+//import frc.robot.commands.ThrustyTime;
+
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -28,6 +30,7 @@ import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.ClimbSubsystem;
+//import frc.robot.subsystems.RunRollers;
 import frc.robot.utils.Controls;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
@@ -60,6 +63,7 @@ public class RobotContainer {
         private final IntakeSubsystem intake = new IntakeSubsystem();
         private final ShooterSubsystem shooters = new ShooterSubsystem(drivetrain,
                         Constants.LimelightConstants.LIMELIGHT_NAME);
+        //private final RunRollers runRollers = new RunRollers();
         private final WasherSubsystem washers = new WasherSubsystem();
         private final FeederSubsystem feeder = new FeederSubsystem();
         private final Superstructure superstructure = new Superstructure(() -> drivetrain.getState().Pose);
@@ -87,6 +91,9 @@ public class RobotContainer {
                 NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1.0));
 
                 NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(intake, 2.0));
+
+               // NamedCommands.registerCommand("shake_intake", new ThrustyTime(intake, 4));
+
                 NamedCommands.registerCommand("face_otherside", new frc.robot.commands.AutoFace(drivetrain, shooters, feeder, washers, superstructure, limelight,0.25));
 
                 autoChooser = AutoBuilder.buildAutoChooser();
