@@ -1,0 +1,75 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Blue Right Stage 1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "flip_out_intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Blue Right Stage 2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "run_intake_rollers"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue Right Stage 3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "face_otherside"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Blue Right Stage 4"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot_interpolated"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "midton",
+  "choreoAuto": false
+}

@@ -1,0 +1,57 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "blue depoton stage 1"
+                }
+              },
+              {
+                "type": "sequential",
+                "data": {
+                  "commands": [
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "flip_out_intake"
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "run_intake_rollers"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "blue depoton stage 2"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "shoot_interpolated"
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "depoton",
+  "choreoAuto": false
+}
