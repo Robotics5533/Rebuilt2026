@@ -43,9 +43,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "shoot_interpolated"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot_interpolated"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ThrustyTime"
+                }
+              }
+            ]
           }
         }
       ]

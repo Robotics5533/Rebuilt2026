@@ -9,17 +9,22 @@ import frc.robot.subsystems.RunRollers;
 public class ThrustyTime extends Command {
     private final Command fullCommand;
 
-    public ThrustyTime(IntakeSubsystem intake, RunRollers runRollers) {
+    public ThrustyTime(IntakeSubsystem intake, RunRollers runRollers, int loopCount) {
         addRequirements(intake);
         addRequirements(runRollers);
 
-        Command thrustAction = Commands.sequence(
-            intake.flipManualReverseCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.8),
-            intake.flipManualForwardCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.20),
-             Commands.waitSeconds(1)
-        ).withTimeout(3);
+        Command[] commands = new Command[loopCount * 3];
+        for (int i = 0; i < loopCount; i++) {
+            commands[i * 3] = intake.flipManualReverseCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.8);
+            commands[i * 3 + 1] = intake.flipManualForwardCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.20);
+            commands[i * 3 + 2] = Commands.waitSeconds(1);
+        }
 
-        fullCommand = runRollers.runRollerReverseCommand().alongWith(thrustAction);
+        Command thrustAction = Commands.sequence(commands);
+        fullCommand = runRollers.runRollerReverseCommand()
+            .alongWith(thrustAction)
+            .withTimeout(loopCount * 2.0)
+            .finallyDo(stage -> runRollers.stopRoller());
         fullCommand.setName("ThrustyTime");
     }
 

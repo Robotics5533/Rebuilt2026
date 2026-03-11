@@ -88,8 +88,8 @@ public class RobotContainer {
                                 new frc.robot.commands.ShootLoad(shooters, washers, feeder,5.0));
 
                 NamedCommands.registerCommand("shoot_interpolated", autoAutonAlignAndShootCommand);
-                
-                NamedCommands.registerCommand("ThrustyTime", new ThrustyTime(intake, runRollers));
+
+                NamedCommands.registerCommand("ThrustyTime", new ThrustyTime(intake, runRollers, 2));
 
                 NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1.0));
 
