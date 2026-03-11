@@ -15,9 +15,9 @@ public class ThrustyTime extends Command {
 
         Command[] commands = new Command[loopCount * 3];
         for (int i = 0; i < loopCount; i++) {
-            commands[i * 3] = intake.flipManualReverseCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.8);
-            commands[i * 3 + 1] = intake.flipManualForwardCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.20);
-            commands[i * 3 + 2] = Commands.waitSeconds(1);
+            commands[i * 3] = Commands.waitSeconds(1);
+            commands[i * 3 + 1] = intake.flipManualReverseCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.8);
+            commands[i * 3 + 2] = intake.flipManualForwardCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.20);
         }
 
         Command thrustAction = Commands.sequence(commands);
