@@ -9,7 +9,7 @@ public class RunIntakeRollers extends Command {
     public RunIntakeRollers(RunRollers runRollers, double durationSeconds) {
         addRequirements(runRollers);
 
-        fullCommand = runRollers.runRollerReverseCommand().withTimeout(durationSeconds);
+        fullCommand = (runRollers.runRollerReverseCommand()).withTimeout(durationSeconds);
     }
 
     @Override

@@ -8,8 +8,8 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.866160785147218,
-        "y": 0.6519609368560348
+        "x": 5.947184462927422,
+        "y": 0.6120323827444407
       },
       "isLocked": false,
       "linkedName": null
@@ -20,28 +20,12 @@
         "y": 0.6386019971469341
       },
       "prevControl": {
-        "x": 6.29331467959533,
-        "y": 0.5927108292935991
+        "x": 5.970572556988704,
+        "y": 0.6502958214742394
       },
       "nextControl": {
-        "x": 4.275273277818858,
-        "y": 0.7200111546280619
-      },
-      "isLocked": false,
-      "linkedName": null
-    },
-    {
-      "anchor": {
-        "x": 2.1111982881597715,
-        "y": 0.6644793152639101
-      },
-      "prevControl": {
-        "x": 2.3342437470943587,
-        "y": 0.5515602148040699
-      },
-      "nextControl": {
-        "x": 0.9556808722296422,
-        "y": 1.2494721135740308
+        "x": 0.15114244249451136,
+        "y": 0.48216485987582847
       },
       "isLocked": false,
       "linkedName": null
@@ -52,8 +36,8 @@
         "y": 2.268873038516405
       },
       "prevControl": {
-        "x": 1.9376686840154718,
-        "y": 2.1604894095072495
+        "x": 1.8931214735828823,
+        "y": 2.27304204956718
       },
       "nextControl": null,
       "isLocked": false,
@@ -62,7 +46,7 @@
   ],
   "rotationTargets": [
     {
-      "waypointRelativePos": 2.0,
+      "waypointRelativePos": 1.4092751013057172,
       "rotationDegrees": 0.0
     }
   ],
@@ -74,8 +58,8 @@
         "y": 4.0
       },
       "rotationOffset": 0.0,
-      "minWaypointRelativePos": 2.242606790799564,
-      "maxWaypointRelativePos": 3.0,
+      "minWaypointRelativePos": 1.6,
+      "maxWaypointRelativePos": 2.0,
       "name": "Point Towards Zone"
     }
   ],

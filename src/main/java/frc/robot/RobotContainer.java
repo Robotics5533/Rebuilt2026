@@ -93,7 +93,7 @@ public class RobotContainer {
 
                 NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1.0));
 
-                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers, 2.0));
+                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers, 4.0));
 
                // NamedCommands.registerCommand("shake_intake", new ThrustyTime(intake, 4));
 

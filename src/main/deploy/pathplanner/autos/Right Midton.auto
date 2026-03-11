@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Blue Right Stage 1"
+                  "pathName": "Right Stage 1"
                 }
               },
               {
@@ -30,7 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Blue Right Stage 2"
+                  "pathName": "Right Stage 2"
                 }
               },
               {
@@ -45,7 +45,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Blue Right Stage 3"
+            "pathName": "Right Stage 3"
           }
         },
         {
@@ -57,13 +57,26 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Blue Right Stage 4"
+            "pathName": "Right Stage 4"
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "shoot_interpolated"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot_interpolated"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ThrustyTime"
+                }
+              }
+            ]
           }
         }
       ]
