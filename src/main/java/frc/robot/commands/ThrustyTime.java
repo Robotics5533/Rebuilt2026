@@ -6,21 +6,21 @@ import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.RunRollers;
 
-public class ShakeIntake extends Command {
+public class ThrustyTime extends Command {
     private final Command fullCommand;
 
-    public ShakeIntake(IntakeSubsystem intake, RunRollers runRollers) {
+    public ThrustyTime(IntakeSubsystem intake, RunRollers runRollers) {
         addRequirements(intake);
         addRequirements(runRollers);
 
-        Command shakeAction = Commands.sequence(
+        Command thrustAction = Commands.sequence(
             intake.flipManualReverseCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.8),
             intake.flipManualForwardCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.20),
              Commands.waitSeconds(1)
-        ).repeatedly();
+        ).withTimeout(3);
 
-        fullCommand = runRollers.runRollerReverseCommand().alongWith(shakeAction);
-        fullCommand.setName("ShakeIntake");
+        fullCommand = runRollers.runRollerReverseCommand().alongWith(thrustAction);
+        fullCommand.setName("ThrustyTime");
     }
 
 
