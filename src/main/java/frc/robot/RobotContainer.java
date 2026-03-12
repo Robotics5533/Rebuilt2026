@@ -3,10 +3,13 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.events.EventTrigger;
 import com.pathplanner.lib.auto.NamedCommands;
 import edu.wpi.first.wpilibj.smartdashboard.Field2d;
 //import frc.robot.commands.ThrustyTime;
@@ -21,6 +24,7 @@ import frc.robot.commands.AutoAutonAlignAndShoot;
 import frc.robot.commands.FlipOutIntake;
 import frc.robot.commands.RunIntakeRollers;
 import frc.robot.commands.ThrustyTime;
+import frc.robot.commands.ThrustyTimeDepo;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -80,7 +84,9 @@ public class RobotContainer {
                                 0.0,
                                 7.5,
                                 0.0);
-                AutoAutonAlignAndShoot autoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 3.0);
+                AutoAutonAlignAndShoot autoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 1.5);
+                AutoAutonAlignAndShoot depoautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 4.0);
+
                 
                 
 
@@ -89,13 +95,17 @@ public class RobotContainer {
 
                 NamedCommands.registerCommand("shoot_interpolated", autoAutonAlignAndShootCommand);
 
+                NamedCommands.registerCommand("shoot_interpolateddepo", depoautoAutonAlignAndShootCommand);
+
                 NamedCommands.registerCommand("ThrustyTime", new ThrustyTime(intake, runRollers, 2));
+                
+                NamedCommands.registerCommand("ThrustyTimeDepo", new ThrustyTimeDepo(intake, runRollers, 3));
 
                 NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1.0));
 
-                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers, 4.0));
+                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers,3));
 
-               // NamedCommands.registerCommand("shake_intake", new ThrustyTime(intake, 4));
+                NamedCommands.registerCommand("deporoller", new RunIntakeRollers(runRollers,1.5));
 
                 NamedCommands.registerCommand("face_otherside", new frc.robot.commands.AutoFace(drivetrain, shooters, feeder, washers, superstructure, limelight,0.25));
 

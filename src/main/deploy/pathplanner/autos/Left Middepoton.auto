@@ -1,0 +1,150 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "STage1"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "flip_out_intake"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "Stage2"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "run_intake_rollers"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Stage3"
+          }
+        },
+        {
+          "type": "named",
+          "data": {
+            "name": "face_otherside"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "stage4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "stage5"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot_interpolated"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ThrustyTime"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "stage6"
+          }
+        },
+        {
+          "type": "parallel",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "deporoller"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "stage7"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "stage8"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Stage9"
+          }
+        },
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot_interpolated"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ThrustyTimeDepo"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": "midton",
+  "choreoAuto": false
+}
