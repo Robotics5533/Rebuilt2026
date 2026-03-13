@@ -25,6 +25,7 @@ import frc.robot.commands.FlipOutIntake;
 import frc.robot.commands.RunIntakeRollers;
 import frc.robot.commands.ThrustyTime;
 import frc.robot.commands.ThrustyTimeDepo;
+import frc.robot.commands.ThrustyTimeMid;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -84,8 +85,9 @@ public class RobotContainer {
                                 0.0,
                                 7.5,
                                 0.0);
-                AutoAutonAlignAndShoot autoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 1.5);
-                AutoAutonAlignAndShoot depoautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 4.0);
+                AutoAutonAlignAndShoot autoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 3);
+                AutoAutonAlignAndShoot depoautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 5);
+                 AutoAutonAlignAndShoot backtomidautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 7);
 
                 
                 
@@ -95,13 +97,17 @@ public class RobotContainer {
 
                 NamedCommands.registerCommand("shoot_interpolated", autoAutonAlignAndShootCommand);
 
+                NamedCommands.registerCommand("shoot_interpolatedbacktomid", backtomidautoAutonAlignAndShootCommand);
+
                 NamedCommands.registerCommand("shoot_interpolateddepo", depoautoAutonAlignAndShootCommand);
 
-                NamedCommands.registerCommand("ThrustyTime", new ThrustyTime(intake, runRollers, 2));
+                NamedCommands.registerCommand("ThrustyTime", new ThrustyTime(intake, runRollers, 3));
                 
-                NamedCommands.registerCommand("ThrustyTimeDepo", new ThrustyTimeDepo(intake, runRollers, 3));
+                NamedCommands.registerCommand("ThrustyTimeDepo", new ThrustyTimeDepo(intake, runRollers, 5));
 
-                NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1.0));
+                NamedCommands.registerCommand("ThrustyTimeMid", new ThrustyTimeMid(intake, runRollers, 7));
+
+                NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1.25));
 
                 NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers,3));
 

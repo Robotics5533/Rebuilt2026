@@ -27,9 +27,9 @@ public class ShooterUtil {
     public static final ShooterShotData SHOT_1_METER = new ShooterShotData(1.0, 60, 4.8, 0.20);
     public static final ShooterShotData SHOT_2_METER = new ShooterShotData(2.0, 56.0, 5.7, 0.28);
     public static final ShooterShotData SHOT_3_METER = new ShooterShotData(3.0, 70.0, 6.6, 0.35);
-    public static final ShooterShotData SHOT_4_METER = new ShooterShotData(4.0, 80.0, 7.6, 0.43);
-    public static final ShooterShotData SHOT_4HALF_METER = new ShooterShotData(4.5, 85.0, 9.9, 0.61);
-    public static final ShooterShotData SHOT_5_METER = new ShooterShotData(5.0, 90.0, 8.7, 0.52);
+    public static final ShooterShotData SHOT_4_METER = new ShooterShotData(4.0, 85.0, 7.6, 0.43);
+    public static final ShooterShotData SHOT_4HALF_METER = new ShooterShotData(4.5, 90.0, 9.9, 0.61);
+    public static final ShooterShotData SHOT_5_METER = new ShooterShotData(5.0, 95.0, 8.7, 0.52);
     public static final ShooterShotData SHOT_6_METER = new ShooterShotData(6.0, 105.0, 9.9, 0.61);
 
 

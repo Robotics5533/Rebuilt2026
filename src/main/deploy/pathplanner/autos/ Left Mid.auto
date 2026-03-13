@@ -11,7 +11,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Right Stage 1"
+                  "pathName": "STage1"
                 }
               },
               {
@@ -30,7 +30,7 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Right Stage 2"
+                  "pathName": "Stage2"
                 }
               },
               {
@@ -45,7 +45,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Stage 3"
+            "pathName": "Stage3"
           }
         },
         {
@@ -57,7 +57,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Stage 4"
+            "pathName": "stage4"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "stage5"
           }
         },
         {

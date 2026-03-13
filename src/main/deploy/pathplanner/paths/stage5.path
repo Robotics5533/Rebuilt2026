@@ -16,12 +16,12 @@
     },
     {
       "anchor": {
-        "x": 2.589928673323822,
-        "y": 5.658801711840229
+        "x": 2.9263338088445074,
+        "y": 5.814065620542083
       },
       "prevControl": {
-        "x": 2.5371740916553427,
-        "y": 5.9031722381174045
+        "x": 2.873579227176028,
+        "y": 6.0584361468192585
       },
       "nextControl": null,
       "isLocked": false,
@@ -38,11 +38,11 @@
     "maxAngularVelocity": 600.0,
     "maxAngularAcceleration": 200.0,
     "nominalVoltage": 12.0,
-    "unlimited": false
+    "unlimited": true
   },
   "goalEndState": {
     "velocity": 0,
-    "rotation": -42.6467031338917
+    "rotation": -50.826342029555754
   },
   "reversed": false,
   "folder": "Left Midton",

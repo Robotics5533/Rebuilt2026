@@ -49,13 +49,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "shoot_interpolated"
+                  "name": "shoot_interpolateddepo"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "ThrustyTime"
+                  "name": "ThrustyTimeDepo"
                 }
               }
             ]

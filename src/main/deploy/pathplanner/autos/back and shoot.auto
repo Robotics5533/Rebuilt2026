@@ -11,9 +11,22 @@
           }
         },
         {
-          "type": "named",
+          "type": "parallel",
           "data": {
-            "name": "ThrustyTime"
+            "commands": [
+              {
+                "type": "named",
+                "data": {
+                  "name": "shoot_interpolateddepo"
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "ThrustyTimeDepo"
+                }
+              }
+            ]
           }
         }
       ]

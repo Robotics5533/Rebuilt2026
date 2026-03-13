@@ -3,13 +3,13 @@
   "waypoints": [
     {
       "anchor": {
-        "x": 2.589928673323822,
-        "y": 5.658801711840229
+        "x": 2.9263338088445074,
+        "y": 5.814065620542083
       },
       "prevControl": null,
       "nextControl": {
-        "x": 1.8623114237215277,
-        "y": 5.718559092421781
+        "x": 2.198716559242213,
+        "y": 5.873823001123635
       },
       "isLocked": false,
       "linkedName": "end5"
@@ -48,7 +48,7 @@
   "folder": "Left Midton",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": -42.6467031338917
+    "rotation": -50.826342029555754
   },
   "useDefaultConstraints": false
 }

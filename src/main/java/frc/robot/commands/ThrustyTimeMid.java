@@ -6,10 +6,10 @@ import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.RunRollers;
 
-public class ThrustyTimeDepo extends Command {
+public class ThrustyTimeMid extends Command {
     private final Command fullCommand;
 
-    public ThrustyTimeDepo(IntakeSubsystem intake, RunRollers runRollers, int loopCount) {
+    public ThrustyTimeMid(IntakeSubsystem intake, RunRollers runRollers, int loopCount) {
         addRequirements(intake);
         addRequirements(runRollers);
 
