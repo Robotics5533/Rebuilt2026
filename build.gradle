@@ -73,6 +73,11 @@ dependencies {
 
     testImplementation 'org.junit.jupiter:junit-jupiter:5.10.1'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+
+     implementation 'edu.wpi.first.epilogue:epilogue-runtime-java:+'
+    annotationProcessor 'edu.wpi.first.epilogue:epilogue-processor-java:+'
+    // The annotation processor is needed twice if you want to use it for both runtime and processing
+    annotationProcessor 'edu.wpi.first.epilogue:epilogue-runtime-java:+'
 }
 
 test {

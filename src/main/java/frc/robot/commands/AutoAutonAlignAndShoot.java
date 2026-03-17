@@ -13,6 +13,8 @@ import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
 import frc.robot.utils.AllianceUtil;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Epilogue;
 
 /**
  * A complex command that combines automatic alignment to the hub with a
@@ -23,6 +25,7 @@ import frc.robot.utils.AllianceUtil;
  * the feeder and washer subsystems
  * to initiate shooting. All mechanisms stop when the command is interrupted.
  */
+@Logged
 public class AutoAutonAlignAndShoot extends Command {
     private final Command fullCommand;
     private final AutoAlignCommand autoAlignCommand;

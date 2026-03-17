@@ -98,7 +98,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "run_intake_rollers"
+                  "name": "RunIntakeRollersDouble"
                 }
               }
             ]
@@ -117,13 +117,13 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "shoot_interpolated"
+                  "name": "shoot_interpolatedbacktomid"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "ThrustyTime"
+                  "name": "ThrustyTimeMid"
                 }
               }
             ]

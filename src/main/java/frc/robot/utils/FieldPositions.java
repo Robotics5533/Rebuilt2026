@@ -6,7 +6,10 @@ import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.networktables.StructPublisher;
 import edu.wpi.first.networktables.StructSubscriber;
 import frc.robot.Constants;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Epilogue;
 
+@Logged
 public final class FieldPositions {
 
   private static final String ROOT2D = "/FieldPoses2d/";

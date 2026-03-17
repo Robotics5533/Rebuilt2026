@@ -6,12 +6,15 @@ import frc.robot.Constants;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Epilogue;
 
 /**
  * A command to perform a shot sequence based on the robot's distance to the speaker,
  * as reported by the Limelight. It runs the shooters up to speed, then runs the
  * washer and feeders for a set duration, and finally stops all components.
  */
+@Logged
 public class ShootAtDistance extends Command {
   private final Command fullCommand;
 

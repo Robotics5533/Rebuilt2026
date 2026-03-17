@@ -8,11 +8,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Epilogue;
 
 /**
  * Represents the robot's feeder mechanism, responsible for moving game pieces
  * towards the shooter. It controls two Falcon 500 (TalonFX) motors.
  */
+@Logged
 public class FeederSubsystem extends SubsystemBase {
 
 

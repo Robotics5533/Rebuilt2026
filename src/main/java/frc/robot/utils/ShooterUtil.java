@@ -1,7 +1,11 @@
 package frc.robot.utils;
 
 import edu.wpi.first.math.interpolation.InterpolatingDoubleTreeMap;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Epilogue;
 
+
+@Logged
 public class ShooterUtil {
 
     public static final double SHOOTER_KV_RPS_PER_VOLT = 60.0 / 10.0;

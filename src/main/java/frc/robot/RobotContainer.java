@@ -2,6 +2,9 @@ package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Epilogue;
+
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
 
@@ -23,6 +26,7 @@ import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoAutonAlignAndShoot;
 import frc.robot.commands.FlipOutIntake;
 import frc.robot.commands.RunIntakeRollers;
+import frc.robot.commands.RunIntakeRollersDouble;
 import frc.robot.commands.ThrustyTime;
 import frc.robot.commands.ThrustyTimeDepo;
 import frc.robot.commands.ThrustyTimeMid;
@@ -49,6 +53,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
  * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
+@Logged
 public class RobotContainer {
         private final double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)
                         * (Constants.DriveConstants.SPEED_MULTIPLIER / 100.0);
@@ -110,6 +115,8 @@ public class RobotContainer {
                 NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1.25));
 
                 NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers,3));
+                
+                NamedCommands.registerCommand("run_intake_rollers_Second", new RunIntakeRollersDouble(runRollers,1.29));
 
                 NamedCommands.registerCommand("deporoller", new RunIntakeRollers(runRollers,1.5));
 

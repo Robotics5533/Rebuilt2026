@@ -12,12 +12,15 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import frc.robot.utils.AllianceUtil;
 import java.util.function.DoubleSupplier;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Epilogue;
 
 /**
  * Represents the robot's shooter mechanism, controlling two Falcon 500 (TalonFX) motors.
  * This subsystem manages both voltage-based and velocity-based control of the shooters,
  * along with methods for checking speed, stopping, and generating commands for control.
  */
+@Logged
 public class ShooterSubsystem extends SubsystemBase {
 
   private final TalonFX leftShooter = new TalonFX(Constants.ShooterConstants.leftShooterId);
