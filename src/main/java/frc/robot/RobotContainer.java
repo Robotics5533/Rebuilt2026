@@ -16,6 +16,7 @@ import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import frc.robot.commands.AutoAutonAlignAndShoot;
+import frc.robot.commands.AutoAutonAlignAndPass;
 import frc.robot.commands.FlipOutIntake;
 import frc.robot.commands.ThrustyTime;
 import frc.robot.commands.RunIntakeRollers;
@@ -79,6 +80,7 @@ public class RobotContainer {
                                 7.5,
                                 0.0);
                 AutoAutonAlignAndShoot autoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 3.0);
+                AutoAutonAlignAndPass autoAutonAlignAndPassCommand = new AutoAutonAlignAndPass(drivetrain, shooters, feeder, washers, superstructure, limelight, 3.0);
                 
                 
 
@@ -87,6 +89,8 @@ public class RobotContainer {
                                 new frc.robot.commands.ShootLoad(shooters, washers, feeder,5.0));
 
                 NamedCommands.registerCommand("shoot_interpolated", autoAutonAlignAndShootCommand);
+
+                NamedCommands.registerCommand("pass_interpolated", autoAutonAlignAndPassCommand);
 
                 NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1));
 

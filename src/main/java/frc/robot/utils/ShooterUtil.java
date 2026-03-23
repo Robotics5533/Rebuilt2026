@@ -32,9 +32,15 @@ public class ShooterUtil {
     public static final ShooterShotData SHOT_5_METER = new ShooterShotData(5.0, 90.0, 8.7, 1.25);
     public static final ShooterShotData SHOT_6_METER = new ShooterShotData(6.0, 105.0, 9.9, 1.30);
 
+    // Pass Shot Data
+    public static final ShooterShotData PASS_SHOT_3_METER = new ShooterShotData(3.0, 45.0, 4.0, 1.15);
+    public static final ShooterShotData PASS_SHOT_5_METER = new ShooterShotData(5.0, 50.0, 4.5, 1.30);
+    public static final ShooterShotData PASS_SHOT_7_METER = new ShooterShotData(7.0, 55.0, 5.0, 1.45);
+    public static final ShooterShotData PASS_SHOT_9_METER = new ShooterShotData(9.0, 60.0, 5.5, 1.60);
+
 
     /**
-     * Populates the interpolation maps with predefined shot data.
+     * Populates the interpolation maps with predefined shot data for the Hub.
      * This method should be called once, for example, in Constants.java static block.
      *
      * @param distanceToVelocityRPS The map to populate with distance-to-RPS data.
@@ -59,6 +65,31 @@ public class ShooterUtil {
         addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_4HALF_METER);
         addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_5_METER);
         addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, SHOT_6_METER);
+    }
+
+    /**
+     * Populates the interpolation maps with predefined shot data for the Pass shot.
+     * This method should be called once, for example, in Constants.java static block.
+     *
+     * @param distanceToVelocityRPS The map to populate with distance-to-RPS data.
+     * @param distanceToVoltage The map to populate with distance-to-Voltage data.
+     * @param distanceToTimeOfFlight The map to populate with distance-to-TimeOfFlight data.
+     */
+    public static void populatePassShotDataMaps(
+            InterpolatingDoubleTreeMap distanceToVelocityRPS,
+            InterpolatingDoubleTreeMap distanceToVoltage,
+            InterpolatingDoubleTreeMap distanceToTimeOfFlight) {
+        
+       
+        distanceToVelocityRPS.clear();
+        distanceToVoltage.clear();
+        distanceToTimeOfFlight.clear();
+
+        
+        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, PASS_SHOT_3_METER);
+        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, PASS_SHOT_5_METER);
+        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, PASS_SHOT_7_METER);
+        addShotData(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight, PASS_SHOT_9_METER);
     }
 
     private static void addShotData(

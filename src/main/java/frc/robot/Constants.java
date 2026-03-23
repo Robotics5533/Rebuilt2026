@@ -158,10 +158,15 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap distanceToVoltage = new InterpolatingDoubleTreeMap();
         public static final InterpolatingDoubleTreeMap distanceToTimeOfFlight = new InterpolatingDoubleTreeMap();
 
+        public static final InterpolatingDoubleTreeMap passDistanceToVelocityRPS = new InterpolatingDoubleTreeMap();
+        public static final InterpolatingDoubleTreeMap passDistanceToVoltage = new InterpolatingDoubleTreeMap();
+        public static final InterpolatingDoubleTreeMap passDistanceToTimeOfFlight = new InterpolatingDoubleTreeMap();
+
         public static final double SHOOTER_KV_RPS_PER_VOLT = ShooterUtil.SHOOTER_KV_RPS_PER_VOLT;
 
         static {
             ShooterUtil.populateShotDataMaps(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight);
+            ShooterUtil.populatePassShotDataMaps(passDistanceToVelocityRPS, passDistanceToVoltage, passDistanceToTimeOfFlight);
         }
     }
 
@@ -240,6 +245,29 @@ public final class Constants {
                 redHubPose.getX(),
                 redHubPose.getY() + hubToBumpCenterOffset + Units.inchesToMeters(2.5),
                 new Rotation2d(Math.PI));
+
+
+
+        public static final Pose2d bluePassLeftPose = new Pose2d(
+                ALLIANCE_ZONE.in(Meters) / 2.0,
+                fieldWidth / 2.0 + hubToBumpCenterOffset + Units.inchesToMeters(2.5),
+                new Rotation2d());
+
+        public static final Pose2d bluePassRightPose = new Pose2d(
+                ALLIANCE_ZONE.in(Meters) / 2.0,
+                fieldWidth / 2.0 - hubToBumpCenterOffset,
+                new Rotation2d());
+
+        public static final Pose2d redPassLeftPose = new Pose2d(
+                fieldLength - ALLIANCE_ZONE.in(Meters) / 2.0,
+                fieldWidth / 2.0 - hubToBumpCenterOffset,
+                new Rotation2d(Math.PI));
+
+        public static final Pose2d redPassRightPose = new Pose2d(
+                fieldLength - ALLIANCE_ZONE.in(Meters) / 2.0,
+                fieldWidth / 2.0 + hubToBumpCenterOffset + Units.inchesToMeters(2.5),
+                new Rotation2d(Math.PI));
+        
 
     }
 }

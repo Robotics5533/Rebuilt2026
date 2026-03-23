@@ -172,6 +172,14 @@ public class ShooterSubsystem extends SubsystemBase {
     return AllianceUtil.getDistanceToHub(drivetrain, limelightName);
   }
 
+  /**
+   * Retrieves the current distance to the closest pass position.
+   * @return The distance to the pass position in meters.
+   */
+  public double getPassDistance() {
+    return AllianceUtil.getDistanceToClosestPass(drivetrain);
+  }
+
 
   /**
    * Sets the target output for both shooters based on a given distance to the target.
@@ -182,6 +190,21 @@ public class ShooterSubsystem extends SubsystemBase {
     double rps = Constants.ShooterConstants.distanceToVelocityRPS.get(distance);
     double adjustedRPS = rps + rpsAdjustment;
     double volts = adjustedRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT; // Recalculate voltage based on adjusted RPS
+
+    ShooterSetpoint leftSetpoint = new ShooterSetpoint(adjustedRPS, volts);
+    ShooterSetpoint rightSetpoint = new ShooterSetpoint(-adjustedRPS, -volts);
+    setShooterOutput(leftSetpoint, rightSetpoint);
+  }
+
+  /**
+   * Sets the target output for both shooters based on a given distance to the pass position.
+   * Uses interpolation tables defined in Constants to convert distance to target velocity or voltage.
+   * @param distance The distance to the target in meters.
+   */
+  public void setTargetFromPassDistance(double distance) {
+    double rps = Constants.ShooterConstants.passDistanceToVelocityRPS.get(distance);
+    double adjustedRPS = rps + rpsAdjustment;
+    double volts = adjustedRPS / Constants.ShooterConstants.SHOOTER_KV_RPS_PER_VOLT;
 
     ShooterSetpoint leftSetpoint = new ShooterSetpoint(adjustedRPS, volts);
     ShooterSetpoint rightSetpoint = new ShooterSetpoint(-adjustedRPS, -volts);
@@ -364,6 +387,21 @@ public class ShooterSubsystem extends SubsystemBase {
         () -> {
           double d = distanceMeters.getAsDouble();
           setTargetFromDistance(d);
+        }) 
+        .finallyDo(this::stopShooters);
+  }
+
+  /**
+   * Returns a command that runs the shooters at a speed interpolated from the distance to the pass position.
+   * The command will stop the shooters when it ends.
+   * @param distanceMeters A DoubleSupplier providing the current distance to the pass target.
+   * @return A command to run interpolated pass shot.
+   */
+  public Command runInterpolatedPassShot(DoubleSupplier distanceMeters) {
+    return run(
+        () -> {
+          double d = distanceMeters.getAsDouble();
+          setTargetFromPassDistance(d);
         }) 
         .finallyDo(this::stopShooters);
   }

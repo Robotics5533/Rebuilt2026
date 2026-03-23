@@ -9,8 +9,10 @@ import com.ctre.phoenix6.HootAutoReplay;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.utils.AllianceUtil;
 
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
@@ -32,6 +34,8 @@ public class Robot extends TimedRobot {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
 
+        SmartDashboard.putNumber("Pass/DistanceToClosest", AllianceUtil.getDistanceToClosestPass(m_robotContainer.drivetrain));
+        SmartDashboard.putNumber("Pass/TargetHeading", AllianceUtil.getTargetHeadingToClosestPass(m_robotContainer.drivetrain));
     }
 
     @Override

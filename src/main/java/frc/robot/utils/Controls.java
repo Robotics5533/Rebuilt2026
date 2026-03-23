@@ -9,7 +9,6 @@ import frc.robot.commands.AutoAlignAndShoot;
 import frc.robot.commands.AutoAlignCommand; // New import
 import frc.robot.commands.DriveMotionShot;
 import frc.robot.commands.ShootAtDistance;
-import frc.robot.commands.ShakeIntake;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.ClimbSubsystem;import frc.robot.subsystems.IntakeSubsystem;
@@ -73,8 +72,8 @@ public class Controls {
         operator.leftTrigger().whileTrue(
             Commands.parallel(
                 washers.run(Constants.ShooterConstants.washerVoltage),
-                feeders.runBothFeedersCommand(),
-                new ShakeIntake(intake))
+                feeders.runBothFeedersCommand()
+            )
                 .finallyDo(interrupted -> {
                     washers.stopWasher();
                     feeders.stopFeeders();
