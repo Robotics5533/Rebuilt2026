@@ -18,8 +18,9 @@ public class ShakeIntake extends Command {
 
         Command shakeAction = Commands.sequence(
             Commands.waitSeconds(1),
-            intake.flipManualReverseCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.8),
-            intake.flipManualForwardCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.20)
+            intake.flipManualReverseCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.35),
+            Commands.waitSeconds(0.5),
+            intake.flipManualForwardCommand(Constants.IntakeConstants.manualFlipVoltage).withTimeout(0.075)
         ).repeatedly();
 
         fullCommand = runRollers.runRollerReverseCommand().alongWith(shakeAction);
