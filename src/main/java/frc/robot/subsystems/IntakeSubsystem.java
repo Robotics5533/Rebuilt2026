@@ -35,7 +35,7 @@ public class IntakeSubsystem extends SubsystemBase {
         Constants.IntakeConstants.flipCurrentLimit;
     flipCfg.CurrentLimits.StatorCurrentLimitEnable = true;
     flipMotor.getConfigurator().apply(flipCfg);
-    flipMotor.setNeutralMode(NeutralModeValue.Coast);
+    flipMotor.setNeutralMode(NeutralModeValue.Brake);
   }
 
   @Override

@@ -11,8 +11,10 @@ import edu.wpi.first.epilogue.Epilogue;
 
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.utils.AllianceUtil;
 
 @Logged
 public class Robot extends TimedRobot {
@@ -30,12 +32,14 @@ public class Robot extends TimedRobot {
         DataLogManager.logNetworkTables(true);
         Epilogue.bind(this); 
     }
-
-    @Override
+    
+      @Override
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
 
+        SmartDashboard.putNumber("Pass/DistanceToClosest", AllianceUtil.getDistanceToClosestPass(m_robotContainer.drivetrain));
+        SmartDashboard.putNumber("Pass/TargetHeading", AllianceUtil.getTargetHeadingToClosestPass(m_robotContainer.drivetrain));
     }
 
     @Override

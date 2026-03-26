@@ -36,7 +36,7 @@ public final class Constants {
         public static final double ALIGN_MAX_ACCEL_DEG_PER_SEC_SQ = 300.0;
 
         public static final double AUTO_DRIVE_P = 10;
-        public static final double AUTO_DRIVE_I = 0.0;
+        public static final double AUTO_DRIVE_I = 0;
         public static final double AUTO_DRIVE_D = 0;
 
         public static final double AUTO_ROTATION_P = 7;
@@ -137,17 +137,17 @@ public final class Constants {
         public static final int rightShooterId = 20;
         public static final int rightFeederId = 19;
         public static final double feederVoltage = 8.0; //8.0
-        public static final double autonfeederVoltage = 7.0; 
+        public static final double autonfeederVoltage = 4.0;
         public static final double feederCurrentLimit = 20.0;
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
-        public static final double shooterVelocityRPS = 45;//65
+        public static final double shooterVelocityRPS = 65;
         public static final double kP = 0.2;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kV = 0.12;
         public static final double washerVoltage = 6.0; //6.0
-        public static final double autonWasherVoltage = 5.0; //4.0
+        public static final double autonWasherVoltage = 4.0;
         public static final double shooterTargetVoltage = 12.0;
         public static final double shooterSpeedToleranceRPS = 2.0; 
         public static final double shootAtDistanceDurationSeconds = 3.0;
@@ -158,10 +158,15 @@ public final class Constants {
         public static final InterpolatingDoubleTreeMap distanceToVoltage = new InterpolatingDoubleTreeMap();
         public static final InterpolatingDoubleTreeMap distanceToTimeOfFlight = new InterpolatingDoubleTreeMap();
 
+        public static final InterpolatingDoubleTreeMap passDistanceToVelocityRPS = new InterpolatingDoubleTreeMap();
+        public static final InterpolatingDoubleTreeMap passDistanceToVoltage = new InterpolatingDoubleTreeMap();
+        public static final InterpolatingDoubleTreeMap passDistanceToTimeOfFlight = new InterpolatingDoubleTreeMap();
+
         public static final double SHOOTER_KV_RPS_PER_VOLT = ShooterUtil.SHOOTER_KV_RPS_PER_VOLT;
 
         static {
             ShooterUtil.populateShotDataMaps(distanceToVelocityRPS, distanceToVoltage, distanceToTimeOfFlight);
+            ShooterUtil.populatePassShotDataMaps(passDistanceToVelocityRPS, passDistanceToVoltage, passDistanceToTimeOfFlight);
         }
     }
 
@@ -240,6 +245,29 @@ public final class Constants {
                 redHubPose.getX(),
                 redHubPose.getY() + hubToBumpCenterOffset + Units.inchesToMeters(2.5),
                 new Rotation2d(Math.PI));
+
+
+
+        public static final Pose2d bluePassLeftPose = new Pose2d(
+                ALLIANCE_ZONE.in(Meters) / 2.0,
+                fieldWidth / 2.0 + hubToBumpCenterOffset + Units.inchesToMeters(2.5),
+                new Rotation2d());
+
+        public static final Pose2d bluePassRightPose = new Pose2d(
+                ALLIANCE_ZONE.in(Meters) / 2.0,
+                fieldWidth / 2.0 - hubToBumpCenterOffset,
+                new Rotation2d());
+
+        public static final Pose2d redPassLeftPose = new Pose2d(
+                fieldLength - ALLIANCE_ZONE.in(Meters) / 2.0,
+                fieldWidth / 2.0 - hubToBumpCenterOffset,
+                new Rotation2d(Math.PI));
+
+        public static final Pose2d redPassRightPose = new Pose2d(
+                fieldLength - ALLIANCE_ZONE.in(Meters) / 2.0,
+                fieldWidth / 2.0 + hubToBumpCenterOffset + Units.inchesToMeters(2.5),
+                new Rotation2d(Math.PI));
+        
 
     }
 }

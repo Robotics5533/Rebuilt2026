@@ -4,10 +4,8 @@ import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Epilogue;
+import frc.robot.Constants;
 
-@Logged
 public class AllianceUtil {
 
   public static boolean isRedAlliance() {
@@ -60,6 +58,34 @@ public class AllianceUtil {
     double dy = hubPose.getY() - robotPose.getY();
     Rotation2d angleToHub = new Rotation2d(Math.atan2(dy, dx));
     return angleToHub.getDegrees() + 4;
+  }
+
+  public static Pose2d getClosestPassPose(frc.robot.subsystems.CommandSwerveDrivetrain drivetrain) {
+    Pose2d robotPose = drivetrain.getState().Pose;
+    Pose2d leftPass = isRedAlliance() ? Constants.FieldConstants.redPassLeftPose
+        : Constants.FieldConstants.bluePassLeftPose;
+    Pose2d rightPass = isRedAlliance() ? Constants.FieldConstants.redPassRightPose
+        : Constants.FieldConstants.bluePassRightPose;
+
+    double distLeft = robotPose.getTranslation().getDistance(leftPass.getTranslation());
+    double distRight = robotPose.getTranslation().getDistance(rightPass.getTranslation());
+
+    return distLeft < distRight ? leftPass : rightPass;
+  }
+
+  public static double getDistanceToClosestPass(frc.robot.subsystems.CommandSwerveDrivetrain drivetrain) {
+    Pose2d robotPose = drivetrain.getState().Pose;
+    Pose2d passPose = getClosestPassPose(drivetrain);
+    return robotPose.getTranslation().getDistance(passPose.getTranslation());
+  }
+
+  public static double getTargetHeadingToClosestPass(frc.robot.subsystems.CommandSwerveDrivetrain drivetrain) {
+    Pose2d robotPose = drivetrain.getState().Pose;
+    Pose2d passPose = getClosestPassPose(drivetrain);
+    double dx = passPose.getX() - robotPose.getX();
+    double dy = passPose.getY() - robotPose.getY();
+    Rotation2d angleToPass = new Rotation2d(Math.atan2(dy, dx));
+    return angleToPass.getDegrees() + 4;
   }
 
 }

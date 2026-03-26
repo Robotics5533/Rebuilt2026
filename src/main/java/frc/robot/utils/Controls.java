@@ -9,6 +9,7 @@ import frc.robot.commands.AutoAlignAndShoot;
 import frc.robot.commands.AutoAlignCommand; // New import
 import frc.robot.commands.ShakeIntake;
 import frc.robot.commands.ShootAtDistance;
+import frc.robot.commands.AutoAutonAlignAndPass;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.RunRollers;

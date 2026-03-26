@@ -30,6 +30,7 @@ import frc.robot.commands.RunIntakeRollersDouble;
 import frc.robot.commands.ThrustyTime;
 import frc.robot.commands.ThrustyTimeDepo;
 import frc.robot.commands.ThrustyTimeMid;
+import frc.robot.commands.AutoAutonAlignAndPass;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
@@ -93,7 +94,7 @@ public class RobotContainer {
                 AutoAutonAlignAndShoot autoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 3);
                 AutoAutonAlignAndShoot depoautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 5);
                  AutoAutonAlignAndShoot backtomidautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 7);
-
+                 AutoAutonAlignAndPass autoAutonAlignAndPassCommand = new AutoAutonAlignAndPass(drivetrain, shooters, feeder, washers, superstructure, limelight, 3.0);
                 
                 
 
