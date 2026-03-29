@@ -40,7 +40,6 @@ import frc.robot.subsystems.WasherSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.utils.LimelightHelpers;
 import frc.robot.subsystems.Superstructure;
-import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.RunRollers;
 import frc.robot.utils.Controls;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -79,7 +78,6 @@ public class RobotContainer {
         private final WasherSubsystem washers = new WasherSubsystem();
         private final FeederSubsystem feeder = new FeederSubsystem();
         private final Superstructure superstructure = new Superstructure(() -> drivetrain.getState().Pose);
-        private final ClimbSubsystem climb = Constants.ClimbConstants.climbEnabled ? new ClimbSubsystem() : null;
         private final SendableChooser<Command> autoChooser;
 
         public RobotContainer() {
@@ -144,18 +142,8 @@ public class RobotContainer {
 
                 }));
 
-                controls.configureDriver(drivetrain, limelight, superstructure, climb);
-                if (climb != null) {
-                        controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure,
-                                        climb, limelight, runRollers);
-                } else {
-                        controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, null,
-                                        limelight, runRollers);
-                }
-
-                if (climb != null) {
-                        climb.setDefaultCommand(climb.run(climb::applySetpoint).ignoringDisable(true));
-                }
+                controls.configureDriver(drivetrain, limelight, superstructure);
+                controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, limelight, runRollers);
 
                 final var idle = new SwerveRequest.Idle();
                 RobotModeTriggers.disabled().whileTrue(

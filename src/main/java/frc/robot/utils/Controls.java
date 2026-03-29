@@ -13,7 +13,6 @@ import frc.robot.commands.AutoAutonAlignAndPass;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.LimelightSubsystem;
 import frc.robot.subsystems.RunRollers;
-import frc.robot.subsystems.ClimbSubsystem;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Superstructure;
@@ -46,7 +45,7 @@ public class Controls {
         return -MathUtil.applyDeadband(driver.getRightX(), Constants.DriveConstants.DEADBAND);
     }
 
-    public void configureDriver(CommandSwerveDrivetrain drivetrain, LimelightSubsystem limelight, Superstructure superstructure, ClimbSubsystem climb) {
+    public void configureDriver(CommandSwerveDrivetrain drivetrain, LimelightSubsystem limelight, Superstructure superstructure) {
         driver.rightBumper().and(superstructure.activeHubTrigger).and(new Trigger(() -> superstructure.inAllianceZone())).whileTrue(
             new AutoAlignCommand(drivetrain, () -> Rotation2d.fromDegrees(AllianceUtil.getTargetHeadingToHub(drivetrain, Constants.LimelightConstants.LIMELIGHT_NAME)), () -> getDriveX(), () -> getDriveY(), superstructure::setAligned)); 
 
@@ -62,16 +61,11 @@ public class Controls {
                 new Rotation2d(-driver.getLeftY(), -driver.getLeftX()))));
 
         driver.y().whileTrue(new AutoAlignCommand(drivetrain, () -> Rotation2d.kZero, () -> 0.0, () -> 0.0)); // Updated for facing 0 degrees with no translation
-
-        // Climb controls
-        if (climb != null) {
-            driver.povUp().whileTrue(climb.runManualClimbCommand(Constants.ClimbConstants.maxVoltage));
-            driver.povDown().whileTrue(climb.runManualClimbCommand(-Constants.ClimbConstants.maxVoltage));
-        }
     }
 
+
     public void configureOperator(CommandSwerveDrivetrain drivetrain, IntakeSubsystem intake,
-        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, ClimbSubsystem climb, LimelightSubsystem limelight, RunRollers runRollers) {
+        ShooterSubsystem shooters, WasherSubsystem washers, FeederSubsystem feeders, Superstructure superstructure, LimelightSubsystem limelight, RunRollers runRollers) {
 
         // Left Trigger: Feed/Washer
         operator.leftTrigger().whileTrue(
