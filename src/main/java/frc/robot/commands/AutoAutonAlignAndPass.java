@@ -28,8 +28,7 @@ public class AutoAutonAlignAndPass extends Command {
             FeederSubsystem feeder,
             WasherSubsystem washer,
             Superstructure superstructure,
-            LimelightSubsystem limelight,
-            double durationSeconds) {
+            LimelightSubsystem limelight) {
 
         autoAlignCommand = new AutoAlignCommand(drivetrain,
                 () -> Rotation2d.fromDegrees(
@@ -48,7 +47,6 @@ public class AutoAutonAlignAndPass extends Command {
                             washer.run(Constants.ShooterConstants.autonWasherVoltage),
                                 feeder.autonrunBothFeedersCommand()
                                 )))
-                .withTimeout(durationSeconds)
                 .finallyDo(interrupted -> {
                     shooter.stopShooters();
                     feeder.stopFeeders();

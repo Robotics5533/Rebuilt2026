@@ -78,7 +78,7 @@ public class Controls {
             Commands.parallel(
                 washers.run(Constants.ShooterConstants.washerVoltage),
                 feeders.runBothFeedersCommand(),
-                new ShakeIntake(intake, runRollers))
+                runRollers.runRollerReverseCommand())
             
                 .finallyDo(interrupted -> {
                     washers.stopWasher();
@@ -137,7 +137,18 @@ public class Controls {
         // Operator A Button: Shoot at Distance
         operator.a().whileTrue(new ShootAtDistance(shooters, washers, feeders));
 
-
+        operator.povLeft().whileTrue(Commands.parallel(
+            shooters.runFixedRPSShoot(Constants.ShooterConstants.shooterPassVelocityRPS),
+            runRollers.runRollerForwardCommand(),
+            washers.run(Constants.ShooterConstants.washerVoltage))
+                .finallyDo(interrupted -> {
+                    shooters.stopShooters();
+                    shooters.resetRPSAdjustment(); // Reset adjustment after shooting
+                    washers.stopWasher();
+                    feeders.stopFeeders();
+                    runRollers.stopRoller();
+                })
+                .withName("RunFixedRPSShoot"));
         // Original operator.povLeft() for AutoAlignAndShoot, if still desired.
         // operator.povLeft().and(new Trigger(() -> climb.inAllianceZone()))
         //     .whileTrue(

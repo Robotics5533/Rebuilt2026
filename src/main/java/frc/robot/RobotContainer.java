@@ -85,16 +85,16 @@ public class RobotContainer {
         public RobotContainer() {
                 LimelightHelpers.setCameraPose_RobotSpace(
                                 Constants.LimelightConstants.LIMELIGHT_NAME,
-                                0.381,
-                                0.3175,
-                                0.079375,
+                                0.0381,//0.381
+                                0,//0.3175
+                                0.5207,//0.079375
                                 0.0,
                                 7.5,
                                 0.0);
                 AutoAutonAlignAndShoot autoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 3);
                 AutoAutonAlignAndShoot depoautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 5);
                  AutoAutonAlignAndShoot backtomidautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 7);
-                 AutoAutonAlignAndPass autoAutonAlignAndPassCommand = new AutoAutonAlignAndPass(drivetrain, shooters, feeder, washers, superstructure, limelight, 3.0);
+                //  AutoAutonAlignAndPass autoAutonAlignAndPassCommand = new AutoAutonAlignAndPass(drivetrain, shooters, feeder, washers, superstructure, limelight, 3.0);
                 
                 
 

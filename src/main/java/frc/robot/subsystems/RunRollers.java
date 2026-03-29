@@ -13,12 +13,13 @@ import edu.wpi.first.epilogue.Epilogue;
 @Logged
 public class RunRollers extends SubsystemBase {
 
-  private final TalonFX rollerMotor =
-      new TalonFX(Constants.IntakeConstants.intakeRollerMotorId);
+  private final TalonFX rollerMotorRight = new TalonFX(Constants.IntakeConstants.intakeRollerMotorRightId);
+  private final TalonFX rollerMotorLeft = new TalonFX(Constants.IntakeConstants.intakeRollerMotorLeftId);
+
 
 
   private final VoltageOut rollerCtrl = new VoltageOut(0);
-
+  
 
   public RunRollers() {
     var rollerCfg = new TalonFXConfiguration();
@@ -27,9 +28,15 @@ public class RunRollers extends SubsystemBase {
     rollerCfg.CurrentLimits.StatorCurrentLimit = 30.0;
     rollerCfg.CurrentLimits.StatorCurrentLimitEnable = true;
 
-    rollerMotor.getConfigurator().apply(rollerCfg);
-    rollerMotor.setNeutralMode(NeutralModeValue.Coast);
+    rollerMotorRight.setNeutralMode(NeutralModeValue.Coast);
+    rollerMotorLeft.setNeutralMode(NeutralModeValue.Coast);
+
+    rollerMotorRight.getConfigurator().apply(rollerCfg);
+    rollerMotorRight.getConfigurator().apply(rollerCfg);
+    rollerMotorLeft.getConfigurator().apply(rollerCfg);
+    rollerMotorLeft.getConfigurator().apply(rollerCfg);
   }
+  
 
 
 
@@ -37,17 +44,22 @@ public class RunRollers extends SubsystemBase {
   /* ---------------- Roller Control ---------------- */
 
   public void runRollerForward() {
-    rollerMotor.setControl(
+    rollerMotorRight.setControl(
+        rollerCtrl.withOutput(Constants.IntakeConstants.rollerVoltage));
+      rollerMotorLeft.setControl(
         rollerCtrl.withOutput(Constants.IntakeConstants.rollerVoltage));
   }
 
   public void runRollerReverse() {
-    rollerMotor.setControl(
+    rollerMotorRight.setControl(
+        rollerCtrl.withOutput(-Constants.IntakeConstants.rollerVoltage));
+    rollerMotorLeft.setControl(
         rollerCtrl.withOutput(-Constants.IntakeConstants.rollerVoltage));
   }
 
   public void stopRoller() {
-    rollerMotor.setControl(rollerCtrl.withOutput(0));
+    rollerMotorRight.setControl(rollerCtrl.withOutput(0));
+    rollerMotorLeft.setControl(rollerCtrl.withOutput(0));
   }
 
   public Command runRollerForwardCommand() {
