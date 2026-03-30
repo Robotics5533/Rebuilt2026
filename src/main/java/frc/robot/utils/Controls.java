@@ -134,6 +134,7 @@ public class Controls {
         operator.povLeft().whileTrue(Commands.parallel(
             shooters.runFixedRPSShoot(Constants.ShooterConstants.shooterPassVelocityRPS),
             runRollers.runRollerForwardCommand(),
+            feeders.runBothFeedersCommand(),
             washers.run(Constants.ShooterConstants.washerVoltage))
                 .finallyDo(interrupted -> {
                     shooters.stopShooters();
