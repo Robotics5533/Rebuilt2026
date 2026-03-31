@@ -75,12 +75,6 @@
                 "data": {
                   "name": "shoot_interpolatedbacktomid"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ThrustyTimeMid"
-                }
               }
             ]
           }

@@ -137,8 +137,8 @@ public final class Constants {
         public static final int rightShooterId = 20;
         public static final int rightFeederId = 19;
         public static final double feederVoltage = -12.0; //8.0
-        public static final double autonfeederVoltage = 4.0;
-        public static final double feederCurrentLimit = 20.0;
+        public static final double autonfeederVoltage = -12.0;
+        public static final double feederCurrentLimit = 30.0;
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
         public static final double shooterVelocityRPS = 65;
@@ -148,7 +148,7 @@ public final class Constants {
         public static final double kD = 0.0;
         public static final double kV = 0.12;
         public static final double washerVoltage = -12.0; //6.0
-        public static final double autonWasherVoltage = 4.0;
+        public static final double autonWasherVoltage = -12.0;
         public static final double shooterTargetVoltage = 12.0;
         public static final double shooterSpeedToleranceRPS = 2.0; 
         public static final double shootAtDistanceDurationSeconds = 3.0;

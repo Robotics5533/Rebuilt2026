@@ -25,15 +25,11 @@ public class RunRollers extends SubsystemBase {
     var rollerCfg = new TalonFXConfiguration();
     rollerCfg.CurrentLimits.SupplyCurrentLimit = 30.0;
     rollerCfg.CurrentLimits.SupplyCurrentLimitEnable = true;
-    rollerCfg.CurrentLimits.StatorCurrentLimit = 30.0;
-    rollerCfg.CurrentLimits.StatorCurrentLimitEnable = true;
-
+   
     rollerMotorRight.setNeutralMode(NeutralModeValue.Coast);
     rollerMotorLeft.setNeutralMode(NeutralModeValue.Coast);
 
     rollerMotorRight.getConfigurator().apply(rollerCfg);
-    rollerMotorRight.getConfigurator().apply(rollerCfg);
-    rollerMotorLeft.getConfigurator().apply(rollerCfg);
     rollerMotorLeft.getConfigurator().apply(rollerCfg);
   }
   

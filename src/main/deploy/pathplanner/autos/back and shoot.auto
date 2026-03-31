@@ -19,12 +19,6 @@
                 "data": {
                   "name": "shoot_interpolateddepo"
                 }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ThrustyTimeDepo"
-                }
               }
             ]
           }

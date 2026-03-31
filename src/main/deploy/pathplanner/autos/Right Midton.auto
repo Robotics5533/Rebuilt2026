@@ -15,9 +15,22 @@
                 }
               },
               {
-                "type": "named",
+                "type": "sequential",
                 "data": {
-                  "name": "flip_out_intake"
+                  "commands": [
+                    {
+                      "type": "wait",
+                      "data": {
+                        "waitTime": 0.125
+                      }
+                    },
+                    {
+                      "type": "named",
+                      "data": {
+                        "name": "flip_out_intake"
+                      }
+                    }
+                  ]
                 }
               }
             ]
@@ -61,22 +74,9 @@
           }
         },
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "named",
-                "data": {
-                  "name": "shoot_interpolatedbacktomid"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "ThrustyTimeMid"
-                }
-              }
-            ]
+            "name": "shoot_interpolatedbacktomid"
           }
         }
       ]

@@ -24,13 +24,13 @@ public class ShooterUtil {
     }
 
 
-    public static final ShooterShotData SHOT_1_METER = new ShooterShotData(1.0, 60, 4.8, 0.85);
-    public static final ShooterShotData SHOT_2_METER = new ShooterShotData(2.0, 56.0, 5.7, 0.98);
-    public static final ShooterShotData SHOT_3_METER = new ShooterShotData(3.0, 70.0, 6.6, 1.15);
-    public static final ShooterShotData SHOT_4_METER = new ShooterShotData(4.0, 80.0, 7.6, 1.22);
+    public static final ShooterShotData SHOT_1_METER = new ShooterShotData(1.25, 50, 4.8, 0.85);
+    public static final ShooterShotData SHOT_2_METER = new ShooterShotData(2.0, 57.5, 5.7, 0.98);
+    public static final ShooterShotData SHOT_3_METER = new ShooterShotData(3.0, 69, 6.6, 1.15);
+    public static final ShooterShotData SHOT_4_METER = new ShooterShotData(3.5, 80.0, 7.6, 1.22);
     public static final ShooterShotData SHOT_4HALF_METER = new ShooterShotData(4.5, 85.0, 9.9, 1.23);
-    public static final ShooterShotData SHOT_5_METER = new ShooterShotData(5.0, 90.0, 8.7, 1.25);
-    public static final ShooterShotData SHOT_6_METER = new ShooterShotData(6.0, 105.0, 9.9, 1.30);
+    public static final ShooterShotData SHOT_5_METER = new ShooterShotData(5.0, 92.5, 8.7, 1.25);
+    public static final ShooterShotData SHOT_6_METER = new ShooterShotData(5.0, 92.5, 8.7, 1.25);
 
     // Pass Shot Data
     public static final ShooterShotData PASS_SHOT_3_METER = new ShooterShotData(3.0, 45.0, 4.0, 1.15);
