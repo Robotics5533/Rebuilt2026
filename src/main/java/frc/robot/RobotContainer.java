@@ -102,7 +102,7 @@ public class RobotContainer {
 
                 NamedCommands.registerCommand("shoot_interpolateddepo", depoautoAutonAlignAndShootCommand);
 
-                NamedCommands.registerCommand("flip_out_intake", new FlipOutIntake(intake, 1.25));
+                NamedCommands.registerCommand("flip_out_intake", intake.runOnce(intake::outFlip));
 
                 NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers,3));
                 
@@ -111,6 +111,8 @@ public class RobotContainer {
                 NamedCommands.registerCommand("deporoller", new RunIntakeRollers(runRollers,1.5));
 
                 NamedCommands.registerCommand("face_otherside", new frc.robot.commands.AutoFace(drivetrain, shooters, feeder, washers, superstructure, limelight,0.25));
+
+                NamedCommands.registerCommand("erect", intake.runOnce(intake::erect));
 
                 autoChooser = AutoBuilder.buildAutoChooser();
                 SmartDashboard.putData("Auto Mode", autoChooser);

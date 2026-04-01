@@ -78,7 +78,6 @@ public class Controls {
                     washers.stopWasher();
                     feeders.stopFeeders();
                     runRollers.stopRoller();
-                    intake.stopFlip();
                 })
                 .withName("RunWashersAndFeedersAndShake"));
 
@@ -102,7 +101,7 @@ public class Controls {
             .onFalse(runRollers.runOnce(runRollers::stopRoller));
 
         // B and X Buttons: Manual Intake Control
-
+      
         operator.b().whileTrue(intake.flipManualForwardCommand(Constants.IntakeConstants.manualFlipVoltage));
         operator.x().whileTrue(intake.flipManualReverseCommand(Constants.IntakeConstants.manualFlipVoltage));
 
@@ -120,13 +119,11 @@ public class Controls {
                 })
                 .withName("RunFixedRPSShoot"));
 
-        // Operator D-pad Up: Increment Shooter RPS Adjustment
-        operator.povUp().onTrue(
-            shooters.runOnce(() -> shooters.incrementRPSAdjustment(Constants.ShooterConstants.rpsAdjustmentDelta)));
 
-        // Operator D-pad Down: Decrement Shooter RPS Adjustment
-        operator.povDown().onTrue(
-            shooters.runOnce(() -> shooters.incrementRPSAdjustment(-Constants.ShooterConstants.rpsAdjustmentDelta)));
+        operator.povUp().onTrue(intake.runOnce(intake::erect));
+
+
+        operator.povDown().onTrue(intake.runOnce(intake::outFlip));
 
         // Operator A Button: Shoot at Distance
         operator.a().whileTrue(new ShootAtDistance(shooters, washers, feeders));

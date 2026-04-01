@@ -109,26 +109,22 @@ public final class Constants {
         public static final int intakeFlipMotorId = 14;
         public static final int intakeRollerMotorRightId = 21;
         public static final int intakeRollerMotorLeftId = 22;
-        public static final double flipGearRatio = 120.0;
+        public static final double flipGearRatio = 80.0;
         public static final double flipInPositionDeg = 0.0;
-        public static final double flipOutPositionDeg = 110.0;
-        public static final double flipToleranceDeg = 2.0;
-        public static final double flipMaxVelocityRotPerS = 3.0;
-        public static final double flipMaxAccelRotPerSSq = 6.0;
-        public static final double flipkP = 40.0;
-        public static final double flipkI = 1.0;
+        public static final double flipOutPositionDeg = 120.0;
+        public static final double flipErectPositionDeg = 20.0;
+        public static final double flipToleranceDeg = 0.0;
+        public static final double flipMaxVelocityRotPerS = 1.5;
+        public static final double flipMaxAccelRotPerSSq = 3.0;
+        public static final double flipkP = 80.0;
+        public static final double flipkI = 0.0;
         public static final double flipkD = 0.0;
-        public static final double flipCANCoderOffset = 0.0;
-        public static final double canflipkG = 0.0;
-        public static final double canflipkS = 0.0;
-        public static final double canflipkP = 0.0;
-        public static final double canflipkD = 0.0;
-        public static final double flipCurrentLimit = 40.0;
+        public static final double flipCurrentLimit = 30.0;
         public static final double rollerVoltage = 12.0;
-        public static final double manualFlipVoltage = 5.0;
-        public static final double flipGravityAssistVoltage = 1.5;
-        public static final double softLimitForwardDeg = 95.0;
-        public static final double softLimitReverseDeg = -5.0;
+        public static final double manualFlipVoltage = 3.0;
+        public static final double flipGravityAssistVoltage = 0;
+        public static final double softLimitForwardDeg = 125.0;
+        public static final double softLimitReverseDeg = 0.0;
     }
 
     public static final class ShooterConstants {
