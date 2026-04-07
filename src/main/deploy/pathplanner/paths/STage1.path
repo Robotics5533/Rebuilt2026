@@ -8,7 +8,7 @@
       },
       "prevControl": null,
       "nextControl": {
-        "x": 5.478972895863051,
+        "x": 5.478972895863052,
         "y": 7.431398002853067
       },
       "isLocked": false,
@@ -17,11 +17,11 @@
     {
       "anchor": {
         "x": 7.752453637660485,
-        "y": 7.340827389443652
+        "y": 7.133808844507846
       },
       "prevControl": {
         "x": 6.752453637660485,
-        "y": 7.340827389443652
+        "y": 7.133808844507846
       },
       "nextControl": null,
       "isLocked": false,
@@ -48,7 +48,7 @@
   "folder": "Left Midton",
   "idealStartingState": {
     "velocity": 0,
-    "rotation": 0.0
+    "rotation": 180.0
   },
   "useDefaultConstraints": false
 }

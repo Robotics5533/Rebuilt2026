@@ -31,11 +31,11 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Epilogue;
+//import edu.wpi.first.epilogue.Epilogue;
 
 
 
-@Logged
+//@Logged
 public class CommandSwerveDrivetrain
         extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.004;

@@ -13,13 +13,13 @@
         {
           "type": "wait",
           "data": {
-            "waitTime": 0.5
+            "waitTime": 1.0
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Right Stage 1"
+            "pathName": "Right_Stage_1"
           }
         },
         {
@@ -29,13 +29,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Right Stage 2"
+                  "pathName": "Right_Stage_2"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "run_intake_rollers"
+                  "name": "run_intake"
                 }
               }
             ]
@@ -44,19 +44,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right Stage 3"
-          }
-        },
-        {
-          "type": "named",
-          "data": {
-            "name": "face_otherside"
+            "pathName": "Right_Stage_3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Right Stage 4"
+            "pathName": "Right_Stage_4.0"
           }
         },
         {
@@ -66,7 +60,7 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "shoot_interpolatedbacktomid"
+                  "name": "shoot_interpolateddepo"
                 }
               },
               {
@@ -76,7 +70,7 @@
                     {
                       "type": "wait",
                       "data": {
-                        "waitTime": 1.0
+                        "waitTime": 0.5
                       }
                     },
                     {
@@ -95,6 +89,6 @@
     }
   },
   "resetOdom": true,
-  "folder": "midton",
-  "choreoAuto": false
+  "folder": null,
+  "choreoAuto": true
 }

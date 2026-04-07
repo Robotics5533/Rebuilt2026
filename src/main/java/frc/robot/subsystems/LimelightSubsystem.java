@@ -18,14 +18,17 @@ import frc.robot.Constants;
 
 import java.util.Optional;
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Epilogue;
+//import edu.wpi.first.epilogue.Epilogue;
 
-@Logged
+//@Logged
 public class LimelightSubsystem extends SubsystemBase {
 
   private final String name;
   private final NetworkTable telemetryTable;
   private final StructPublisher<Pose2d> posePublisher;
+  Pose2d correctedPose;
+  PoseEstimate correctedEstimate;
+
 
   private final CommandSwerveDrivetrain drivetrain;
 
@@ -42,7 +45,7 @@ public class LimelightSubsystem extends SubsystemBase {
     if (!SmartDashboard.containsKey("Vision/Enabled")) {
       SmartDashboard.putBoolean("Vision/Enabled", Constants.LimelightConstants.ENABLE_VISION_ODOMETRY);
     }
-  }   
+  }
 
   public Optional<Measurement> getMeasurement(Pose2d currentRobotPose) {
     if (!SmartDashboard.getBoolean("Vision/Enabled", true)) {
@@ -58,7 +61,6 @@ public class LimelightSubsystem extends SubsystemBase {
 
     PoseEstimate poseEstimate = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(name);
 
-    
     if (poseEstimate == null || poseEstimate.tagCount < 1) {
       return Optional.empty();
     }
@@ -66,49 +68,42 @@ public class LimelightSubsystem extends SubsystemBase {
     Pose2d visionPose = poseEstimate.pose;
 
     if (currentRobotPose != null && currentRobotPose.getTranslation().getNorm() > 0.1) {
-       double distance = currentRobotPose.getTranslation().getDistance(visionPose.getTranslation());
-       if (distance > Constants.LimelightConstants.VISION_REJECTION_DISTANCE_THRESHOLD_METERS) {
-           return Optional.empty();
-       }
+      double distance = currentRobotPose.getTranslation().getDistance(visionPose.getTranslation());
+      if (distance > Constants.LimelightConstants.VISION_REJECTION_DISTANCE_THRESHOLD_METERS) {
+        return Optional.empty();
+      }
     }
-    
+
     double speed = Math.hypot(
         drivetrain.getState().Speeds.vxMetersPerSecond,
         drivetrain.getState().Speeds.vyMetersPerSecond);
-    
+
     double xyStDev = 0.25 * poseEstimate.avgTagDist;
     double degStDev = 8.0;
-    
+
     if (speed > Constants.LimelightConstants.VISION_REJECTION_SPEED_THRESHOLD_MPS) {
       xyStDev *= 1.5;
       degStDev *= 1.5;
     }
-    
+
     if (poseEstimate.tagCount == 1) {
       xyStDev *= 2.0;
       degStDev *= 2.0;
     }
 
-    
-    
-    
     Matrix<N3, N1> standardDeviations = VecBuilder.fill(
-        xyStDev, 
-        xyStDev, 
-        edu.wpi.first.math.util.Units.degreesToRadians(degStDev)
-    );
+        xyStDev,
+        xyStDev,
+        edu.wpi.first.math.util.Units.degreesToRadians(degStDev));
 
-    
-    
-    Pose2d correctedPose = new Pose2d(
+        
+       correctedPose = new Pose2d(
         poseEstimate.pose.getTranslation(),
-        poseEstimate.pose.getRotation().plus(Rotation2d.fromDegrees(180))
-    );
+        poseEstimate.pose.getRotation().plus(Rotation2d.fromDegrees(180)));
 
     posePublisher.set(correctedPose);
 
-    
-    PoseEstimate correctedEstimate = new PoseEstimate();
+    correctedEstimate = new PoseEstimate();
     correctedEstimate.pose = correctedPose;
     correctedEstimate.timestampSeconds = poseEstimate.timestampSeconds;
     correctedEstimate.tagCount = poseEstimate.tagCount;
@@ -131,7 +126,6 @@ public class LimelightSubsystem extends SubsystemBase {
     }
   }
 
-  
   public boolean hasTarget() {
     return LimelightHelpers.getTV(name);
   }

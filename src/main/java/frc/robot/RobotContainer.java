@@ -3,7 +3,7 @@ package frc.robot;
 import static edu.wpi.first.units.Units.*;
 
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Epilogue;
+//import edu.wpi.first.epilogue.Epilogue;
 
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.Subsystem;
@@ -50,7 +50,7 @@ import com.ctre.phoenix6.signals.NeutralModeValue;
  * the robot (including
  * subsystems, commands, and button mappings) should be declared here.
  */
-@Logged
+//@Logged
 public class RobotContainer {
         private final double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)
                         * (Constants.DriveConstants.SPEED_MULTIPLIER / 100.0);
@@ -87,7 +87,7 @@ public class RobotContainer {
                                 7.5,
                                 0.0);
                 AutoAutonAlignAndShoot autoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 2);
-                AutoAutonAlignAndShoot depoautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 5);
+                AutoAutonAlignAndShoot depoautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 6);
                  AutoAutonAlignAndShoot backtomidautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 7);
                 //  AutoAutonAlignAndPass autoAutonAlignAndPassCommand = new AutoAutonAlignAndPass(drivetrain, shooters, feeder, washers, superstructure, limelight, 3.0);
                 
@@ -108,7 +108,7 @@ public class RobotContainer {
                 
                 NamedCommands.registerCommand("run_intake_rollers_Second", new RunIntakeRollersDouble(runRollers,1.29));
 
-                NamedCommands.registerCommand("deporoller", new RunIntakeRollers(runRollers,1.5));
+                NamedCommands.registerCommand("deporoller", new RunIntakeRollers(runRollers,5));
 
                 NamedCommands.registerCommand("face_otherside", new frc.robot.commands.AutoFace(drivetrain, shooters, feeder, washers, superstructure, limelight,0.25));
 

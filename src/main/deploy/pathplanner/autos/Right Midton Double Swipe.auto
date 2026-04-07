@@ -5,22 +5,15 @@
     "data": {
       "commands": [
         {
-          "type": "parallel",
+          "type": "named",
           "data": {
-            "commands": [
-              {
-                "type": "path",
-                "data": {
-                  "pathName": "Right Stage 1"
-                }
-              },
-              {
-                "type": "named",
-                "data": {
-                  "name": "flip_out_intake"
-                }
-              }
-            ]
+            "name": "flip_out_intake"
+          }
+        },
+        {
+          "type": "path",
+          "data": {
+            "pathName": "Right Stage 1"
           }
         },
         {

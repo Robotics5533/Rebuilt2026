@@ -35,11 +35,11 @@ public final class Constants {
         public static final double ALIGN_MAX_VELOCITY_DEG_PER_SEC = 250.0;
         public static final double ALIGN_MAX_ACCEL_DEG_PER_SEC_SQ = 300.0;
 
-        public static final double AUTO_DRIVE_P = 10;
+        public static final double AUTO_DRIVE_P = 5; //10
         public static final double AUTO_DRIVE_I = 0;
         public static final double AUTO_DRIVE_D = 0;
 
-        public static final double AUTO_ROTATION_P = 7;
+        public static final double AUTO_ROTATION_P = 7.0; //7
         public static final double AUTO_ROTATION_I = 0.0;
         public static final double AUTO_ROTATION_D = 0;
     }
@@ -112,9 +112,9 @@ public final class Constants {
         public static final double flipGearRatio = 80.0;
         public static final double flipInPositionDeg = 0.0;
         public static final double flipOutPositionDeg = 120.0;
-        public static final double flipErectPositionDeg = 20.0;
+        public static final double flipErectPositionDeg = 25.0;
         public static final double flipToleranceDeg = 0.0;
-        public static final double flipMaxVelocityRotPerS = 1.5;
+        public static final double flipMaxVelocityRotPerS = 0.375;
         public static final double flipMaxAccelRotPerSSq = 3.0;
         public static final double flipkP = 80.0;
         public static final double flipkI = 0.0;
@@ -132,8 +132,8 @@ public final class Constants {
         public static final int leftFeederId = 18;
         public static final int rightShooterId = 20;
         public static final int rightFeederId = 19;
-        public static final double feederVoltage = -12.0; //8.0
-        public static final double autonfeederVoltage = -12.0;
+        public static final double feederVoltage = -10.0; //8.0
+        public static final double autonfeederVoltage = -4.0;
         public static final double feederCurrentLimit = 30.0;
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
@@ -143,8 +143,8 @@ public final class Constants {
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kV = 0.12;
-        public static final double washerVoltage = -12.0; //6.0
-        public static final double autonWasherVoltage = -12.0;
+        public static final double washerVoltage = -10.0; //6.0
+        public static final double autonWasherVoltage = -4.0;
         public static final double shooterTargetVoltage = 12.0;
         public static final double shooterSpeedToleranceRPS = 2.0; 
         public static final double shootAtDistanceDurationSeconds = 3.0;

@@ -41,7 +41,7 @@
       },
       "nextControl": {
         "x": 2.2988485094016418,
-        "y": 0.8341231968890419
+        "y": 0.834123196889042
       },
       "isLocked": false,
       "linkedName": "EndOfSingleSwipe"
@@ -84,8 +84,8 @@
   "reversed": false,
   "folder": "Right Midton",
   "idealStartingState": {
-    "velocity": 1.0,
+    "velocity": 0.0,
     "rotation": 0.0
   },
-  "useDefaultConstraints": false
+  "useDefaultConstraints": true
 }

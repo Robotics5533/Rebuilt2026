@@ -6,9 +6,9 @@ import frc.robot.Constants;
 import frc.robot.subsystems.IntakeSubsystem;
 import frc.robot.subsystems.RunRollers;
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Epilogue;
+//import edu.wpi.first.epilogue.Epilogue;
 
-@Logged
+//@Logged
 public class ThrustyTime extends Command {
     private final Command fullCommand;
 

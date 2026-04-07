@@ -7,13 +7,13 @@ import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 import edu.wpi.first.epilogue.Logged;
-import edu.wpi.first.epilogue.Epilogue;
+//import edu.wpi.first.epilogue.Epilogue;
 
 /**
  * Represents the robot's washer mechanism, typically used to prepare game pieces
  * for shooting or to clear the shooting path. It controls two Falcon 500 (TalonFX) motors.
  */
-@Logged
+//@Logged
 public class WasherSubsystem extends SubsystemBase {
     // TalonFX motor controllers for the left and right washer motors.
     private final TalonFX leftWasher = new TalonFX(Constants.ShooterConstants.leftWasherMotorId);
