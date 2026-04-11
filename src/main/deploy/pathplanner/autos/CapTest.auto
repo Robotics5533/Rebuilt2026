@@ -1,0 +1,44 @@
+{
+  "version": "2025.0",
+  "command": {
+    "type": "sequential",
+    "data": {
+      "commands": [
+        {
+          "type": "sequential",
+          "data": {
+            "commands": [
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CapTest1.0"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CapTest2.0"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CapTest3.0"
+                }
+              },
+              {
+                "type": "path",
+                "data": {
+                  "pathName": "CapTest4.0"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "resetOdom": true,
+  "folder": null,
+  "choreoAuto": true
+}

@@ -19,7 +19,7 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right_Stage_1"
+            "pathName": "Left_Stage_1"
           }
         },
         {
@@ -29,13 +29,13 @@
               {
                 "type": "path",
                 "data": {
-                  "pathName": "Right_Stage_2"
+                  "pathName": "Left_Stage_2"
                 }
               },
               {
                 "type": "named",
                 "data": {
-                  "name": "run_intake"
+                  "name": "run_intake_rollers"
                 }
               }
             ]
@@ -44,13 +44,13 @@
         {
           "type": "path",
           "data": {
-            "pathName": "Right_Stage_3"
+            "pathName": "Left_Stage_3"
           }
         },
         {
           "type": "path",
           "data": {
-            "pathName": "Right_Stage_4.0"
+            "pathName": "Left_Stage_4.0"
           }
         },
         {
@@ -60,26 +60,19 @@
               {
                 "type": "named",
                 "data": {
-                  "name": "shoot_interpolateddepo"
+                  "name": "shoot_interpolatedbacktomid"
                 }
               },
               {
-                "type": "sequential",
+                "type": "wait",
                 "data": {
-                  "commands": [
-                    {
-                      "type": "wait",
-                      "data": {
-                        "waitTime": 0.5
-                      }
-                    },
-                    {
-                      "type": "named",
-                      "data": {
-                        "name": "erect"
-                      }
-                    }
-                  ]
+                  "waitTime": 1.5
+                }
+              },
+              {
+                "type": "named",
+                "data": {
+                  "name": "erect"
                 }
               }
             ]

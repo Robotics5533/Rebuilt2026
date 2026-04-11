@@ -1,5 +1,6 @@
 package frc.robot.subsystems;
 
+import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.VoltageOut;
 import com.ctre.phoenix6.hardware.TalonFX;
 import com.ctre.phoenix6.signals.NeutralModeValue;
@@ -28,9 +29,20 @@ public class WasherSubsystem extends SubsystemBase {
      */
     public WasherSubsystem() {
         // Set the neutral mode to Brake, causing the motors to actively resist movement when idle.
-        leftWasher.setNeutralMode(NeutralModeValue.Brake);
-        rightWasher.setNeutralMode(NeutralModeValue.Brake);
-    }
+        var washerCfg = new TalonFXConfiguration();
+         washerCfg.CurrentLimits.SupplyCurrentLimit = 20.0;
+         washerCfg.CurrentLimits.SupplyCurrentLimitEnable = true;
+         washerCfg.CurrentLimits.StatorCurrentLimit = 20.0;
+         washerCfg.CurrentLimits.StatorCurrentLimitEnable = true;
+   
+        leftWasher.setNeutralMode(NeutralModeValue.Coast);
+        rightWasher.setNeutralMode(NeutralModeValue.Coast);
+
+        leftWasher.getConfigurator().apply(washerCfg);
+        rightWasher.getConfigurator().apply(washerCfg);
+  }
+
+
 
     /**
      * Runs both washer motors at a specified voltage.

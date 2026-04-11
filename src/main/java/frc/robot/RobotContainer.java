@@ -104,9 +104,11 @@ public class RobotContainer {
 
                 NamedCommands.registerCommand("flip_out_intake", intake.runOnce(intake::outFlip));
 
-                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers,3));
+                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers,4));
                 
                 NamedCommands.registerCommand("run_intake_rollers_Second", new RunIntakeRollersDouble(runRollers,1.29));
+
+                NamedCommands.registerCommand("run_intake_rollers_Third", new RunIntakeRollers(runRollers,6));
 
                 NamedCommands.registerCommand("deporoller", new RunIntakeRollers(runRollers,5));
 

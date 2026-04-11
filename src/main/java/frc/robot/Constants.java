@@ -35,7 +35,7 @@ public final class Constants {
         public static final double ALIGN_MAX_VELOCITY_DEG_PER_SEC = 250.0;
         public static final double ALIGN_MAX_ACCEL_DEG_PER_SEC_SQ = 300.0;
 
-        public static final double AUTO_DRIVE_P = 5; //10
+        public static final double AUTO_DRIVE_P = 10; //10
         public static final double AUTO_DRIVE_I = 0;
         public static final double AUTO_DRIVE_D = 0;
 
@@ -74,37 +74,6 @@ public final class Constants {
         public static final int PDHCANID = 24;
     }
 
-    public static final class ClimbConstants {
-        public static final int climbMotorId = 60;
-
-        public static final double climbGearRatio = 125.0;
-        public static final double motorFreeSpeedRPM = 7500.0;
-
-        public static final double sprocketCircumferenceInches = 4.5;
-
-        public static final double motorFreeSpeedRPS = motorFreeSpeedRPM / 60.0;
-        public static final double mechanismMaxRPS = motorFreeSpeedRPS / climbGearRatio;
-        public static final double mechanismMaxLinearVelocity = mechanismMaxRPS * sprocketCircumferenceInches;
-        public static final double rotationsToInches = mechanismMaxLinearVelocity / mechanismMaxRPS;
-
-        public static final double climbCruiseVelocityRPS = 20.0;
-        public static final double rampTimeSeconds = 0.05;
-        public static final double climbAccelerationRPS2 = climbCruiseVelocityRPS / rampTimeSeconds;
-
-        public static final double inactivePositionInches = 0.0;
-        public static final double activePositionInches = 6.5;
-        public static final double hangingPositionInches = 5.25;
-        public static final double kP = 80.0;
-        public static final double kI = 0.5;
-        public static final double kD = 1.0;
-        public static final double kG = 0.0;
-        public static final double maxVoltage = 12.0;
-        public static final double climbCurrentLimit = 40.0;
-        public static final double softLimitForwardInches = 7.0;
-        public static final double softLimitReverseInches = 0.0;
-        public static final boolean climbEnabled = false;
-    }
-
     public static final class IntakeConstants {
         public static final int intakeFlipMotorId = 14;
         public static final int intakeRollerMotorRightId = 21;
@@ -112,7 +81,7 @@ public final class Constants {
         public static final double flipGearRatio = 80.0;
         public static final double flipInPositionDeg = 0.0;
         public static final double flipOutPositionDeg = 120.0;
-        public static final double flipErectPositionDeg = 25.0;
+        public static final double flipErectPositionDeg = 15;
         public static final double flipToleranceDeg = 0.0;
         public static final double flipMaxVelocityRotPerS = 0.375;
         public static final double flipMaxAccelRotPerSSq = 3.0;
@@ -137,14 +106,15 @@ public final class Constants {
         public static final double feederCurrentLimit = 30.0;
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
-        public static final double shooterVelocityRPS = 65;
+        public static final double shooterVelocityRPS = 65; //65
+        public static final double shooterJuggleVelocityRPS = 22.5;
         public static final double shooterPassVelocityRPS = 65;
         public static final double kP = 0.2;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kV = 0.12;
-        public static final double washerVoltage = -10.0; //6.0
-        public static final double autonWasherVoltage = -4.0;
+        public static final double washerVoltage = 10.0; //6.0
+        public static final double autonWasherVoltage = 4.0;
         public static final double shooterTargetVoltage = 12.0;
         public static final double shooterSpeedToleranceRPS = 2.0; 
         public static final double shootAtDistanceDurationSeconds = 3.0;

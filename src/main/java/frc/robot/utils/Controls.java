@@ -126,7 +126,14 @@ public class Controls {
         operator.povDown().onTrue(intake.runOnce(intake::outFlip));
 
         // Operator A Button: Shoot at Distance
-        operator.a().whileTrue(new ShootAtDistance(shooters, washers, feeders));
+        // operator.a().whileTrue(new ShootAtDistance(shooters, washers, feeders));
+        operator.a().whileTrue(
+            shooters.runFixedRPSShoot(Constants.ShooterConstants.shooterJuggleVelocityRPS)
+                .finallyDo(interrupted -> {
+                    shooters.stopShooters();
+                    shooters.resetRPSAdjustment(); // Reset adjustment after shooting
+                })
+                .withName("RunJuggleRPSShoot"));
 
         operator.povLeft().whileTrue(Commands.parallel(
             shooters.runFixedRPSShoot(Constants.ShooterConstants.shooterPassVelocityRPS),
