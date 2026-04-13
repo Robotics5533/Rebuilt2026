@@ -42,6 +42,9 @@ public final class Constants {
         public static final double AUTO_ROTATION_P = 7.0; //7
         public static final double AUTO_ROTATION_I = 0.0;
         public static final double AUTO_ROTATION_D = 0;
+
+        //Never go past 000.0
+        public static final double kslip = 42.8; //120
     }
 
     public static final class FaceAngleConstants {
@@ -75,7 +78,8 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final int intakeFlipMotorId = 14;
+        public static final int intakeRightFlipMotorId = 14;
+        public static final int intakeLeftFlipMotorId = 40;
         public static final int intakeRollerMotorRightId = 21;
         public static final int intakeRollerMotorLeftId = 22;
         public static final double flipGearRatio = 80.0;

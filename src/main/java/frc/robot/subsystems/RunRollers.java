@@ -45,14 +45,14 @@ public class RunRollers extends SubsystemBase {
     rollerMotorRight.setControl(
         rollerCtrl.withOutput(Constants.IntakeConstants.rollerVoltage));
       rollerMotorLeft.setControl(
-        rollerCtrl.withOutput(Constants.IntakeConstants.rollerVoltage));
+        rollerCtrl.withOutput(-Constants.IntakeConstants.rollerVoltage));
   }
 
   public void runRollerReverse() {
     rollerMotorRight.setControl(
         rollerCtrl.withOutput(-Constants.IntakeConstants.rollerVoltage));
     rollerMotorLeft.setControl(
-        rollerCtrl.withOutput(-Constants.IntakeConstants.rollerVoltage));
+        rollerCtrl.withOutput(Constants.IntakeConstants.rollerVoltage));
   }
 
   public void stopRoller() {
