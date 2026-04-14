@@ -184,23 +184,74 @@ public class CommandSwerveDrivetrain
         updateVisionMeasurement();
     }
 
+    /**
+     * Updates the odometry pose estimate using vision measurements from the Limelight.
+     * Uses MegaTag2 for improved multi-tag detection and applies intelligent filtering.
+     * The 180-degree rotation correction accounts for Limelight mounting orientation.
+     */
     private void updateVisionMeasurement() {
-        var visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.LimelightConstants.LIMELIGHT_NAME);
+        // Step 1: Provide robot orientation to Limelight for better tag detection
+        // This helps the camera understand which direction the robot is facing
+        double yawDeg = getPigeon2().getYaw().getValueAsDouble();
+        LimelightHelpers.SetRobotOrientation(
+            Constants.LimelightConstants.LIMELIGHT_NAME,
+            yawDeg,
+            0, 0, 0, 0, 0);
 
-        if (visionEst.tagCount > 0) {
-            double xyStdDev = 0.7;
-            double degStdDev = 0.7;
-            if (visionEst.tagCount >= 2) {
-                xyStdDev = 0.1;
-                degStdDev = 0.1;
-            } else if (visionEst.avgTagDist < 4.0) {
-                xyStdDev = 0.3;
-                degStdDev = 0.3;
-            }
+        // Step 2: Get vision pose estimate using MegaTag2 (more robust than single-tag)
+        var visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LimelightConstants.LIMELIGHT_NAME);
 
-            setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, degStdDev));
-            addVisionMeasurement(visionEst.pose, visionEst.timestampSeconds);
+        // Reject if no AprilTags detected or measurement is invalid
+        if (visionEst == null || visionEst.tagCount < 1) {
+            return;
         }
+
+        // Step 3: Sanity check - reject vision measurements that are too far from odometry
+        // This prevents large jumps when vision detects the wrong tags or becomes confused
+        Pose2d currentPose = getState().Pose;
+        if (currentPose != null && currentPose.getTranslation().getNorm() > 0.1) {
+            double distance = currentPose.getTranslation().getDistance(visionEst.pose.getTranslation());
+            if (distance > Constants.LimelightConstants.VISION_REJECTION_DISTANCE_THRESHOLD_METERS) {
+                return; // Measurement is too far away, ignore it
+            }
+        }
+
+        // Step 4: Calculate measurement confidence based on robot motion
+        // Faster movement = less confident in vision measurements
+        double speed = Math.hypot(
+            getState().Speeds.vxMetersPerSecond,
+            getState().Speeds.vyMetersPerSecond);
+
+        // Step 5: Calculate smart standard deviations for Kalman filter
+        // Base uncertainty scales with tag distance (farther tags = less accurate)
+        double xyStDev = 0.25 * visionEst.avgTagDist;
+        double degStDev = 8.0;
+
+        // Penalty 1: Robot is moving fast - vision measurements are less reliable
+        if (speed > Constants.LimelightConstants.VISION_REJECTION_SPEED_THRESHOLD_MPS) {
+            xyStDev *= 1.5;
+            degStDev *= 1.5;
+        }
+
+        // Penalty 2: Only one tag detected - single tags are less reliable than multiple
+        if (visionEst.tagCount == 1) {
+            xyStDev *= 2.0;
+            degStDev *= 2.0;
+        }
+
+        // Step 6: Apply 180-degree rotation correction
+        // Accounts for Limelight mounting orientation relative to robot frame
+        Pose2d correctedPose = new Pose2d(
+            visionEst.pose.getTranslation(),
+            visionEst.pose.getRotation().plus(Rotation2d.fromDegrees(180)));
+
+        // Step 7: Add corrected measurement to Kalman filter with calculated uncertainty
+        // Lower std dev = more trust in vision, higher std dev = more trust in odometry
+        setVisionMeasurementStdDevs(VecBuilder.fill(
+            xyStDev,
+            xyStDev,
+            edu.wpi.first.math.util.Units.degreesToRadians(degStDev)));
+        addVisionMeasurement(correctedPose, visionEst.timestampSeconds);
     }
 
     public boolean isValidAllianceTag(int tagId) {
