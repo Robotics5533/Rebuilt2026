@@ -97,6 +97,16 @@ public final class Constants {
         public static final double flipGravityAssistVoltage = 0;
         public static final double softLimitForwardDeg = 125.0;
         public static final double softLimitReverseDeg = 0.0;
+        
+        // Roller PID and feedforward constants
+        public static final double rollerKP = 0.2;
+        public static final double rollerKI = 0.0;
+        public static final double rollerKD = 0.0;
+        public static final double rollerKV = 0.12;
+        public static final double rollerCurrentLimit = 20.0;
+        public static final double rollerSpeedToleranceRPS = 2.0;
+        public static final double ROLLER_KV_RPS_PER_VOLT = 0.12;
+        public static final double rollerTargetVelocityRPS = 60.0;
     }
 
     public static final class ShooterConstants {
