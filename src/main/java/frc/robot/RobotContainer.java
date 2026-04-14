@@ -1,125 +1,177 @@
-// Copyright (c) FIRST and other WPILib contributors.
-// Open Source Software; you can modify and/or share it under the terms of
-// the WPILib BSD license file in the root directory of this project.
-
 package frc.robot;
 
 import static edu.wpi.first.units.Units.*;
 
+import edu.wpi.first.epilogue.Logged;
+//import edu.wpi.first.epilogue.Epilogue;
+
+import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.Subsystem;
+
 import com.ctre.phoenix6.swerve.SwerveModule.DriveRequestType;
 import com.ctre.phoenix6.swerve.SwerveRequest;
-
 import com.pathplanner.lib.auto.AutoBuilder;
 import com.pathplanner.lib.commands.FollowPathCommand;
+import com.pathplanner.lib.events.EventTrigger;
+import com.pathplanner.lib.auto.NamedCommands;
+import edu.wpi.first.wpilibj.smartdashboard.Field2d;
+//import frc.robot.commands.ThrustyTime;
 
-import edu.wpi.first.math.MathUtil;
-import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandXboxController;
+import edu.wpi.first.wpilibj2.command.CommandScheduler;
 import edu.wpi.first.wpilibj2.command.button.RobotModeTriggers;
-import edu.wpi.first.wpilibj2.command.sysid.SysIdRoutine.Direction;
+import edu.wpi.first.wpilibj2.command.button.Trigger;
+import frc.robot.commands.AutoAutonAlignAndShoot;
+import frc.robot.commands.FlipOutIntake;
+import frc.robot.commands.RunIntakeRollers;
+import frc.robot.commands.RunIntakeRollersDouble;
 
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
-import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.IntakeSubsystem;
+import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.ShooterSubsystem;
+import frc.robot.subsystems.WasherSubsystem;
+import frc.robot.subsystems.FeederSubsystem;
+import frc.robot.utils.LimelightHelpers;
+import frc.robot.subsystems.Superstructure;
+import frc.robot.subsystems.RunRollers;
+import frc.robot.utils.Controls;
 
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
+import com.ctre.phoenix6.signals.NeutralModeValue;
+
+/**
+ * This class is where the bulk of the robot should be declared. Since
+ * Command-based is a
+ * "declarative" paradigm, very little robot logic should actually be handled in
+ * the {@link Robot}
+ * periodic methods (other than the scheduler calls). Instead, the structure of
+ * the robot (including
+ * subsystems, commands, and button mappings) should be declared here.
+ */
+//@Logged
 public class RobotContainer {
-    private double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond); // kSpeedAt12Volts desired top speed
-    private double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond); // 3/4 of a rotation per second max angular velocity
+        private final double MaxSpeed = 1.0 * TunerConstants.kSpeedAt12Volts.in(MetersPerSecond)
+                        * (Constants.DriveConstants.SPEED_MULTIPLIER / 100.0);
+        private final double MaxAngularRate = RotationsPerSecond.of(0.75).in(RadiansPerSecond)
+                        * (Constants.DriveConstants.SPEED_MULTIPLIER / 100.0);
 
-    /* Setting up bindings for necessary control of the swerve drive platform */
-    private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
-            .withDeadband(MaxSpeed * 0.1).withRotationalDeadband(MaxAngularRate * 0.1) // Add a 10% deadband
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage); // Use open-loop control for drive motors
-    private final SwerveRequest.SwerveDriveBrake brake = new SwerveRequest.SwerveDriveBrake();
-    private final SwerveRequest.PointWheelsAt point = new SwerveRequest.PointWheelsAt();
-    private final SwerveRequest.FieldCentric forwardStraight = new SwerveRequest.FieldCentric()
-            .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+        private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
+                        .withDeadband(MaxSpeed * Constants.DriveConstants.DEADBAND)
+                        .withRotationalDeadband(MaxAngularRate * Constants.DriveConstants.DEADBAND)
+                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+                        .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
-    private final Telemetry logger = new Telemetry(MaxSpeed);
+        private final Telemetry logger = new Telemetry(MaxSpeed);
+        private final Controls controls = new Controls();
 
-    private final CommandXboxController joystick = new CommandXboxController(0);
+        public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
+        private final LimelightSubsystem limelight = new LimelightSubsystem(Constants.LimelightConstants.LIMELIGHT_NAME,
+                        drivetrain);
+        private final IntakeSubsystem intake = new IntakeSubsystem();
+        private final ShooterSubsystem shooters = new ShooterSubsystem(drivetrain,
+                        Constants.LimelightConstants.LIMELIGHT_NAME);
+        private final RunRollers runRollers = new RunRollers();
+        private final WasherSubsystem washers = new WasherSubsystem();
+        private final FeederSubsystem feeder = new FeederSubsystem();
+        private final Superstructure superstructure = new Superstructure(() -> drivetrain.getState().Pose);
+        private final SendableChooser<Command> autoChooser;
 
-    public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-    public final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
+        public RobotContainer() {
+                LimelightHelpers.setCameraPose_RobotSpace(
+                                Constants.LimelightConstants.LIMELIGHT_NAME,
+                                0.0381,//0.381
+                                0,//0.3175
+                                0.5207,//0.079375
+                                0.0,
+                                7.5,
+                                0.0);
+                AutoAutonAlignAndShoot autoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 2);
+                AutoAutonAlignAndShoot depoautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 6);
+                 AutoAutonAlignAndShoot backtomidautoAutonAlignAndShootCommand = new AutoAutonAlignAndShoot(drivetrain, shooters, feeder, washers, superstructure, limelight, 7);
+                //  AutoAutonAlignAndPass autoAutonAlignAndPassCommand = new AutoAutonAlignAndPass(drivetrain, shooters, feeder, washers, superstructure, limelight, 3.0);
+                
+                
 
-    /* Path follower */
-    private final SendableChooser<Command> autoChooser;
+                NamedCommands.registerCommand("shoot_load",
+                                new frc.robot.commands.ShootLoad(shooters, washers, feeder,5.0));
 
-    public RobotContainer() {
-        autoChooser = AutoBuilder.buildAutoChooser("Tests");
-        SmartDashboard.putData("Auto Mode", autoChooser);
+                NamedCommands.registerCommand("shoot_interpolated", autoAutonAlignAndShootCommand);
 
-        configureBindings();
+                NamedCommands.registerCommand("shoot_interpolatedbacktomid", backtomidautoAutonAlignAndShootCommand);
 
-        // Warmup PathPlanner to avoid Java pauses
-        FollowPathCommand.warmupCommand().schedule();
-    }
+                NamedCommands.registerCommand("shoot_interpolateddepo", depoautoAutonAlignAndShootCommand);
 
-    private void configureBindings() {
-        // Note that X is defined as forward according to WPILib convention,
-        // and Y is defined as to the left according to WPILib convention.
-       drivetrain.setDefaultCommand(
-        // Drivetrain will execute this command periodically
-        drivetrain.applyRequest(
-            () ->
-                drive
-                    .withVelocityX(
-                        -MathUtil.applyDeadband(joystick.getLeftY(), 0.05)
-                            * MaxSpeed) // Drive forward with negative Y (forward)
-                    .withVelocityY(
-                        -MathUtil.applyDeadband(joystick.getLeftX(), 0.05)
-                            * MaxSpeed) // Drive left with negative X (left)
-                    .withRotationalRate(
-                        -MathUtil.applyDeadband(joystick.getRightX(), 0.05)
-                            * MaxAngularRate) // Drive counterclockwise with negative X (left)
-            ));
+                NamedCommands.registerCommand("flip_out_intake", intake.runOnce(intake::outFlip));
 
-        // Idle while the robot is disabled. This ensures the configured
-        // neutral mode is applied to the drive motors while disabled.
-        final var idle = new SwerveRequest.Idle();
-        RobotModeTriggers.disabled().whileTrue(
-            drivetrain.applyRequest(() -> idle).ignoringDisable(true)
-        );
+                NamedCommands.registerCommand("run_intake_rollers", new RunIntakeRollers(runRollers,4));
+                
+                NamedCommands.registerCommand("run_intake_rollers_Second", new RunIntakeRollersDouble(runRollers,1.29));
 
-        joystick.a().whileTrue(drivetrain.applyRequest(() -> brake));
-        joystick.b().whileTrue(drivetrain.applyRequest(() ->
-            point.withModuleDirection(new Rotation2d(-joystick.getLeftY(), -joystick.getLeftX()))
-        ));
+                NamedCommands.registerCommand("run_intake_rollers_Third", new RunIntakeRollers(runRollers,6));
 
-        joystick.povUp().whileTrue(drivetrain.applyRequest(() ->
-            forwardStraight.withVelocityX(0.5).withVelocityY(0))
-        );
-        joystick.povDown().whileTrue(drivetrain.applyRequest(() ->
-            forwardStraight.withVelocityX(-0.5).withVelocityY(0))
-        );
+                NamedCommands.registerCommand("deporoller", new RunIntakeRollers(runRollers,5));
 
-        joystick.povLeft().whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(0.5)));
-        joystick.povRight().whileTrue(drivetrain.applyRequest(() -> forwardStraight.withVelocityX(0).withVelocityY(-0.5)));
+                NamedCommands.registerCommand("face_otherside", new frc.robot.commands.AutoFace(drivetrain, shooters, feeder, washers, superstructure, limelight,0.25));
 
-        // Run SysId routines when holding back/start and X/Y.
-        // Note that each routine should be run exactly once in a single log.
-        joystick.back().and(joystick.y()).whileTrue(drivetrain.sysIdDynamic(Direction.kForward));
-        joystick.back().and(joystick.x()).whileTrue(drivetrain.sysIdDynamic(Direction.kReverse));
-        joystick.start().and(joystick.y()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kForward));
-        joystick.start().and(joystick.x()).whileTrue(drivetrain.sysIdQuasistatic(Direction.kReverse));
+                NamedCommands.registerCommand("erect", intake.runOnce(intake::erect));
 
-        // Reset the field-centric heading on left bumper press.
-        joystick.leftBumper().onTrue(drivetrain.runOnce(drivetrain::seedFieldCentric));
+                autoChooser = AutoBuilder.buildAutoChooser();
+                SmartDashboard.putData("Auto Mode", autoChooser);
 
-        // Fuel subsystem controls
-        joystick.rightTrigger().whileTrue(fuelSubsystem.run(() -> fuelSubsystem.intake()).finallyDo(() -> fuelSubsystem.stop()));
-        joystick.leftTrigger().whileTrue(fuelSubsystem.run(() -> fuelSubsystem.launch()).finallyDo(() -> fuelSubsystem.stop()));
+                configureBindings();
 
-        drivetrain.registerTelemetry(logger::telemeterize);
-    }
+                CommandScheduler.getInstance().schedule(FollowPathCommand.warmupCommand());
+        }
 
+        /**
+         * Use this method to define your button->command mappings.
+         */
+        private void configureBindings() {
 
-    
-    public Command getAutonomousCommand() {
-        /* Run the path selected from the auto chooser */
-        return autoChooser.getSelected();
-    }
+                drivetrain.setDefaultCommand(drivetrain.run(() -> {
+                        drivetrain.setControl(
+                                        drive.withVelocityX(controls.getDriveX() * MaxSpeed)
+                                                        .withVelocityY(controls.getDriveY() * MaxSpeed)
+                                                        .withRotationalRate(controls.getDriveOmega() * MaxAngularRate));
+
+                }));
+
+                controls.configureDriver(drivetrain, limelight, superstructure);
+                controls.configureOperator(drivetrain, intake, shooters, washers, feeder, superstructure, limelight, runRollers);
+
+                final var idle = new SwerveRequest.Idle();
+                RobotModeTriggers.disabled().whileTrue(
+                                drivetrain.applyRequest(() -> idle).ignoringDisable(true));
+
+                RobotModeTriggers.disabled()
+                                .onTrue(drivetrain.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Coast)));
+               RobotModeTriggers.disabled().negate()
+    .onTrue(Commands.runOnce(() -> drivetrain.setNeutralMode(NeutralModeValue.Brake)));
+
+                new Trigger(shooters::areShootersAtSpeed)
+                                .onTrue(Commands.runOnce(() -> controls.setOperatorRumble(1))
+                                                .andThen(Commands.waitSeconds(0.2))
+                                                .andThen(Commands.runOnce(() -> controls.setOperatorRumble(0))));
+
+                new Trigger(superstructure::isAligned)
+                                .onTrue(Commands.runOnce(() -> controls.setDriverRumble(1))
+                                                .andThen(Commands.waitSeconds(0.2))
+                                                .andThen(Commands.runOnce(() -> controls.setDriverRumble(0))));
+                
+
+                drivetrain.registerTelemetry(logger::telemeterize);
+        }
+
+        /**
+         * Use this to pass the autonomous command to the main {@link Robot} class.
+         *
+         * @return the command to run in autonomous
+         */
+        public Command getAutonomousCommand() {
+                return autoChooser.getSelected();
+        }
 }

@@ -6,33 +6,45 @@ package frc.robot;
 
 import com.ctre.phoenix6.HootAutoReplay;
 
+import edu.wpi.first.epilogue.Logged;
+//import edu.wpi.first.epilogue.Epilogue;
+
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.TimedRobot;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.CommandScheduler;
+import frc.robot.utils.AllianceUtil;
 
+//@Logged
 public class Robot extends TimedRobot {
     private Command m_autonomousCommand;
 
     private final RobotContainer m_robotContainer;
 
-    /* log and replay timestamp and joystick data */
     private final HootAutoReplay m_timeAndJoystickReplay = new HootAutoReplay()
         .withTimestampReplay()
         .withJoystickReplay();
 
     public Robot() {
         m_robotContainer = new RobotContainer();
+        DataLogManager.start("/U");
+        DataLogManager.logNetworkTables(true);
+        //Epilogue.bind(this); 
     }
-
-    @Override
+    
+      @Override
     public void robotPeriodic() {
         m_timeAndJoystickReplay.update();
         CommandScheduler.getInstance().run();
 
+        SmartDashboard.putNumber("Pass/DistanceToClosest", AllianceUtil.getDistanceToClosestPass(m_robotContainer.drivetrain));
+        SmartDashboard.putNumber("Pass/TargetHeading", AllianceUtil.getTargetHeadingToClosestPass(m_robotContainer.drivetrain));
     }
 
     @Override
-    public void disabledInit() {}
+    public void disabledInit() {
+    }
 
     @Override
     public void disabledPeriodic() {}
@@ -40,6 +52,11 @@ public class Robot extends TimedRobot {
     @Override
     public void disabledExit() {}
 
+    
+    public Command getAutonomousCommand() {
+        return m_robotContainer.getAutonomousCommand();
+}
+    
     @Override
     public void autonomousInit() {
         m_autonomousCommand = m_robotContainer.getAutonomousCommand();
@@ -50,7 +67,8 @@ public class Robot extends TimedRobot {
     }
 
     @Override
-    public void autonomousPeriodic() {}
+    public void autonomousPeriodic() {
+    }
 
     @Override
     public void autonomousExit() {}
