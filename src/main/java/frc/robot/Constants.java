@@ -105,8 +105,8 @@ public final class Constants {
         public static final double rollerKV = 0.12;
         public static final double rollerCurrentLimit = 20.0;
         public static final double rollerSpeedToleranceRPS = 2.0;
-        public static final double ROLLER_KV_RPS_PER_VOLT = 0.12;
-        public static final double rollerTargetVelocityRPS = 60.0;
+        public static final double ROLLER_KV_RPS_PER_VOLT = 8.41;
+        public static final double rollerTargetVelocityRPS = 100.0;
     }
 
     public static final class ShooterConstants {
