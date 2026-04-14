@@ -78,8 +78,7 @@ public final class Constants {
     }
 
     public static final class IntakeConstants {
-        public static final int intakeRightFlipMotorId = 14;
-        public static final int intakeLeftFlipMotorId = 40;
+        public static final int intakeFlipMotorId = 14;
         public static final int intakeRollerMotorRightId = 21;
         public static final int intakeRollerMotorLeftId = 22;
         public static final double flipGearRatio = 80.0;

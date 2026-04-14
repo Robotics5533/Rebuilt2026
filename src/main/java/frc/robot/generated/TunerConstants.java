@@ -14,6 +14,7 @@ import edu.wpi.first.math.numbers.N1;
 import edu.wpi.first.math.numbers.N3;
 import edu.wpi.first.units.measure.*;
 
+
 import frc.robot.Constants;
 
 import frc.robot.subsystems.CommandSwerveDrivetrain;
@@ -29,13 +30,13 @@ public class TunerConstants {
     private static final Slot0Configs steerGains = new Slot0Configs()
     .withKP(102.64).withKI(0).withKD(0.5)
             .withKS(0.048763).withKV(2.9213)
-            .withKA(0)
-            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);
+            .withKA(0.1)
+            .withStaticFeedforwardSign(StaticFeedforwardSignValue.UseClosedLoopSign);                
     // When using closed-loop control, the drive motor uses the control
     // output type specified by SwerveModuleConstants.DriveMotorClosedLoopOutput
     private static final Slot0Configs driveGains = new Slot0Configs()
             .withKP(0.22318).withKI(0).withKD(0)
-            .withKS(0.052243).withKV(0.11305);
+            .withKS(0.052243).withKV(0.11305) .withKA(0.1);
 
     // The closed-loop output type to use for the steer motors;
     // This affects the PID/FF gains for the steer motors
@@ -69,7 +70,10 @@ public class TunerConstants {
                             // relatively low
                             // stator current limit to help avoid brownouts without impacting performance.
                             .withStatorCurrentLimit(Amps.of(60))
-                            .withStatorCurrentLimitEnable(true));
+                            .withStatorCurrentLimitEnable(true))
+            .withMotionMagic(new MotionMagicConfigs()
+                    .withMotionMagicExpo_kV(2.9213)
+                    .withMotionMagicExpo_kA(0.1));
     private static final CANcoderConfiguration encoderInitialConfigs = new CANcoderConfiguration();
     // Configs for the Pigeon 2; leave this null to skip applying Pigeon 2 configs
     private static final Pigeon2Configuration pigeonConfigs = null;
@@ -114,6 +118,7 @@ public class TunerConstants {
             .withWheelRadius(kWheelRadius)
             .withSteerMotorGains(steerGains)
             .withDriveMotorGains(driveGains)
+            
             .withSteerMotorClosedLoopOutput(kSteerClosedLoopOutput)
             .withDriveMotorClosedLoopOutput(kDriveClosedLoopOutput)
             .withSlipCurrent(kSlipCurrent)

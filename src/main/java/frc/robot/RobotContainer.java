@@ -39,6 +39,8 @@ import frc.robot.utils.LimelightHelpers;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.RunRollers;
 import frc.robot.utils.Controls;
+
+import com.ctre.phoenix6.swerve.SwerveModule.SteerRequestType;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 /**
@@ -60,7 +62,8 @@ public class RobotContainer {
         private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
                         .withDeadband(MaxSpeed * Constants.DriveConstants.DEADBAND)
                         .withRotationalDeadband(MaxAngularRate * Constants.DriveConstants.DEADBAND)
-                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
+                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
+                        .withSteerRequestType(SteerRequestType.MotionMagicExpo);
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
         private final Controls controls = new Controls();
