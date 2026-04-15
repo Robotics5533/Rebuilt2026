@@ -31,11 +31,11 @@ import java.util.function.Supplier;
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
 import edu.wpi.first.epilogue.Logged;
-//import edu.wpi.first.epilogue.Epilogue;
+import edu.wpi.first.epilogue.Epilogue;
 
 
 
-//@Logged
+@Logged
 public class CommandSwerveDrivetrain
         extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.004;
@@ -181,31 +181,27 @@ public class CommandSwerveDrivetrain
             });
         }
 
-        // updateVisionMeasurement();
+        updateVisionMeasurement();
     }
 
-//     private void updateVisionMeasurement() {
-//         var visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LimelightConstants.LIMELIGHT_NAME);
-//     if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
-//       visionEst = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(Constants.LimelightConstants.LIMELIGHT_NAME);
-// }   else {
-//      visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LimelightConstants.LIMELIGHT_NAME);
-// }
-//         if (visionEst.tagCount > 0) {
-//             double xyStdDev = 0.7;
-//             double degStdDev = 0.7;
-//             if (visionEst.tagCount >= 2) {
-//                 xyStdDev = 0.1;
-//                 degStdDev = 0.1;
-//             } else if (visionEst.avgTagDist < 4.0) {
-//                 xyStdDev = 0.3;
-//                 degStdDev = 0.3;
-//             }
+    private void updateVisionMeasurement() {
+        var visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.LimelightConstants.LIMELIGHT_NAME);
 
-//             setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, degStdDev));
-//             addVisionMeasurement(visionEst.pose, visionEst.timestampSeconds);
-//         }
-//     }
+        if (visionEst.tagCount > 0) {
+            double xyStdDev = 0.7;
+            double degStdDev = 0.7;
+            if (visionEst.tagCount >= 2) {
+                xyStdDev = 0.1;
+                degStdDev = 0.1;
+            } else if (visionEst.avgTagDist < 4.0) {
+                xyStdDev = 0.3;
+                degStdDev = 0.3;
+            }
+
+            setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, degStdDev));
+            addVisionMeasurement(visionEst.pose, visionEst.timestampSeconds);
+        }
+    }
 
     public boolean isValidAllianceTag(int tagId) {
         Optional<Alliance> alliance = DriverStation.getAlliance();

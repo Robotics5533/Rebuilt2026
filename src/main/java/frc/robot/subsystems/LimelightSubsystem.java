@@ -17,7 +17,10 @@ import frc.robot.utils.LimelightHelpers.PoseEstimate;
 import frc.robot.Constants;
 
 import java.util.Optional;
+import edu.wpi.first.epilogue.Logged;
+import edu.wpi.first.epilogue.Epilogue;
 
+@Logged
 public class LimelightSubsystem extends SubsystemBase {
 
   private final String name;
