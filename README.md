@@ -48,7 +48,7 @@ The robot's software is structured according to the WPILib Command-Based paradig
     - [`FeederSubsystem.java`](src/main/java/frc/robot/subsystems/FeederSubsystem.java): Dual feeder motors for game piece transport
     - [`WasherSubsystem.java`](src/main/java/frc/robot/subsystems/WasherSubsystem.java): Washer motor for feeding mechanism
     - [`RunRollers.java`](src/main/java/frc/robot/subsystems/RunRollers.java): Intake roller control
-    - [`LimelightSubsystem.java`](src/main/java/frc/robot/subsystems/LimelightSubsystem.java): Vision system integration for target tracking
+    - [`Limelight.java`](src/main/java/frc/robot/subsystems/Limelight.java): Vision system integration for target tracking
     - [`Superstructure.java`](src/main/java/frc/robot/subsystems/Superstructure.java): High-level coordination of multiple subsystems
 
 ### Commands & Utilities

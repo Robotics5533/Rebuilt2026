@@ -31,7 +31,7 @@ import frc.robot.commands.RunIntakeRollersDouble;
 import frc.robot.generated.TunerConstants;
 import frc.robot.subsystems.CommandSwerveDrivetrain;
 import frc.robot.subsystems.IntakeSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.Limelight;
 import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
 import frc.robot.subsystems.FeederSubsystem;
@@ -69,7 +69,7 @@ public class RobotContainer {
         private final Controls controls = new Controls();
 
         public final CommandSwerveDrivetrain drivetrain = TunerConstants.createDrivetrain();
-        private final LimelightSubsystem limelight = new LimelightSubsystem(Constants.LimelightConstants.LIMELIGHT_NAME,
+        private final Limelight limelight = new Limelight(Constants.LimelightConstants.LIMELIGHT_NAME,
                         drivetrain);
         private final IntakeSubsystem intake = new IntakeSubsystem();
         private final ShooterSubsystem shooters = new ShooterSubsystem(drivetrain,

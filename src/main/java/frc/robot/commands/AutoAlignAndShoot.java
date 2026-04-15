@@ -8,7 +8,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
-import frc.robot.subsystems.LimelightSubsystem;
+import frc.robot.subsystems.Limelight;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -43,7 +43,7 @@ public class AutoAlignAndShoot extends Command {
      * @param washer         The {@link WasherSubsystem} for controlling the washer
      *                       mechanism.
      * @param superstructure The {@link Superstructure} for alliance zone checks.
-     * @param limelight      The {@link LimelightSubsystem} for vision data used in
+     * @param limelight      The {@link Limelight} for vision data used in
      *                       alignment.
      */
     public AutoAlignAndShoot(
@@ -52,7 +52,7 @@ public class AutoAlignAndShoot extends Command {
             FeederSubsystem feeder,
             WasherSubsystem washer,
             Superstructure superstructure,
-            LimelightSubsystem limelight
+            Limelight limelight
             ) {
 
         autoAlignCommand = new AutoAlignCommand(drivetrain,

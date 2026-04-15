@@ -30,6 +30,12 @@ import java.util.function.Supplier;
 
 import com.ctre.phoenix6.signals.NeutralModeValue;
 
+import edu.wpi.first.epilogue.Logged;
+//import edu.wpi.first.epilogue.Epilogue;
+
+
+
+//@Logged
 public class CommandSwerveDrivetrain
         extends TunerSwerveDrivetrain implements Subsystem {
     private static final double kSimLoopPeriod = 0.004;
@@ -42,25 +48,75 @@ public class CommandSwerveDrivetrain
 
     private final SwerveRequest.ApplyRobotSpeeds m_pathApplyRobotSpeeds = new SwerveRequest.ApplyRobotSpeeds();
 
+    /**
+     * Constructs a CTRE SwerveDrivetrain using the specified constants.
+     * <p>
+     * This constructs the underlying hardware devices, so users should not
+     * construct the devices themselves. If they need the devices, they can access
+     * them through getters in the classes.
+     *
+     * @param drivetrainConstants Drivetrain-wide constants for the swerve drive
+     * @param modules             Constants for each specific module
+     */
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, modules);
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
+        
         configureAutoBuilder();
     }
 
+    /**
+     * Constructs a CTRE SwerveDrivetrain using the specified constants.
+     * <p>
+     * This constructs the underlying hardware devices, so users should not
+     * construct the devices themselves. If they need the devices, they can access
+     * them through getters in the classes.
+     *
+     * @param drivetrainConstants     Drivetrain-wide constants for the swerve
+     *                                drive
+     * @param odometryUpdateFrequency The frequency to run the odometry loop. If
+     *                                unspecified or set to 0 Hz, this is 250 Hz
+     *                                on CAN FD, and 100 Hz on CAN 2.0.
+     * @param modules                 Constants for each specific module
+     */
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
             double odometryUpdateFrequency,
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, odometryUpdateFrequency, modules);
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
+
         configureAutoBuilder();
     }
 
+    /**
+     * Constructs a CTRE SwerveDrivetrain using the specified constants.
+     * <p>
+     * This constructs the underlying hardware devices, so users should not
+     * construct the devices themselves. If they need the devices, they can access
+     * them through getters in the classes.
+     *
+     * @param drivetrainConstants       Drivetrain-wide constants for the swerve
+     *                                  drive
+     * @param odometryUpdateFrequency   The frequency to run the odometry loop. If
+     *                                  unspecified or set to 0 Hz, this is 250 Hz
+     *                                  on CAN FD, and 100 Hz on CAN 2.0.
+     * @param odometryStandardDeviation The standard deviation for odometry
+     *                                  calculation
+     *                                  in the form [x, y, theta]ᵀ, with units in
+     *                                  meters and radians
+     * @param visionStandardDeviation   The standard deviation for vision
+     *                                  calculation
+     *                                  in the form [x, y, theta]ᵀ, with units in
+     *                                  meters and radians
+     * @param modules                   Constants for each specific module
+     */
     public CommandSwerveDrivetrain(SwerveDrivetrainConstants drivetrainConstants,
             double odometryUpdateFrequency,
             Matrix<N3, N1> odometryStandardDeviation,
@@ -68,9 +124,11 @@ public class CommandSwerveDrivetrain
             SwerveModuleConstants<?, ?, ?>... modules) {
         super(drivetrainConstants, odometryUpdateFrequency,
                 odometryStandardDeviation, visionStandardDeviation, modules);
+
         if (Utils.isSimulation()) {
             startSimThread();
         }
+
         configureAutoBuilder();
     }
 
@@ -101,6 +159,13 @@ public class CommandSwerveDrivetrain
         }
     }
 
+    /**
+     * Returns a command that applies the specified control request to this swerve
+     * drivetrain.
+     *
+     * @param request Function returning the request to apply
+     * @return Command to run
+     */
     public Command applyRequest(Supplier<SwerveRequest> request) {
         return run(() -> this.setControl(request.get()));
     }
@@ -116,60 +181,39 @@ public class CommandSwerveDrivetrain
             });
         }
 
-        updateVisionMeasurement();
+        // updateVisionMeasurement();
     }
 
-    private void updateVisionMeasurement() {
-        // Provide robot orientation to Limelight for MegaTag2
-        double yawDeg = getPigeon2().getYaw().getValueAsDouble();
-        LimelightHelpers.SetRobotOrientation(
-            Constants.LimelightConstants.LIMELIGHT_NAME,
-            yawDeg,
-            0, 0, 0, 0, 0);
+//     private void updateVisionMeasurement() {
+//         var visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LimelightConstants.LIMELIGHT_NAME);
+//     if (DriverStation.getAlliance().orElse(Alliance.Blue) == Alliance.Red) {
+//       visionEst = LimelightHelpers.getBotPoseEstimate_wpiRed_MegaTag2(Constants.LimelightConstants.LIMELIGHT_NAME);
+// }   else {
+//      visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LimelightConstants.LIMELIGHT_NAME);
+// }
+//         if (visionEst.tagCount > 0) {
+//             double xyStdDev = 0.7;
+//             double degStdDev = 0.7;
+//             if (visionEst.tagCount >= 2) {
+//                 xyStdDev = 0.1;
+//                 degStdDev = 0.1;
+//             } else if (visionEst.avgTagDist < 4.0) {
+//                 xyStdDev = 0.3;
+//                 degStdDev = 0.3;
+//             }
 
-        // Get vision pose estimate using MegaTag2
-        var visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue_MegaTag2(Constants.LimelightConstants.LIMELIGHT_NAME);
-
-        // Reject if no AprilTags detected
-        if (visionEst == null || visionEst.tagCount < 1) {
-            return;
-        }
-
-        // Calculate measurement confidence based on robot speed
-        // double speed = Math.hypot(
-        //     getState().Speeds.vxMetersPerSecond,
-        //     getState().Speeds.vyMetersPerSecond);
-
-        // // Base uncertainty scales with tag distance
-        // double xyStDev = 0.25 * visionEst.avgTagDist;
-        // double degStDev = 8.0;
-
-        // // Penalty: moving fast = less reliable vision
-        // if (speed > Constants.LimelightConstants.VISION_REJECTION_SPEED_THRESHOLD_MPS) {
-        //     xyStDev *= 1.5;
-        //     degStDev *= 1.5;
-        // }
-
-        // // Penalty: single tag = less reliable than multiple
-        // if (visionEst.tagCount == 1) {
-        //     xyStDev *= 2.0;
-        //     degStDev *= 2.0;
-        // }
-
-        // Apply vision measurement directly — MegaTag2 already handles orientation
-        // using the yaw provided above, no rotation correction needed
-        // setVisionMeasurementStdDevs(VecBuilder.fill(
-        //     xyStDev,
-        //     xyStDev,
-        //     edu.wpi.first.math.util.Units.degreesToRadians(degStDev)));
-        // addVisionMeasurement(visionEst.pose, visionEst.timestampSeconds);
-    }
+//             setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, degStdDev));
+//             addVisionMeasurement(visionEst.pose, visionEst.timestampSeconds);
+//         }
+//     }
 
     public boolean isValidAllianceTag(int tagId) {
         Optional<Alliance> alliance = DriverStation.getAlliance();
+
         if (alliance.isEmpty()) {
             return false;
         }
+
         return alliance.get() == Alliance.Red
                 ? Constants.LimelightConstants.RED_HUB_TAGS.contains(tagId)
                 : Constants.LimelightConstants.BLUE_HUB_TAGS.contains(tagId);
@@ -184,15 +228,26 @@ public class CommandSwerveDrivetrain
 
     private void startSimThread() {
         m_lastSimTime = Utils.getCurrentTimeSeconds();
+
         m_simNotifier = new Notifier(() -> {
             final double currentTime = Utils.getCurrentTimeSeconds();
             double deltaTime = currentTime - m_lastSimTime;
             m_lastSimTime = currentTime;
+
             updateSimState(deltaTime, RobotController.getBatteryVoltage());
         });
         m_simNotifier.startPeriodic(kSimLoopPeriod);
     }
 
+    /**
+     * Adds a vision measurement to the Kalman Filter. This will correct the
+     * odometry pose estimate while still accounting for measurement noise.
+     *
+     * @param visionRobotPoseMeters The pose of the robot as measured by the
+     *                              vision camera.
+     * @param timestampSeconds      The timestamp of the vision measurement in
+     *                              seconds.
+     */
     @Override
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters,
             double timestampSeconds) {
@@ -200,6 +255,24 @@ public class CommandSwerveDrivetrain
                 Utils.fpgaToCurrentTime(timestampSeconds));
     }
 
+    /**
+     * Adds a vision measurement to the Kalman Filter. This will correct the
+     * odometry pose estimate while still accounting for measurement noise.
+     * <p>
+     * Note that the vision measurement standard deviations passed into this
+     * method will continue to apply to future measurements until a subsequent
+     * call to
+     * {@link #setVisionMeasurementStdDevs(Matrix)} or this method.
+     *
+     * @param visionRobotPoseMeters    The pose of the robot as measured by the
+     *                                 vision camera.
+     * @param timestampSeconds         The timestamp of the vision measurement in
+     *                                 seconds.
+     * @param visionMeasurementStdDevs Standard deviations of the vision pose
+     *                                 measurement in the form [x, y, theta]ᵀ, with
+     *                                 units in meters and
+     *                                 radians.
+     */
     @Override
     public void addVisionMeasurement(Pose2d visionRobotPoseMeters,
             double timestampSeconds,
@@ -209,6 +282,13 @@ public class CommandSwerveDrivetrain
                 visionMeasurementStdDevs);
     }
 
+    /**
+     * Return the pose at a given timestamp, if the buffer is not empty.
+     *
+     * @param timestampSeconds The timestamp of the pose in seconds.
+     * @return The pose at the given timestamp (or Optional.empty() if the buffer
+     *         is empty).
+     */
     @Override
     public Optional<Pose2d> samplePoseAt(double timestampSeconds) {
         return super.samplePoseAt(Utils.fpgaToCurrentTime(timestampSeconds));
