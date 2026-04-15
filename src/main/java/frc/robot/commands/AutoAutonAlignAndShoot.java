@@ -8,7 +8,7 @@ import frc.robot.subsystems.ShooterSubsystem;
 import frc.robot.subsystems.Superstructure;
 import frc.robot.subsystems.FeederSubsystem;
 import frc.robot.subsystems.WasherSubsystem;
-import frc.robot.subsystems.Limelight;
+import frc.robot.subsystems.LimelightSubsystem;
 import edu.wpi.first.math.geometry.Rotation2d;
 import frc.robot.Constants;
 import com.ctre.phoenix6.swerve.SwerveRequest;
@@ -52,7 +52,7 @@ public class AutoAutonAlignAndShoot extends Command {
             FeederSubsystem feeder,
             WasherSubsystem washer,
             Superstructure superstructure,
-            Limelight limelight,
+            LimelightSubsystem limelight,
             double durationSeconds) {
 
         autoAlignCommand = new AutoAlignCommand(drivetrain,
