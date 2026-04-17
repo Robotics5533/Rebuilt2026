@@ -111,7 +111,7 @@ public class RobotContainer {
                 
                 NamedCommands.registerCommand("run_intake_rollers_Second", new RunIntakeRollersDouble(runRollers,1.29));
 
-                NamedCommands.registerCommand("run_intake_rollers_Third", new RunIntakeRollers(runRollers,6));
+                NamedCommands.registerCommand("run_intake_rollers_Justin", new RunIntakeRollersDouble(runRollers,1.6));
 
                 NamedCommands.registerCommand("deporoller", new RunIntakeRollers(runRollers,5));
 
