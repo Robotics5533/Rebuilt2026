@@ -16,6 +16,7 @@ import java.util.function.Consumer;
 import java.util.function.Supplier;
 import edu.wpi.first.epilogue.Logged;
 //import edu.wpi.first.epilogue.Epilogue;
+import frc.robot.utils.LimelightHelpers;
 
 //@Logged
 public class AutoAlignCommand extends Command {
@@ -97,8 +98,28 @@ public class AutoAlignCommand extends Command {
   @Override
   public void execute() {
 
+    // Validate we have a valid Limelight target before attempting alignment
+    if (!LimelightHelpers.getTV(Constants.LimelightConstants.LIMELIGHT_NAME)) {
+      System.err.println("WARNING: No valid Limelight target detected!");
+      SmartDashboard.putBoolean("AutoAlign/ValidTarget", false);
+      drivetrain.setControl(new SwerveRequest.SwerveDriveBrake());
+      return;
+    }
+    SmartDashboard.putBoolean("AutoAlign/ValidTarget", true);
+
     double currentHeading = drivetrain.getState().Pose.getRotation().getDegrees();
-    double targetAngle = m_targetRotationSupplier.get().getDegrees();
+    
+    // GET TARGET ANGLE FROM LIMELIGHT, NOT FROM SUPPLIER
+    double limelightTX = LimelightHelpers.getTX(Constants.LimelightConstants.LIMELIGHT_NAME);
+    
+    // Calculate target angle: current heading - limelight offset (negative because TX is inverted)
+    // When target is LEFT (TX negative), we want to turn LEFT (subtract)
+    // When target is RIGHT (TX positive), we want to turn RIGHT (add)
+    double cameraHeadingOffset = Constants.LimelightConstants.CAMERA_HEADING_OFFSET_DEG;
+    double targetAngle = currentHeading - limelightTX + cameraHeadingOffset;
+
+    SmartDashboard.putNumber("AutoAlign/LimelightTX", limelightTX);
+    SmartDashboard.putNumber("AutoAlign/CameraOffset", cameraHeadingOffset);
 
     double pidOutput = alignPID.calculate(currentHeading, targetAngle);
 

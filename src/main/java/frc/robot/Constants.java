@@ -26,7 +26,7 @@ public final class Constants {
         public static final double SPEED_MULTIPLIER = 100.0;
         public static final double ALIGN_PID_P = 0.03125;
         public static final double ALIGN_PID_I = 0.0;
-        public static final double ALIGN_PID_D = 0;
+        public static final double ALIGN_PID_D = 0.0012;
 
         public static final double ALIGN_KS = 0.04;
         public static final double ALIGN_TOLERANCE_DEG = 0.5;
@@ -35,7 +35,7 @@ public final class Constants {
         public static final double ALIGN_MAX_VELOCITY_DEG_PER_SEC = 250.0;
         public static final double ALIGN_MAX_ACCEL_DEG_PER_SEC_SQ = 300.0;
 
-        public static final double AUTO_DRIVE_P = 10; //10
+        public static final double AUTO_DRIVE_P = 5; //10
         public static final double AUTO_DRIVE_I = 0;
         public static final double AUTO_DRIVE_D = 0;
 
@@ -44,7 +44,7 @@ public final class Constants {
         public static final double AUTO_ROTATION_D = 0;
 
         //Never go past 000.0
-        public static final double kslip = 42.8; //120
+        public static final double kslip = 67.6; //120 //42.8
     }
 
     public static final class FaceAngleConstants {
@@ -75,6 +75,12 @@ public final class Constants {
         public static final double VISION_REJECTION_SPEED_THRESHOLD_MPS = 2.0;
         public static final double VISION_REJECTION_DISTANCE_THRESHOLD_METERS = 1.0;
         public static final int PDHCANID = 24;
+        
+        // Camera mounting offset relative to robot heading (degrees)
+        // Positive = camera points right of forward
+        // Negative = camera points left of forward
+        // Set to 0 if camera is mounted straight forward
+        public static final double CAMERA_HEADING_OFFSET_DEG = 0.0;
     }
 
     public static final class IntakeConstants {
@@ -86,7 +92,7 @@ public final class Constants {
         public static final double flipOutPositionDeg = 120.0;
         public static final double flipErectPositionDeg = 15;
         public static final double flipToleranceDeg = 0.0;
-        public static final double flipMaxVelocityRotPerS = 0.375;
+        public static final double flipMaxVelocityRotPerS = 0.425;
         public static final double flipMaxAccelRotPerSSq = 3.0;
         public static final double flipkP = 80.0;
         public static final double flipkI = 0.0;
@@ -114,20 +120,20 @@ public final class Constants {
         public static final int leftFeederId = 18;
         public static final int rightShooterId = 20;
         public static final int rightFeederId = 19;
-        public static final double feederVoltage = -10.0; //8.0
-        public static final double autonfeederVoltage = -4.0;
+        public static final double feederVoltage = -8.0; //8.0
+        public static final double autonfeederVoltage = -5.0;
         public static final double feederCurrentLimit = 30.0;
         public static final int leftWasherMotorId = 16;
         public static final int rightWasherMotorId = 15;
-        public static final double shooterVelocityRPS = 65; //65
+        public static final double shooterVelocityRPS = 50; //65
         public static final double shooterJuggleVelocityRPS = 22.5;
         public static final double shooterPassVelocityRPS = 65;
         public static final double kP = 0.2;
         public static final double kI = 0.0;
         public static final double kD = 0.0;
         public static final double kV = 0.12;
-        public static final double washerVoltage = 10.0; //6.0
-        public static final double autonWasherVoltage = 4.0;
+        public static final double washerVoltage = 8.0; //6.0
+        public static final double autonWasherVoltage = 5.0;
         public static final double shooterTargetVoltage = 12.0;
         public static final double shooterSpeedToleranceRPS = 2.0; 
         public static final double shootAtDistanceDurationSeconds = 3.0;

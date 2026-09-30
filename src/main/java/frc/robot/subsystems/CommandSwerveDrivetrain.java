@@ -184,24 +184,29 @@ public class CommandSwerveDrivetrain
         updateVisionMeasurement();
     }
 
-    private void updateVisionMeasurement() {
-        var visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.LimelightConstants.LIMELIGHT_NAME);
+private void updateVisionMeasurement() {
+    var visionEst = LimelightHelpers.getBotPoseEstimate_wpiBlue(Constants.LimelightConstants.LIMELIGHT_NAME);
+    
+    // Get current chassis speeds
+    ChassisSpeeds speeds = getState().Speeds;
+    double velocity = Math.hypot(speeds.vxMetersPerSecond, speeds.vyMetersPerSecond);
 
-        if (visionEst.tagCount > 0) {
-            double xyStdDev = 0.7;
-            double degStdDev = 0.7;
-            if (visionEst.tagCount >= 2) {
-                xyStdDev = 0.1;
-                degStdDev = 0.1;
-            } else if (visionEst.avgTagDist < 4.0) {
-                xyStdDev = 0.3;
-                degStdDev = 0.3;
-            }
-
-            setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, degStdDev));
-            addVisionMeasurement(visionEst.pose, visionEst.timestampSeconds);
+    // Only update with vision if moving slowly AND have valid target
+    if (visionEst.tagCount > 0 && velocity < 0.01) {
+        double xyStdDev = 0.7;
+        double degStdDev = 0.7;
+        if (visionEst.tagCount >= 2) {
+            xyStdDev = 0.1;
+            degStdDev = 0.1;
+        } else if (visionEst.avgTagDist < 4.0) {
+            xyStdDev = 0.3;
+            degStdDev = 0.3;
         }
+
+        setVisionMeasurementStdDevs(VecBuilder.fill(xyStdDev, xyStdDev, degStdDev));
+        addVisionMeasurement(visionEst.pose, visionEst.timestampSeconds);
     }
+}
 
     public boolean isValidAllianceTag(int tagId) {
         Optional<Alliance> alliance = DriverStation.getAlliance();

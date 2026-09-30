@@ -53,6 +53,10 @@ public class WasherSubsystem extends SubsystemBase {
         leftWasher.setControl(voltageCtrl.withOutput(volts));
         rightWasher.setControl(voltageCtrl.withOutput(-volts));
     }
+    public void runWasherToRight(double volts) {
+        leftWasher.setControl(voltageCtrl.withOutput(-volts));
+        rightWasher.setControl(voltageCtrl.withOutput(-volts));
+    }
 
     /**
      * Stops both washer motors by setting their voltage to zero.
@@ -70,5 +74,10 @@ public class WasherSubsystem extends SubsystemBase {
      */
     public Command run(double volts) {
         return run(() -> runWasher(volts)).finallyDo(this::stopWasher);
+    }
+
+
+public Command runtoright(double volts) {
+        return run(() -> runWasherToRight(volts)).finallyDo(this::stopWasher);
     }
 }

@@ -62,8 +62,7 @@ public class RobotContainer {
         private final SwerveRequest.FieldCentric drive = new SwerveRequest.FieldCentric()
                         .withDeadband(MaxSpeed * Constants.DriveConstants.DEADBAND)
                         .withRotationalDeadband(MaxAngularRate * Constants.DriveConstants.DEADBAND)
-                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage)
-                        .withSteerRequestType(SteerRequestType.MotionMagicExpo);
+                        .withDriveRequestType(DriveRequestType.OpenLoopVoltage);
 
         private final Telemetry logger = new Telemetry(MaxSpeed);
         private final Controls controls = new Controls();
